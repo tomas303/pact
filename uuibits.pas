@@ -14,8 +14,6 @@ type
   { TUIBit }
 
   TUIBit = class(TInterfacedObject, IUIBit, INode, IUIPlacement, IUIPlace)
-  private
-    procedure SetControl(AValue: TControl);
   protected
     // INode
     procedure AddChild(const ANode: INode);
@@ -31,6 +29,8 @@ type
   protected
     fColor: TColor;
     function AsControl: TControl;
+    procedure SetControl(AValue: TControl);
+    procedure SetParentElement(AValue: IUnknown);
   protected
     procedure DoRender; virtual;
   public
@@ -73,7 +73,7 @@ type
     property Node: INode read fNode write fNode;
     property Factory: IDIFactory read fFactory write fFactory;
     property Control: TControl read fControl write SetControl;
-    property ParentElement: IUnknown read fParentElement write fParentElement;
+    property ParentElement: IUnknown read fParentElement write SetParentElement;
     property Layout: integer read GetLayout write SetLayout;
     property Place: integer read GetPlace write SetPlace;
     property MMWidth: integer read GetMMWidth write SetMMWidth;
@@ -218,6 +218,14 @@ begin
     Exit;
   fControl := AValue;
   Color := Control.Color;
+end;
+
+procedure TUIBit.SetParentElement(AValue: IUnknown);
+begin
+  fParentElement := AValue;
+  // parent must be weak reference ... otherwise interface lock
+  if fParentElement <> nil then
+    fParentElement._Release;
 end;
 
 procedure TUIBit.AddChild(const ANode: INode);
