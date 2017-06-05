@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   test, tal_ilauncher, iuibits, trl_iprops, trl_uprops,
-  rea_ireact, trl_ilog;
+  rea_ireact, trl_ilog, trl_itree;
 
 type
 
@@ -16,13 +16,18 @@ type
   TForm1 = class(TForm, IMainForm)
     Button1: TButton;
     btnHelloWorld: TButton;
+    btnPerspective: TButton;
     procedure btnHelloWorldClick(Sender: TObject);
+    procedure btnPerspectiveClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   protected type
     t2ar = array[0..1] of variant;
   protected
     procedure kvik(a: array of t2ar);
     procedure testkvik;
+  protected
+    fPerspective: integer;
+    function NewPerspective(APerspective: integer): IMetaElement;
   protected
     //IMainForm = interface
     procedure StartUp;
@@ -110,6 +115,36 @@ begin
   //kvik([[], []]);
 end;
 
+function TForm1.NewPerspective(APerspective: integer): IMetaElement;
+begin
+  Result :=
+    React.CreateElement(
+      IUIFormBit,
+      TProps.New.SetStr('Title', 'Hello world').SetInt('Left', 500).SetInt('Top', 30).SetInt('Width', 500).SetInt('Height', 300).SetInt('Layout', 0));
+
+  (Result as INode).AddChild(
+    React.CreateElement(
+        IUITextBit,
+        TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clGreen).SetInt('Place', 1))
+      as INode);
+
+  if APerspective = 1 then
+  begin
+  (Result as INode).AddChild(
+    React.CreateElement(
+        IUITextBit,
+        TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clRed).SetInt('Place', 2))
+      as INode);
+  end;
+
+  (Result as INode).AddChild(
+    React.CreateElement(
+        IUIEditBit,
+        TProps.New.SetStr('Text', 'Hello').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Place', 3))
+      as INode);
+
+end;
+
 procedure TForm1.btnHelloWorldClick(Sender: TObject);
 begin
 {
@@ -143,6 +178,16 @@ begin
 
       ])
   );
+end;
+
+procedure TForm1.btnPerspectiveClick(Sender: TObject);
+begin
+  case fPerspective of
+    0: fPerspective := 1;
+  else
+    fPerspective := 0;
+  end;
+  React.Render(NewPerspective(fPerspective));
 end;
 
 procedure TForm1.StartUp;
