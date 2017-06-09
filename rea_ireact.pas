@@ -5,7 +5,7 @@ unit rea_ireact;
 interface
 
 uses
-  Classes, SysUtils, trl_iprops, trl_itree;
+  Classes, SysUtils, trl_iprops, trl_itree, iuibits;
 
 type
 
@@ -38,6 +38,11 @@ type
   ['{177488BD-84E8-4E08-821E-A3D25DE36B5C}']
     // props + state - create metadata what objekt should be created
     function Render: IMetaElement;
+  end;
+
+  IReconciliator = interface
+  ['{066DDE74-0738-4636-B8DD-E3E1BA873D2E}']
+    procedure Reconciliate(var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
   end;
 
   IReact = interface

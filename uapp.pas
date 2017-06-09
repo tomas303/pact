@@ -126,12 +126,21 @@ begin
   mReg.InjectProp('Container', TDIContainer, '', DIC);
   mReg.InjectProp('Log', ILog);
 
+
+  //
+  mReg := DIC.Add(TReconciliator, IReconciliator);
+  mReg.InjectProp('Log', ILog);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Injector', IInjector);
+
   //
   mReg := DIC.Add(TReact, IReact);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('ElementFactory', IMetaElementFactory);
   mReg.InjectProp('Injector', IInjector);
+  mReg.InjectProp('Injector', IInjector);
+  mReg.InjectProp('Reconciliator', IReconciliator);
   //
   mReg := DIC.Add(CreateMainFormInstance, IMainForm);
   mReg.InjectProp('React', IReact);
