@@ -23,6 +23,8 @@ type
     //property Parent: INode read GetParent;
     procedure AddChild(const ANode: INode);
     procedure RemoveChild(const ANode: INode);
+    procedure Insert(const AIndex: integer; const ANode: INode);
+    procedure Delete(const AIndex: integer);
     function GetEnumerator: INodeEnumerator;
     function Count: integer;
     function GetChild(const AIndex: integer): INode;

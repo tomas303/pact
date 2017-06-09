@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, iuibits, Controls, trl_idifactory, forms, trl_itree,
-  StdCtrls, trl_iprops, trl_uprops, trl_injector, Graphics, trl_ilog, fgl,
+  StdCtrls, trl_iprops, trl_uprops, trl_iinjector, Graphics, trl_ilog, fgl,
   rea_iuilayout;
 
 type
@@ -18,6 +18,8 @@ type
     // INode
     procedure AddChild(const ANode: INode);
     procedure RemoveChild(const ANode: INode);
+    procedure Insert(const AIndex: integer; const ANode: INode);
+    procedure Delete(const AIndex: integer);
     function Count: integer;
     function GetChild(const AIndex: integer): INode;
     function GetNodeEnumerator: INodeEnumerator;
@@ -90,11 +92,16 @@ type
 
   TUIFormBit = class(TUIBit, IUIFormBit)
   protected
+    function _AddRef : longint;{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF};
+    function _Release : longint;{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF};
+  protected
     function AsForm: TCustomForm;
     procedure ResetScroll;
   protected
     procedure DoRender; override;
     function Surface: TWinControl; override;
+  public
+    destructor Destroy; override;
   protected
     fTiler: IUITiler;
     fTitle: string;
@@ -165,6 +172,19 @@ end;
 
 { TUIFormBit }
 
+function TUIFormBit._AddRef: longint; cdecl;
+begin
+  Result := inherited _AddRef;
+  Log.DebugLnEnter('ADDREF');
+end;
+
+function TUIFormBit._Release: longint; cdecl;
+begin
+  if Log <> nil then
+  Log.DebugLnExit('RELEASEREF');
+  Result := inherited _Release;
+end;
+
 function TUIFormBit.AsForm: TCustomForm;
 begin
   Result := AsControl as TCustomForm;
@@ -210,6 +230,11 @@ begin
   Result := AsForm;
 end;
 
+destructor TUIFormBit.Destroy;
+begin
+  inherited Destroy;
+end;
+
 { TUIBit }
 
 procedure TUIBit.SetControl(AValue: TControl);
@@ -238,6 +263,16 @@ begin
   Node.RemoveChild(ANode);
 end;
 
+procedure TUIBit.Insert(const AIndex: integer; const ANode: INode);
+begin
+  Node.Insert(AIndex, ANode);
+end;
+
+procedure TUIBit.Delete(const AIndex: integer);
+begin
+ Node.Delete(AIndex);
+end;
+
 function TUIBit.Count: integer;
 begin
   Result := Node.Count;
@@ -258,6 +293,14 @@ var
   mChild: INode;
 begin
   DoRender;
+  Log.DebugLn('RENDERED ' + ClassName
+    + ' L:' + IntToStr(AsControl.Left)
+    + ' T:' + IntToStr(AsControl.Top)
+    + ' W:' + IntToStr(AsControl.Width)
+    + ' H:' + IntToStr(AsControl.Height)
+    + ' VIS:' + BoolToStr(AsControl.Visible)
+    );
+
   for mChild in Node do
     (mChild as IUIBit).Render;
 end;

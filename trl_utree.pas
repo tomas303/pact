@@ -74,6 +74,8 @@ type
     //INode
     procedure AddChild(const ANode: INode); virtual; abstract;
     procedure RemoveChild(const ANode: INode); virtual; abstract;
+    procedure Insert(const AIndex: integer; const ANode: INode); virtual; abstract;
+    procedure Delete(const AIndex: integer); virtual; abstract;
     function Count: integer; virtual; abstract;
     function GetChild(const AIndex: integer): INode; virtual; abstract;
     function GetEnumerator: INodeEnumerator;
@@ -94,6 +96,8 @@ type
     function MoveNext(const ACursor: IBlackBox): INode; override;
     procedure AddChild(const ANode: INode); override;
     procedure RemoveChild(const ANode: INode); override;
+    procedure Insert(const AIndex: integer; const ANode: INode); override;
+    procedure Delete(const AIndex: integer); override;
     function Count: integer; override;
     function GetChild(const AIndex: integer): INode; override;
   public
@@ -107,6 +111,8 @@ type
     function MoveNext(const ACursor: IBlackBox): INode; override;
     procedure AddChild(const ANode: INode); override;
     procedure RemoveChild(const ANode: INode); override;
+    procedure Insert(const AIndex: integer; const ANode: INode); override;
+    procedure Delete(const AIndex: integer); override;
     function Count: integer; override;
     function GetChild(const AIndex: integer): INode; override;
   end;
@@ -163,14 +169,24 @@ begin
   Children.Remove(ANode);
 end;
 
+procedure TParentNode.Insert(const AIndex: integer; const ANode: INode);
+begin
+  Children.Insert(AIndex, ANode);
+end;
+
+procedure TParentNode.Delete(const AIndex: integer);
+begin
+  Children.Delete(AIndex);
+end;
+
 function TParentNode.Count: integer;
 begin
-  Result := fChildren.Count;
+  Result := Children.Count;
 end;
 
 function TParentNode.GetChild(const AIndex: integer): INode;
 begin
-  Result := fChildren.Items[AIndex];
+  Result := Children.Items[AIndex];
 end;
 
 destructor TParentNode.Destroy;
@@ -191,6 +207,14 @@ begin
 end;
 
 procedure TLeafNode.RemoveChild(const ANode: INode);
+begin
+end;
+
+procedure TLeafNode.Insert(const AIndex: integer; const ANode: INode);
+begin
+end;
+
+procedure TLeafNode.Delete(const AIndex: integer);
 begin
 end;
 
