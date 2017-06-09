@@ -116,11 +116,13 @@ begin
 end;
 
 function TForm1.NewPerspective(APerspective: integer): IMetaElement;
+var
+  i: integer;
 begin
   Result :=
     React.CreateElement(
       IUIFormBit,
-      TProps.New.SetStr('Title', 'Hello world').SetInt('Left', 500).SetInt('Top', 30).SetInt('Width', 500).SetInt('Height', 300).SetInt('Layout', 0));
+      TProps.New.SetStr('Title', 'Hello world').SetInt('Left', 100).SetInt('Top', 30).SetInt('Width', 1500).SetInt('Height', 300).SetInt('Layout', 0));
 
   (Result as INode).AddChild(
     React.CreateElement(
@@ -130,11 +132,13 @@ begin
 
   if APerspective = 1 then
   begin
+  for i:=1 to 10 do begin
   (Result as INode).AddChild(
     React.CreateElement(
         IUITextBit,
         TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clRed).SetInt('Place', 2))
       as INode);
+  end;
   end;
 
   (Result as INode).AddChild(
