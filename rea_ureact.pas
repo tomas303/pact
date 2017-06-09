@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, rea_ireact, fgl, trl_iprops, iuibits,
   trl_itree, trl_idifactory, trl_irttibroker, trl_urttibroker,
-  trl_uprops, trl_udifactory, trl_ilog;
+  trl_uprops, trl_udifactory, trl_ilog, trl_iinjector;
 
 type
 
@@ -45,6 +45,8 @@ type
     // INode
     procedure AddChild(const ANode: INode);
     procedure RemoveChild(const ANode: INode);
+    procedure Insert(const AIndex: integer; const ANode: INode);
+    procedure Delete(const AIndex: integer);
     function Count: integer;
     function GetChild(const AIndex: integer): INode;
     function GetNodeEnumerator: INodeEnumerator;
@@ -73,9 +75,9 @@ type
 
   TReact = class(TInterfacedObject, IReact)
   protected
-    fElementFactory: IMetaElementFactory;
     fTopBit: IUIBit;
-    fFactory: IDIFactory;
+    fTopElement: IMetaElement;
+    procedure Reconciliation(var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
   protected
     //IReact
     function CreateElement(const ATypeGuid: TGuid): IMetaElement;
@@ -87,9 +89,16 @@ type
     function CreateElement(const ATypeGuid: TGuid; const ATypeID: string; const AProps: IProps;
       const AChildren: array of IMetaElement): IMetaElement;
     procedure Render(const AElement: IMetaElement);
+  protected
+    fLog: ILog;
+    fElementFactory: IMetaElementFactory;
+    fFactory: IDIFactory;
+    fInjector: IInjector;
   published
+    property Log: ILog read fLog write fLog;
     property Factory: IDIFactory read fFactory write fFactory;
     property ElementFactory: IMetaElementFactory read fElementFactory write fElementFactory;
+    property Injector: IInjector read fInjector write fInjector;
   end;
 
 implementation
@@ -135,6 +144,82 @@ begin
 end;
 
 { TReact }
+
+procedure TReact.Reconciliation(var ABit: IUIBit; const AOldElement,
+  ANewElement: IMetaElement);
+var
+  i, mRemoved: integer;
+  mOldNode, mNewNode, mBitNode: INode;
+  mDiffProps: IProps;
+  mBit, mNewBit: IUIBit;
+  mRender: Boolean;
+begin
+  Log.DebugLnEnter({$I %CURRENTROUTINE%});
+  if (AOldElement = nil) and (ANewElement = nil) then begin
+    ABit := nil;
+    Log.DebugLn('both nil');
+  end else
+  if (AOldElement <> nil) and (ANewElement = nil) then begin
+    ABit := nil;
+    Log.DebugLn(AOldElement.TypeGuid + '.' + AOldElement.TypeID + ' to nil');
+  end else
+  if (AOldElement = nil) and (ANewElement <> nil) then begin
+    ABit := ElementFactory.New(ANewElement) as IUIBit;
+    Log.DebugLn('from nil to ' + ANewElement.TypeGuid + '.' + ANewElement.TypeID);
+  end else
+  if (AOldElement.TypeGuid <> ANewElement.TypeGuid) or (AOldElement.TypeID <> ANewElement.TypeID) then begin
+    ABit := ElementFactory.New(ANewElement) as IUIBit;
+    Log.DebugLn('from ' + AOldElement.TypeGuid + '.' + AOldElement.TypeID + ' to ' + ANewElement.TypeGuid + '.' + ANewElement.TypeID);
+  end else begin
+    mRender := False;
+    mDiffProps := ANewElement.Props.Diff(AOldElement.Props);
+    if mDiffProps.Count > 0 then begin
+      Injector.Write(ABit as TObject, mDiffProps);
+      mRender := True;
+    end;
+    //
+    // elements exists in both old and new structure or only in old structure
+    mRemoved := 0;
+    for i := 0 to (AOldElement as INode).Count - 1 do begin
+      mOldNode := (AOldElement as INode).Child[i];
+      mBitNode := (ABit as INode).Child[i - mRemoved];
+      if i <= (ANewElement as INode).Count - 1 then begin
+        mNewNode := (ANewElement as INode).Child[i];
+        (mNewNode as IMetaElement).Props.SetIntf('ParentElement', ABit);
+      end
+      else
+        mNewNode := nil;
+      mBit := mBitNode as IUIBit;
+      mNewBit := mBit;
+      Reconciliation(mNewBit, mOldNode as IMetaElement, mNewNode as IMetaElement);
+      if mNewBit <> mBit then begin
+        (ABit as INode).Delete(i - mRemoved);
+        if mNewBit <> nil then begin
+          (ABit as INode).Insert(i - mRemoved, mNewBit as INode);
+          dec(mRemoved);
+        end;
+        inc(mRemoved);
+        mRender := True;
+      end;
+    end;
+    // elements exists only in new structure
+    for i := (AOldElement as INode).Count to (ANewElement as INode).Count - 1 do begin
+      mOldNode := nil;
+      mBit := nil;
+      mNewNode := (ANewElement as INode).Child[i];
+      (mNewNode as IMetaElement).Props.SetIntf('ParentElement', ABit);
+      Reconciliation(mBit, mOldNode as IMetaElement, mNewNode as IMetaElement);
+      if mBit <> nil then begin
+        (ABit as INode).AddChild(mBit as INode);
+        mRender := True;
+      end;
+    end;
+    // if something changed
+    if mRender then
+      ABit.Render;
+  end;
+  Log.DebugLnExit({$I %CURRENTROUTINE%});
+end;
 
 function TReact.CreateElement(const ATypeGuid: TGuid): IMetaElement;
 begin
@@ -211,9 +296,18 @@ begin
 end;
 
 procedure TReact.Render(const AElement: IMetaElement);
+var
+  mNewTopBit: IUIBit;
 begin
-  fTopBit := ElementFactory.New(AElement) as IUIBit;
-  fTopBit.Render;
+  mNewTopBit := fTopBit;
+  Reconciliation(mNewTopBit, fTopElement, AElement);
+  if fTopBit <> mNewTopBit  then begin
+    fTopBit := mNewTopBit;
+    fTopBit.Render;
+  end;
+  //if fTopElement <> nil then
+  //(fTopElement as IUnknown)._AddRef;
+  fTopElement := AElement;
 end;
 
 { TMetaElement }
@@ -246,6 +340,16 @@ end;
 procedure TMetaElement.RemoveChild(const ANode: INode);
 begin
   Node.RemoveChild(ANode);
+end;
+
+procedure TMetaElement.Insert(const AIndex: integer; const ANode: INode);
+begin
+  Node.Insert(AIndex, ANode);
+end;
+
+procedure TMetaElement.Delete(const AIndex: integer);
+begin
+  Node.Delete(AIndex);
 end;
 
 function TMetaElement.Count: integer;
