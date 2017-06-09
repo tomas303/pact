@@ -24,7 +24,8 @@ uses
   rea_ireact, rea_ureact,
   trl_itree, trl_utree,
   trl_irestatement, trl_urestatement,
-  rea_iuilayout, rea_uuilayout;
+  rea_iuilayout, rea_uuilayout,
+  trl_iinjector, trl_uinjector;
 
 type
 
@@ -73,6 +74,9 @@ begin
   // low level factory(can locate all dic classes)
   mReg := DIC.Add(TDIFactory, IDIFactory);
   mReg.InjectProp('Container', TDIContainer, '', DIC);
+
+  // injector of properties
+  mReg := DIC.Add(TInjector, IInjector);
 
 
   // for recount size to pixel(for now nothing)
@@ -124,8 +128,10 @@ begin
 
   //
   mReg := DIC.Add(TReact, IReact);
+  mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Injector', IInjector);
   //
   mReg := DIC.Add(CreateMainFormInstance, IMainForm);
   mReg.InjectProp('React', IReact);
