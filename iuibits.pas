@@ -5,7 +5,7 @@ unit iuibits;
 interface
 
 uses
-  Classes, SysUtils, Controls;
+  Classes, SysUtils, Controls, trl_iprops;
 
 type
   // wrapper for real control and its binder
@@ -30,6 +30,16 @@ type
 
   IUITextBit = interface
    ['{4178C1EC-AA39-4429-B48C-7058676ABA7B}']
+  end;
+
+  // maybe with Store param ....bo it will be ideal to only sent messages to store .... like
+  IUINotifyEvent = procedure(const AProps: IProps) of object;
+
+  IUINotifier = interface
+  ['{110FD82F-1891-4865-A33F-98D6B1E7617C}']
+    procedure Notify(const AProps: IProps);
+    procedure Add(const AEvent: IUINotifyEvent);
+    procedure Remove(const AEvent: IUINotifyEvent);
   end;
 
 implementation

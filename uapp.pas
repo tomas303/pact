@@ -7,6 +7,9 @@ interface
 uses
   Classes, SysUtils,
   StdCtrls,
+
+  iapp, uappfunc, uappstate, uapplogic,
+
   forms, fmain, test,
   tal_uapp, tal_uguilauncher, tal_ilauncher,
   trl_ipersist,  trl_upersist, trl_upersiststore,
@@ -25,7 +28,10 @@ uses
   trl_itree, trl_utree,
   trl_irestatement, trl_urestatement,
   rea_iuilayout, rea_uuilayout,
-  trl_iinjector, trl_uinjector;
+  trl_iprops, trl_uprops,
+  trl_iinjector, trl_uinjector,
+  rea_iredux, rea_uredux,
+  rea_uapplauncher;
 
 type
 
@@ -63,9 +69,13 @@ begin
 
   mReg := DIC.Add(TDIOwner, '', ckSingle);
   //
-  mReg := DIC.Add(TGUILauncher, ILauncher);
-  mReg.InjectProp('MainForm', IMainForm);
+//  mReg := DIC.Add(TGUILauncher, ILauncher);
+//  mReg.InjectProp('MainForm', IMainForm);
+  mReg := DIC.Add(TReactLauncher, ILauncher);
+  mReg.InjectProp('AppLogic', IAppLogic);
   //
+
+  mReg := DIC.Add(TProps, IProps);
 
   // tree structure support
   mReg := DIC.Add(TParentNode, INode, 'parent');
@@ -115,6 +125,34 @@ begin
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Control', TLabel, 'uitext');
   mReg.InjectProp('Node', INode, 'leaf');
+
+
+  //redux part
+  mReg := DIC.Add(TAppStore, IAppStore, '', ckSingle);
+  mReg.InjectProp('AppState', IAppState);
+  mReg.InjectProp('AppFunc', IAppFunc);
+  //
+  mReg := DIC.Add(TAppAction, IAppAction);
+  mReg.InjectProp('Props', IProps);
+  //
+  mReg := DIC.Add(TAppNotifier, IAppNotifier);
+  // asi az pri reactu mozna    mReg.InjectProp('ActionID', cResizeFunc);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('Dispatcher', IAppStore);
+
+  //redux pact part
+  mReg := DIC.Add(TAppState, IAppState);
+  mReg.InjectProp('MainForm', IProps);
+  //
+  mReg := DIC.Add(TAppFunc, IAppFunc);
+  mReg.InjectProp('Injector', IInjector);
+  mReg.InjectProp('Factory', IDIFactory);
+  //
+  mReg := DIC.Add(TAppLogic, IAppLogic, '', ckSingle);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('React', IReact);
+  mReg.InjectProp('AppStore', IAppStore);
+
 
 
 

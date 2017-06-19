@@ -7,13 +7,13 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   test, tal_ilauncher, iuibits, trl_iprops, trl_uprops,
-  rea_ireact, trl_ilog, trl_itree;
+  rea_ireact, trl_ilog, trl_itree, uuibits, rea_iuilayout;
 
 type
 
   { TForm1 }
 
-  TForm1 = class(TForm, IMainForm)
+  TForm1 = class(TForm, IMainForm, IUINotifier)
     Button1: TButton;
     btnHelloWorld: TButton;
     btnPerspective: TButton;
@@ -27,13 +27,20 @@ type
     procedure testkvik;
   protected
     fPerspective: integer;
-    function NewPerspective(APerspective: integer): IMetaElement;
+    fUIEvents: TUIEvents;
+    function NewPerspective(APerspective: integer; ALeft, ATop, AWidth, AHeight: integer): IMetaElement;
   protected
     //IMainForm = interface
     procedure StartUp;
     procedure ShutDown;
   protected
+    // IUINotifier
+    procedure Notify(const AProps: IProps);
+    procedure Add(const AEvent: IUINotifyEvent);
+    procedure Remove(const AEvent: IUINotifyEvent);
+  protected
     fReact: IReact;
+    procedure ReactFormResize(const AProps: IProps);
   published
     property React: IReact read fReact write fReact;
   end;
@@ -115,14 +122,29 @@ begin
   //kvik([[], []]);
 end;
 
-function TForm1.NewPerspective(APerspective: integer): IMetaElement;
+function TForm1.NewPerspective(APerspective: integer; ALeft, ATop, AWidth, AHeight: integer): IMetaElement;
 var
   i: integer;
 begin
+  {
+  ??? ReactFormResize je udalost
+  property ReactFormResize naprimo ... to asi pujde, ale nejspis k tomu neni podpora v di
+  uvazoval bych jen o bez or only sender .... mozna s prechodem na props
+  or
+  INotifier .... metoda Notify ....to je dobre k tomu, ze tam muzu pichnout 7
+   }
   Result :=
     React.CreateElement(
       IUIFormBit,
-      TProps.New.SetStr('Title', 'Hello world').SetInt('Left', 100).SetInt('Top', 30).SetInt('Width', 1500).SetInt('Height', 300).SetInt('Layout', 0));
+      TProps.New
+      .SetStr('Title', 'Hello world')
+      .SetInt('Left', ALeft)
+      .SetInt('Top', ATop)
+      .SetInt('Width', AWidth)
+      .SetInt('Height', AHeight)
+      .SetInt('Layout', 0)
+      .SetIntf('ResizeNotifier', Self as IUINotifier)
+      );
 
   (Result as INode).AddChild(
     React.CreateElement(
@@ -191,17 +213,55 @@ begin
   else
     fPerspective := 0;
   end;
-  React.Render(NewPerspective(fPerspective));
+  React.Render(NewPerspective(fPerspective, 10, 10, 1500, 300));
 end;
 
 procedure TForm1.StartUp;
 begin
-
+  fUIEvents := TUIEvents.Create;
+  fUIEvents.Add(@ReactFormResize);
 end;
 
 procedure TForm1.ShutDown;
 begin
+  fUIEvents.Remove(@ReactFormResize);
+  FreeAndNil(fUIEvents);
+end;
 
+procedure TForm1.Notify(const AProps: IProps);
+var
+  mEvent: IUINotifyEvent;
+begin
+  for mEvent in fUIEvents do
+    mEvent(AProps);
+end;
+
+procedure TForm1.Add(const AEvent: IUINotifyEvent);
+var
+  mIndex: integer;
+begin
+  mIndex := fUIEvents.IndexOf(AEvent);
+  if mIndex = -1 then
+    fUIEvents.Add(AEvent);
+end;
+
+procedure TForm1.Remove(const AEvent: IUINotifyEvent);
+var
+  mIndex: integer;
+begin
+  mIndex := fUIEvents.IndexOf(AEvent);
+  if mIndex <> -1 then
+    fUIEvents.Delete(mIndex);
+end;
+
+procedure TForm1.ReactFormResize(const AProps: IProps);
+begin
+  React.Render(NewPerspective(fPerspective,
+  AProps.AsInt('Left'),
+  AProps.AsInt('Top'),
+  AProps.AsInt('Width'),
+  AProps.AsInt('Height')
+  ));
 end;
 
 end.

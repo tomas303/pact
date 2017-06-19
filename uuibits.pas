@@ -7,9 +7,11 @@ interface
 uses
   Classes, SysUtils, iuibits, Controls, trl_idifactory, forms, trl_itree,
   StdCtrls, trl_iprops, trl_uprops, trl_iinjector, Graphics, trl_ilog, fgl,
-  rea_iuilayout;
+  rea_iuilayout, rea_iredux;
 
 type
+
+  TUIEvents = specialize TFPGList<IUINotifyEvent>;
 
   { TUIBit }
 
@@ -97,6 +99,8 @@ type
   protected
     function AsForm: TCustomForm;
     procedure ResetScroll;
+    procedure OnResize(Sender: TObject);
+    procedure ResizeNotifierData(const AProps: IProps);
   protected
     procedure DoRender; override;
     function Surface: TWinControl; override;
@@ -105,9 +109,12 @@ type
   protected
     fTiler: IUITiler;
     fTitle: string;
+    fResizeNotifier: IAppNotifier;
   published
     property Tiler: IUITiler read fTiler write fTiler;
     property Title: string read fTitle write fTitle;
+    //property ResizeNotifier: IUINotifier read fResizeNotifier write fResizeNotifier;
+    property ResizeNotifier: IAppNotifier read fResizeNotifier write fResizeNotifier;
   end;
 
   { TUIEditBit }
@@ -212,8 +219,39 @@ begin
   end;
 end;
 
+procedure TUIFormBit.OnResize(Sender: TObject);
+begin
+  if ResizeNotifier <> nil then
+{
+  ResizeNotifier.Notify(
+    TProps.New
+    .SetInt('Left', AsControl.Left)
+    .SetInt('Top', AsControl.Top)
+    .SetInt('Width', AsControl.Width)
+    .SetInt('Height', AsControl.Height)
+    );
+    }
+    ResizeNotifier.Notify;
+end;
+
+procedure TUIFormBit.ResizeNotifierData(const AProps: IProps);
+begin
+  AProps
+  .SetInt('Left', AsControl.Left)
+  .SetInt('Top', AsControl.Top)
+  .SetInt('Width', AsControl.Width)
+  .SetInt('Height', AsControl.Height);
+end;
+
 procedure TUIFormBit.DoRender;
 begin
+  // discard during render should be samewhat general(callbacks could result in
+  // another render call .... anyway, do not want to allow whatsever call back during
+  // render - because of kiss - so need to cement it somewhere - maybe notifief active
+  // property and set it for all notifiers before and after render)
+  //AsForm.OnResize := nil;
+  if ResizeNotifier <> nil then
+    ResizeNotifier.Enabled := False;
   inherited;
   //Layouter.ReplaceChildren(Self);
   Tiler.ReplaceChildren(Self);
@@ -223,6 +261,11 @@ begin
 
   AsForm.Caption := Title;
   AsForm.Show;
+  AsForm.OnResize := @OnResize;
+  if ResizeNotifier <> nil then begin
+    ResizeNotifier.Add(@ResizeNotifierData);
+    ResizeNotifier.Enabled := True;
+  end;
 end;
 
 function TUIFormBit.Surface: TWinControl;
