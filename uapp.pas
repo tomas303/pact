@@ -104,6 +104,8 @@ begin
 
   // real control
   mReg := DIC.Add(TForm, nil, 'uiform');
+  //mReg := DIC.Add(CreateMainFormInstance, 'uiform');
+
   // ui bit for handle real control
   mReg := DIC.Add(TUIFormBit, IUIFormBit);
   mReg.InjectProp('Log', ILog);
@@ -125,8 +127,13 @@ begin
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Control', TLabel, 'uitext');
   mReg.InjectProp('Node', INode, 'leaf');
-
-
+  //
+  mReg := DIC.Add(TButton, nil, 'uibutton');
+  mReg := DIC.Add(TUIButtonBit, IUIButtonBit);
+  mReg.InjectProp('Log', ILog);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('Control', TButton, 'uibutton');
+  mReg.InjectProp('Node', INode, 'leaf');
   //redux part
   mReg := DIC.Add(TAppStore, IAppStore, '', ckSingle);
   mReg.InjectProp('AppState', IAppState);

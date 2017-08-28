@@ -143,7 +143,48 @@ type
     property Text: string read fText write fText;
   end;
 
+  { TUIButtonBit }
+
+  TUIButtonBit = class(TUIBit, IUIButtonBit)
+  protected
+    function AsButton: TCustomButton;
+    procedure OnClick(Sender: TObject);
+  protected
+    procedure DoRender; override;
+  protected
+    fCaption: string;
+    fClickNotifier: IAppNotifier;
+  published
+    property Caption: string read fCaption write fCaption;
+    property ClickNotifier: IAppNotifier read fClickNotifier write fClickNotifier;
+  end;
+
 implementation
+
+{ TUIButtonBit }
+
+function TUIButtonBit.AsButton: TCustomButton;
+begin
+  Result := AsControl as TCustomButton;
+end;
+
+procedure TUIButtonBit.OnClick(Sender: TObject);
+begin
+  if ClickNotifier <> nil then
+    ClickNotifier.Notify;
+end;
+
+procedure TUIButtonBit.DoRender;
+begin
+  inherited DoRender;
+  if ParentElement <> nil then
+    AsButton.Parent := (ParentElement as IUIBit).Surface;
+  AsButton.Caption := Caption;
+  AsButton.OnClick := @OnClick;
+  if ClickNotifier <> nil then
+    ClickNotifier.Enabled := True;
+  AsButton.Show;
+end;
 
 { TUITextBit }
 

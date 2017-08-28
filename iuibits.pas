@@ -32,6 +32,10 @@ type
    ['{4178C1EC-AA39-4429-B48C-7058676ABA7B}']
   end;
 
+  IUIButtonBit = interface
+   ['{7FB3194B-62AB-44B7-8317-603D10706C71}']
+  end;
+
   // maybe with Store param ....bo it will be ideal to only sent messages to store .... like
   IUINotifyEvent = procedure(const AProps: IProps) of object;
 
