@@ -41,8 +41,12 @@ type
   protected
     function CreateMainFormInstance: TObject;
   protected
+    procedure RegisterCore;
+    procedure RegisterLauncher;
     procedure RegisterTools;
     procedure RegisterGUI;
+    procedure RegisterRedux;
+    procedure RegisterReact;
     procedure RegisterAppServices; override;
   end;
 
@@ -55,6 +59,36 @@ begin
   Application.CreateForm(TForm1, Result);
 end;
 
+procedure TApp.RegisterCore;
+var
+  mReg: TDIReg;
+begin
+  mReg := DIC.Add(TDIOwner, '', ckSingle);
+  //
+  mReg := DIC.Add(TProps, IProps);
+  // injector of properties
+  mReg := DIC.Add(TInjector, IInjector);
+  // tree structure support
+  mReg := DIC.Add(TParentNode, INode, 'parent');
+  mReg := DIC.Add(TLeafNode, INode, 'leaf');
+  // low level factory(can locate all dic classes)
+  mReg := DIC.Add(TDIFactory, IDIFactory);
+  mReg.InjectProp('Container', TDIContainer, '', DIC);
+  //
+end;
+
+procedure TApp.RegisterLauncher;
+var
+  mReg: TDIReg;
+begin
+  //
+//  mReg := DIC.Add(TGUILauncher, ILauncher);
+//  mReg.InjectProp('MainForm', IMainForm);
+  mReg := DIC.Add(TReactLauncher, ILauncher);
+  mReg.InjectProp('AppLogic', IAppLogic);
+  //
+end;
+
 procedure TApp.RegisterTools;
 var
   mReg: TDIReg;
@@ -65,29 +99,8 @@ end;
 procedure TApp.RegisterGUI;
 var
   mReg: TDIReg;
+  mDIO: TDIOwner;
 begin
-
-  mReg := DIC.Add(TDIOwner, '', ckSingle);
-  //
-//  mReg := DIC.Add(TGUILauncher, ILauncher);
-//  mReg.InjectProp('MainForm', IMainForm);
-  mReg := DIC.Add(TReactLauncher, ILauncher);
-  mReg.InjectProp('AppLogic', IAppLogic);
-  //
-
-  mReg := DIC.Add(TProps, IProps);
-
-  // tree structure support
-  mReg := DIC.Add(TParentNode, INode, 'parent');
-  mReg := DIC.Add(TLeafNode, INode, 'leaf');
-
-  // low level factory(can locate all dic classes)
-  mReg := DIC.Add(TDIFactory, IDIFactory);
-  mReg.InjectProp('Container', TDIContainer, '', DIC);
-
-  // injector of properties
-  mReg := DIC.Add(TInjector, IInjector);
-
 
   // for recount size to pixel(for now nothing)
   mReg := DIC.Add(TRestatement, IRestatement, 'horizontal');
@@ -96,14 +109,16 @@ begin
   mReg := DIC.Add(TRestatement, IRestatement, 'vertical');
   mReg.InjectProp('Multi', 1);
   mReg.InjectProp('Divid', 1);
-
+  // layout
   mReg := DIC.Add(TUIDesktopLayout, IUITiler, 'desktop');
   mReg.InjectProp('HR', IRestatement, 'horizontal');
   mReg.InjectProp('VR', IRestatement, 'vertical');
 
 
   // real control
-  mReg := DIC.Add(TForm, nil, 'uiform');
+  mReg := DIC.Add(TForm, TDIOwner(DIC.Locate(TDIOwner)), 'uiform');
+  //mDIO := TDIOwner(DIC.Locate(TDIOwner));
+  //mReg := DIC.Add(TForm, mDIO, 'uiform');
   //mReg := DIC.Add(CreateMainFormInstance, 'uiform');
 
   // ui bit for handle real control
@@ -111,6 +126,11 @@ begin
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Control', TForm, 'uiform');
+  mReg.InjectProp('Node', INode, 'parent');
+  mReg.InjectProp('Tiler', IUITiler, 'desktop');
+  //
+  mReg := DIC.Add(TUIStripBit, IUIStripBit);
+  mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Node', INode, 'parent');
   mReg.InjectProp('Tiler', IUITiler, 'desktop');
   //
@@ -134,6 +154,12 @@ begin
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Control', TButton, 'uibutton');
   mReg.InjectProp('Node', INode, 'leaf');
+end;
+
+procedure TApp.RegisterRedux;
+var
+  mReg: TDIReg;
+begin
   //redux part
   mReg := DIC.Add(TAppStore, IAppStore, '', ckSingle);
   mReg.InjectProp('AppState', IAppState);
@@ -146,10 +172,13 @@ begin
   // asi az pri reactu mozna    mReg.InjectProp('ActionID', cResizeFunc);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Dispatcher', IAppStore);
-
+  //
+  mReg := DIC.Add(TMapStateToProps, IMapStateToProps);
+  mReg.InjectProp('AppState', IAppState);
   //redux pact part
-  mReg := DIC.Add(TAppState, IAppState);
-  mReg.InjectProp('MainForm', IProps);
+  mReg := DIC.Add(TAppState, IAppState, '', ckSingle);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('Data', IProps);
   //
   mReg := DIC.Add(TAppFunc, IAppFunc);
   mReg.InjectProp('Injector', IInjector);
@@ -159,10 +188,13 @@ begin
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('React', IReact);
   mReg.InjectProp('AppStore', IAppStore);
+  mReg.InjectProp('ElFactory', IMetaElementFactory);
+end;
 
-
-
-
+procedure TApp.RegisterReact;
+var
+  mReg: TDIReg;
+begin
   // react part
   mReg := DIC.Add(TMetaElement, IMetaElement);
   mReg.InjectProp('Node', INode, 'parent');
@@ -170,22 +202,47 @@ begin
   mReg := DIC.Add(TMetaElementFactory, IMetaElementFactory);
   mReg.InjectProp('Container', TDIContainer, '', DIC);
   mReg.InjectProp('Log', ILog);
-
-
+  //
+  mReg := DIC.Add(TReactComponent, IReactComponent);
+  mReg.InjectProp('Log', ILog);
+  mReg.InjectProp('Node', INode, 'parent');
+  mReg.InjectProp('Composites', IComposites);
+  mReg.InjectProp('Reconciliator', IReconciliator);
+  mReg.InjectProp('ReactFactory', IReactFactory);
+  //
+  mReg := DIC.Add(TReactFactory, IReactFactory);
+  mReg.InjectProp('Container', TDIContainer, '', DIC);
+  mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TReconciliator, IReconciliator);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('ElementFactory', IMetaElementFactory);
   mReg.InjectProp('Injector', IInjector);
-
+  //
+  mReg := DIC.Add(TComposite, IComposite);
+  mReg.InjectProp('Factory', IMetaElementFactory);
+  //
+  mReg := DIC.Add(TComposites, IComposites);
+  //
+  mReg := DIC.Add(TAppComposite, IAppComposite);
+  mReg.InjectProp('Factory', IMetaElementFactory);
+  //
+  mReg := DIC.Add(TFormComposite, IFormComposite);
+  mReg.InjectProp('Factory', IMetaElementFactory);
+  //
+  mReg := DIC.Add(TEditComposite, IEditComposite);
+  mReg.InjectProp('Factory', IMetaElementFactory);
+  //
+  mReg := DIC.Add(TEditsComposite, IEditsComposite);
+  mReg.InjectProp('Factory', IMetaElementFactory);
   //
   mReg := DIC.Add(TReact, IReact);
   mReg.InjectProp('Log', ILog);
-  mReg.InjectProp('Factory', IDIFactory);
-  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('ReactFactory', IReactFactory);
   mReg.InjectProp('Injector', IInjector);
   mReg.InjectProp('Injector', IInjector);
   mReg.InjectProp('Reconciliator', IReconciliator);
+  mReg.InjectProp('RootComponent', IReactComponent);
   //
   mReg := DIC.Add(CreateMainFormInstance, IMainForm);
   mReg.InjectProp('React', IReact);
@@ -194,8 +251,12 @@ end;
 procedure TApp.RegisterAppServices;
 begin
   inherited;
+  RegisterCore;
   RegisterTools;
   RegisterGUI;
+  RegisterLauncher;
+  RegisterRedux;
+  RegisterReact;
 end;
 
 end.

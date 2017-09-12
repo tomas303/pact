@@ -5,28 +5,46 @@ unit iapp;
 interface
 
 uses
-  trl_iprops;
+  SysUtils;
 
-const
-  cInitFunc = 0;
-  cResizeFunc = 1;
-
-const
-  cMainFormStatePath = 'MainForm';
+//const
+//  cInitFunc = 0;
+//  cResizeFunc = 1;
+//  cHelloFunc = 2;
+//
+//const
+//  cASMainForm = 'MainForm';
+//  cASMainFormLeft = 'Left';
+//  cASMainFormTop = 'Top';
+//  cASMainFormWidth = 'Width';
+//  cASMainFormHeight = 'Height';
+//  cASMainFormLeftPath = cASMainForm + '/' + cASMainFormLeft;
+//  cASMainFormTopPath = cASMainForm + '/' + cASMainFormTop;
+//  cASMainFormWidthPath = cASMainForm + '/' + cASMainFormWidth;
+//  cASMainFormHeightPath = cASMainForm + '/' + cASMainFormHeight;
 
 type
 
-  { IPactState }
-
-  IPactState = interface
-  ['{C249A0F2-10C6-4686-9470-D18832D43B65}']
-    function GetMainForm: IProps;
-    procedure SetMainForm(AValue: IProps);
-    property MainForm: IProps read GetMainForm write SetMainForm;
+  cAppState = class
+  public const
+    Left = 'Left';
+    Top = 'Top';
+    Width = 'Width';
+    Height = 'Height';
+  public const
+    MainForm = 'MainForm';
   end;
 
+  cActions = class
+  public const
+    InitFunc = 0;
+    ResizeFunc = 1;
+    HelloFunc = 2;
+  end;
 
 implementation
+
+initialization
 
 end.
 

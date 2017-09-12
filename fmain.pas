@@ -27,7 +27,6 @@ type
     procedure testkvik;
   protected
     fPerspective: integer;
-    fUIEvents: TUIEvents;
     function NewPerspective(APerspective: integer; ALeft, ATop, AWidth, AHeight: integer): IMetaElement;
   protected
     //IMainForm = interface
@@ -66,50 +65,50 @@ var
   m4: TGuid;
   mR: IReact;
 begin
-  mProps := TProps.Create;
-
-  mProps
-  .SetStr('c1', 'val')
-  .SetInt('c2', 100)
-  .SetBool('c3', true)
-  .SetGuid('c4', cg)
-  .SetStr('c1', 'val1')
-  .SetInt('c2', 1001)
-  .SetBool('c3', false)
-  .SetGuid('c4', cg2);
-
-  m1 := mProps.AsStr('c1');
-  m2 := mProps.AsInt('c2');
-  m3 := mProps.AsBool('c3');
-  m4 := mProps.AsGuid('c4');
-
-
-
-  mR.CreateElement(IUIStripBit,
-    TProps.New.SetInt('color', clGray).SetInt('width', 5),
-    [
-      mR.CreateElement(IUITextBit, TProps.New.SetStr('text', 'password:'), []),
-      mR.CreateElement(IUIEditBit, TProps.New.SetStr('pwdchar', '*'), [])
-    ]);
-
-  mR.CreateElement(IUIStripBit,
-    TProps.New.SetInt('color', clGray).SetInt('width', 5),
-    [
-      mR.CreateElement(IUITextBit, TProps.New.SetStr('text', 'password:')),
-      mR.CreateElement(IUIEditBit, TProps.New.SetStr('pwdchar', '*')),
-      mR.CreateElement(IUITextBit, TProps.New.SetIt('bottom'))
-    ]);
-
-  mR.CreateElement(
-    IUIFormBit, nil,
-      [
-        mR.CreateElement(IUITextBit, TProps.New.SetStr('text', 'Hello world'))
-      ]);
-
-  mR.CreateElement(IUIFormBit, TProps.New.SetStr('text', 'Hello world'));
-  //podle elementu vytvorit IUI objekt - ten vytvori form a binder a zobrazi
-  // co za metodu taky Render? v podstate (do)vytvorit / aktualizovat obsah
-
+  //mProps := TProps.Create;
+  //
+  //mProps
+  //.SetStr('c1', 'val')
+  //.SetInt('c2', 100)
+  //.SetBool('c3', true)
+  //.SetGuid('c4', cg)
+  //.SetStr('c1', 'val1')
+  //.SetInt('c2', 1001)
+  //.SetBool('c3', false)
+  //.SetGuid('c4', cg2);
+  //
+  //m1 := mProps.AsStr('c1');
+  //m2 := mProps.AsInt('c2');
+  //m3 := mProps.AsBool('c3');
+  //m4 := mProps.AsGuid('c4');
+  //
+  //
+  //
+  //mR.CreateElement(IUIStripBit,
+  //  TProps.New.SetInt('color', clGray).SetInt('width', 5),
+  //  [
+  //    mR.CreateElement(IUITextBit, TProps.New.SetStr('text', 'password:'), []),
+  //    mR.CreateElement(IUIEditBit, TProps.New.SetStr('pwdchar', '*'), [])
+  //  ]);
+  //
+  //mR.CreateElement(IUIStripBit,
+  //  TProps.New.SetInt('color', clGray).SetInt('width', 5),
+  //  [
+  //    mR.CreateElement(IUITextBit, TProps.New.SetStr('text', 'password:')),
+  //    mR.CreateElement(IUIEditBit, TProps.New.SetStr('pwdchar', '*')),
+  //    mR.CreateElement(IUITextBit, TProps.New.SetIt('bottom'))
+  //  ]);
+  //
+  //mR.CreateElement(
+  //  IUIFormBit, nil,
+  //    [
+  //      mR.CreateElement(IUITextBit, TProps.New.SetStr('text', 'Hello world'))
+  //    ]);
+  //
+  //mR.CreateElement(IUIFormBit, TProps.New.SetStr('text', 'Hello world'));
+  ////podle elementu vytvorit IUI objekt - ten vytvori form a binder a zobrazi
+  //// co za metodu taky Render? v podstate (do)vytvorit / aktualizovat obsah
+  //
 end;
 
 procedure TForm1.kvik(a: array of t2ar);
@@ -126,49 +125,49 @@ function TForm1.NewPerspective(APerspective: integer; ALeft, ATop, AWidth, AHeig
 var
   i: integer;
 begin
-  {
-  ??? ReactFormResize je udalost
-  property ReactFormResize naprimo ... to asi pujde, ale nejspis k tomu neni podpora v di
-  uvazoval bych jen o bez or only sender .... mozna s prechodem na props
-  or
-  INotifier .... metoda Notify ....to je dobre k tomu, ze tam muzu pichnout 7
-   }
-  Result :=
-    React.CreateElement(
-      IUIFormBit,
-      TProps.New
-      .SetStr('Title', 'Hello world')
-      .SetInt('Left', ALeft)
-      .SetInt('Top', ATop)
-      .SetInt('Width', AWidth)
-      .SetInt('Height', AHeight)
-      .SetInt('Layout', 0)
-      .SetIntf('ResizeNotifier', Self as IUINotifier)
-      );
-
-  (Result as INode).AddChild(
-    React.CreateElement(
-        IUITextBit,
-        TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clGreen).SetInt('Place', 1))
-      as INode);
-
-  if APerspective = 1 then
-  begin
-  for i:=1 to 10 do begin
-  (Result as INode).AddChild(
-    React.CreateElement(
-        IUITextBit,
-        TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clRed).SetInt('Place', 2))
-      as INode);
-  end;
-  end;
-
-  (Result as INode).AddChild(
-    React.CreateElement(
-        IUIEditBit,
-        TProps.New.SetStr('Text', 'Hello').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Place', 3))
-      as INode);
-
+  //{
+  //??? ReactFormResize je udalost
+  //property ReactFormResize naprimo ... to asi pujde, ale nejspis k tomu neni podpora v di
+  //uvazoval bych jen o bez or only sender .... mozna s prechodem na props
+  //or
+  //INotifier .... metoda Notify ....to je dobre k tomu, ze tam muzu pichnout 7
+  // }
+  //Result :=
+  //  React.CreateElement(
+  //    IUIFormBit,
+  //    TProps.New
+  //    .SetStr('Title', 'Hello world')
+  //    .SetInt('Left', ALeft)
+  //    .SetInt('Top', ATop)
+  //    .SetInt('Width', AWidth)
+  //    .SetInt('Height', AHeight)
+  //    .SetInt('Layout', 0)
+  //    .SetIntf('ResizeNotifier', Self as IUINotifier)
+  //    );
+  //
+  //(Result as INode).AddChild(
+  //  React.CreateElement(
+  //      IUITextBit,
+  //      TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clGreen).SetInt('Place', 1))
+  //    as INode);
+  //
+  //if APerspective = 1 then
+  //begin
+  //for i:=1 to 10 do begin
+  //(Result as INode).AddChild(
+  //  React.CreateElement(
+  //      IUITextBit,
+  //      TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clRed).SetInt('Place', 2))
+  //    as INode);
+  //end;
+  //end;
+  //
+  //(Result as INode).AddChild(
+  //  React.CreateElement(
+  //      IUIEditBit,
+  //      TProps.New.SetStr('Text', 'Hello').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Place', 3))
+  //    as INode);
+  //
 end;
 
 procedure TForm1.btnHelloWorldClick(Sender: TObject);
@@ -185,25 +184,25 @@ begin
     .SetInt('Height', 0)
 }
 
-  React.Render(
-    React.CreateElement(
-      IUIFormBit,
-      TProps.New.SetStr('Title', 'Hello world').SetInt('Left', 500).SetInt('Top', 30).SetInt('Width', 500).SetInt('Height', 300).SetInt('Layout', 0),
-      [
-      React.CreateElement(
-        IUITextBit,
-        TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clGreen).SetInt('Place', 1)),
-      React.CreateElement(
-        IUITextBit,
-        TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clRed).SetInt('Place', 2))
-
-        ,
-       React.CreateElement(
-         IUIEditBit,
-         TProps.New.SetStr('Text', 'Hello').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Place', 3))
-
-      ])
-  );
+  //React.Render(
+  //  React.CreateElement(
+  //    IUIFormBit,
+  //    TProps.New.SetStr('Title', 'Hello world').SetInt('Left', 500).SetInt('Top', 30).SetInt('Width', 500).SetInt('Height', 300).SetInt('Layout', 0),
+  //    [
+  //    React.CreateElement(
+  //      IUITextBit,
+  //      TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clGreen).SetInt('Place', 1)),
+  //    React.CreateElement(
+  //      IUITextBit,
+  //      TProps.New.SetStr('Text', 'Hellou:').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Color', clRed).SetInt('Place', 2))
+  //
+  //      ,
+  //     React.CreateElement(
+  //       IUIEditBit,
+  //       TProps.New.SetStr('Text', 'Hello').SetInt('MMWidth', 100).SetInt('MMHeight', 25).SetInt('Place', 3))
+  //
+  //    ])
+  //);
 end;
 
 procedure TForm1.btnPerspectiveClick(Sender: TObject);
@@ -218,40 +217,22 @@ end;
 
 procedure TForm1.StartUp;
 begin
-  fUIEvents := TUIEvents.Create;
-  fUIEvents.Add(@ReactFormResize);
 end;
 
 procedure TForm1.ShutDown;
 begin
-  fUIEvents.Remove(@ReactFormResize);
-  FreeAndNil(fUIEvents);
 end;
 
 procedure TForm1.Notify(const AProps: IProps);
-var
-  mEvent: IUINotifyEvent;
 begin
-  for mEvent in fUIEvents do
-    mEvent(AProps);
 end;
 
 procedure TForm1.Add(const AEvent: IUINotifyEvent);
-var
-  mIndex: integer;
 begin
-  mIndex := fUIEvents.IndexOf(AEvent);
-  if mIndex = -1 then
-    fUIEvents.Add(AEvent);
 end;
 
 procedure TForm1.Remove(const AEvent: IUINotifyEvent);
-var
-  mIndex: integer;
 begin
-  mIndex := fUIEvents.IndexOf(AEvent);
-  if mIndex <> -1 then
-    fUIEvents.Delete(mIndex);
 end;
 
 procedure TForm1.ReactFormResize(const AProps: IProps);

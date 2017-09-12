@@ -157,7 +157,15 @@ begin
     case mUni.Place of
       uiPlaceElastic:
         begin
-          mUni.Size :=  Round(AElasticTotal * mUni.MMSize / AElasticMMTotal);
+          if AElasticMMTotal = 0 then
+          begin
+            // this is special case when all sizes are 0 - so we resize them equally
+            mUni.Size :=  Round(AElasticTotal / ANode.Count);
+          end
+          else
+          begin
+            mUni.Size :=  Round(AElasticTotal * mUni.MMSize / AElasticMMTotal);
+          end;
           Result := Result + mUni.Size;
         end;
     end;

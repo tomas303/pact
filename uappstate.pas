@@ -5,40 +5,46 @@ unit uappstate;
 interface
 
 uses
-  Classes, SysUtils, rea_iredux, trl_iprops, iapp;
+  Classes, SysUtils, rea_iredux, trl_iprops, iapp, trl_idifactory;
 
 type
 
   { TAppState }
 
-  TAppState = class(TInterfacedObject, IAppState, IPactState)
+  TAppState = class(TInterfacedObject, IAppState, IPropFinder)
   protected
-    fMainForm: IProps;
-    function GetMainForm: IProps;
-    procedure SetMainForm(AValue: IProps);
-  public
-    destructor Destroy; override;
+    // IPropFinder
+    function Find(const APath: string): IProp;
+  protected
+    fFactory: IDIFactory;
+    fData: IProps;
+    procedure SetData(AValue: IProps);
+    procedure Build;
   published
-    property MainForm: IProps read GetMainForm write SetMainForm;
+    property Factory: IDIFactory read fFactory write fFactory;
+    property Data: IProps read fData write SetData;
   end;
 
 implementation
 
 { TAppState }
 
-function TAppState.GetMainForm: IProps;
+procedure TAppState.SetData(AValue: IProps);
 begin
-  Result := fMainForm;
+  if fData = AValue then
+    Exit;
+  fData := AValue;
+  Build;
 end;
 
-procedure TAppState.SetMainForm(AValue: IProps);
+procedure TAppState.Build;
 begin
-  fMainForm := AValue;
+  Data.SetIntf(cAppState.MainForm, IUnknown(Factory.Locate(IProps)));
 end;
 
-destructor TAppState.Destroy;
+function TAppState.Find(const APath: string): IProp;
 begin
-  inherited Destroy;
+  Result := Data.PropByName[APath];
 end;
 
 end.

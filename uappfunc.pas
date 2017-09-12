@@ -5,7 +5,7 @@ unit uappfunc;
 interface
 
 uses
-  Classes, SysUtils, rea_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory;
+  Classes, SysUtils, rea_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory, Dialogs;
 
 type
 
@@ -15,6 +15,7 @@ type
   protected
     function DoResize(const AMainForm: IProps; const AAppAction: IAppAction): IProps;
     function DefaultMainForm: IProps;
+    function FindProps(const AAppState: IAppState; const APath: string): IProps;
   protected
     // IAppFunc
     function Redux(const AAppState: IAppState; const AAppAction: IAppAction): IAppState;
@@ -37,8 +38,8 @@ begin
     Result := IProps(Factory.Locate(IProps));
     Result.SetInt('Left', 5);
     Result.SetInt('Top', 5);
-    Result.SetInt('Width', 500);
-    Result.SetInt('Height', 200);
+    Result.SetInt('Width', 600);
+    Result.SetInt('Height', 600);
   end
   else
   if not AMainForm.Equals(AAppAction.Props) then
@@ -57,38 +58,48 @@ begin
     .SetInt('Height', 300);
 end;
 
+function TAppFunc.FindProps(const AAppState: IAppState; const APath: string
+  ): IProps;
+var
+  mProp: IProp;
+begin
+  mProp := (AAppState as IPropFinder).Find(APath);
+  if mProp = nil then
+    raise Exception.CreateFmt('No props for %s', [APath]);
+  Result := mProp.AsInterface as IProps;
+end;
+
 function TAppFunc.Redux(const AAppState: IAppState; const AAppAction: IAppAction
   ): IAppState;
 var
+  mProp: IProp;
   mProps: IProps;
   mMainForm, mNewMainForm: IProps;
 begin
   case AAppAction.ID of
-    cInitFunc:
+    cActions.InitFunc:
       begin
+        mProps := FindProps(AAppState, cAppState.MainForm);
+        mProps.SetInt(cAppState.Height, 300);
+        mProps.SetInt(cAppState.Width, 600);
         Result := AAppState;
-        (Result as IPactState).MainForm := DefaultMainForm;
       end;
-    cResizeFunc:
+    cActions.ResizeFunc:
       begin
-        //mProps := IProps(Factory.Locate(IProps));
-        //Injector.Read(AAppState as TObject, cMainFormStatePath, mProps);
-        //if mProps.Count > 0 then
-        //  mMainForm := mProps[0].AsInterface as IProps
-        //else
-        //  mMainForm := IProps(Factory.Locate(IProps));
-        //mNewMainForm := DoResize(mMainForm, AAppAction);
-        //if mNewMainForm <> mMainForm then begin
-        //  mProps.SetIntf(cMainFormStatePath, mNewMainForm as IUnknown);
-        //  Injector.Write(AAppState as TObject, mProps);
-        //end;
-        mNewMainForm := DoResize((AAppState as IPactState).MainForm, AAppAction);
-        if mNewMainForm <> mMainForm then begin
-          // probably better clone it
-          Result := AAppState;
-          (Result as IPactState).MainForm := mNewMainForm;
-        end;
-      end
+        mProps := FindProps(AAppState, cAppState.MainForm);
+        mProps.SetInt(cAppState.Left, AAppAction.Props.AsInt(cAppState.Left));
+        mProps.SetInt(cAppState.Top, AAppAction.Props.AsInt(cAppState.Top));
+        mProps.SetInt(cAppState.Width, AAppAction.Props.AsInt(cAppState.Width));
+        mProps.SetInt(cAppState.Height, AAppAction.Props.AsInt(cAppState.Height));
+        Result := AAppState;
+      end;
+    cActions.HelloFunc:
+      begin
+        // shouldnt be here(if necessary then hello is going to be processed, hello processed
+        // this should be called before and here enter only result .... some piece between button and redux)
+        ShowMessage('hello world');
+        Result := AAppState;
+      end;
   else
     Result := AAppState;
   end;

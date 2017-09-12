@@ -13,9 +13,9 @@ type
 
   TAppStore = class(TInterfacedObject, IAppStore, IAppDispatcher)
   protected type
-      TEvents = specialize TFPGList<TAppStoreEvent>;
+    TEvents = specialize TFPGList<TAppStoreEvent>;
   protected
-      fEvents: TEvents;
+    fEvents: TEvents;
   protected
     // IAppDispatcher
     procedure Dispatch(const AAppAction: IAppAction);
@@ -81,7 +81,102 @@ type
     property Enabled: Boolean read GetEnabled write SetEnabled;
   end;
 
+  { TMapStateToProps }
+
+  TMapStateToProps = class(TInterfacedObject, IMapStateToProps)
+  protected type
+    TItem = class(TObject)
+    protected
+      fPath: string;
+      fKeys: TStringArray;
+      function GetKey(AIndex: integer): string;
+      function GetKeyCount: integer;
+    public
+      constructor Create(const APath: string; AKeys: TStringArray);
+      property Path: string read fPath;
+      property KeyCount: integer read GetKeyCount;
+      property Key[AIndex: integer]: string read GetKey;
+    end;
+  protected type
+    TItems = specialize TFPGObjectList<TItem>;
+  protected
+    fItems: TItems;
+  public
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
+  protected
+    // IMapStateToProps
+    function Map(const AProps: IProps): IProps;
+    function AddPath(const APath: string; AKeys: TStringArray): IMapStateToProps;
+  protected
+    fAppState: IAppState;
+  published
+    property AppState: IAppState read fAppState write fAppState;
+  end;
+
 implementation
+
+{ TMapStateToProps.TItem }
+
+function TMapStateToProps.TItem.GetKey(AIndex: integer): string;
+begin
+  Result := fKeys[AIndex];
+end;
+
+function TMapStateToProps.TItem.GetKeyCount: integer;
+begin
+  Result := Length(fKeys);
+end;
+
+constructor TMapStateToProps.TItem.Create(const APath: string;
+  AKeys: TStringArray);
+begin
+  inherited Create;
+  fPath := APath;
+  fKeys := AKeys;
+end;
+
+{ TMapStateToProps }
+
+procedure TMapStateToProps.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  fItems := TItems.Create;
+end;
+
+procedure TMapStateToProps.BeforeDestruction;
+begin
+  FreeAndNil(fItems);
+  inherited BeforeDestruction;
+end;
+
+function TMapStateToProps.Map(const AProps: IProps): IProps;
+var
+  mProp, mKeyProp: IProp;
+  mItem: TItem;
+  i: integer;
+begin
+  Result := AProps.Clone;
+  for mItem in fItems do
+  begin
+    mProp := (AppState as IPropFinder).Find(mItem.Path);
+    if  mProp <> nil then begin
+      for i := 0 to mItem.KeyCount - 1 do begin
+        mKeyProp := (mProp.AsInterface as IPropFinder).Find(mItem.Key[i]);
+        if mKeyProp <> nil then begin
+          Result.SetProp(mKeyProp.Name, mKeyProp);
+        end;
+      end;
+    end;
+  end;
+end;
+
+function TMapStateToProps.AddPath(const APath: string; AKeys: TStringArray
+  ): IMapStateToProps;
+begin
+  Result := Self;
+  fItems.Add(TItem.Create(APath, AKeys));
+end;
 
 { TAppNotifier }
 
@@ -160,6 +255,8 @@ var
   mEvent: TAppStoreEvent;
 begin
   AppState := AppFunc.Redux(AppState, AAppAction);
+  if AppState = nil then
+    raise Exception.Create('Redux function returned nil instead of AppState');
   for mEvent in fEvents do begin
     mEvent(AppState);
   end;

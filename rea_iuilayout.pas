@@ -65,6 +65,7 @@ type
     property Height: integer read GetHeight write SetHeight;
   end;
 
+  { IUIRelativePoint }
 
   IUITiler = interface
   ['{E658DAE2-51E6-4CC0-86F6-055E5888E5E4}']

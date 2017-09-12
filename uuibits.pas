@@ -11,8 +11,6 @@ uses
 
 type
 
-  TUIEvents = specialize TFPGList<IUINotifyEvent>;
-
   { TUIBit }
 
   TUIBit = class(TInterfacedObject, IUIBit, INode, IUIPlacement, IUIPlace)
@@ -40,12 +38,6 @@ type
   public
     destructor Destroy; override;
   protected
-    fLog: ILog;
-    fNode: INode;
-    fFactory: IDIFactory;
-    fControl: TControl;
-    fParentElement: IUnknown;
-  protected
     fLayout: integer;
     fPlace: integer;
     fMMWidth: integer;
@@ -72,6 +64,12 @@ type
     procedure SetTop(AValue: integer);
     procedure SetWidth(AValue: integer);
     procedure SetHeight(AValue: integer);
+  protected
+    fLog: ILog;
+    fNode: INode;
+    fFactory: IDIFactory;
+    fControl: TControl;
+    fParentElement: IUnknown;
   published
     property Log: ILog read fLog write fLog;
     property Node: INode read fNode write fNode;
@@ -117,6 +115,17 @@ type
     property ResizeNotifier: IAppNotifier read fResizeNotifier write fResizeNotifier;
   end;
 
+  { TUIStripBit }
+
+  TUIStripBit = class(TUIBit, IUIStripBit)
+  protected
+    procedure DoRender; override;
+  protected
+    fTiler: IUITiler;
+  published
+    property Tiler: IUITiler read fTiler write fTiler;
+  end;
+
   { TUIEditBit }
 
   TUIEditBit = class(TUIBit, IUIEditBit)
@@ -160,6 +169,23 @@ type
   end;
 
 implementation
+
+{ TUIStripBit }
+
+procedure TUIStripBit.DoRender;
+var
+  mChild: INode;
+  mPlace: IUIPlace;
+begin
+  // need to shift children relatively to surface this strip is on(because strip
+  // has no control to render ... intentionaly)
+  Tiler.ReplaceChildren(Self);
+  for mChild in (Self as INode) do begin
+    mPlace := mChild as IUIPlace;
+    mPlace.Left := Left + mPlace.Left;
+    mPlace.Top := Top + mPlace.Top;
+  end;
+end;
 
 { TUIButtonBit }
 
@@ -303,6 +329,7 @@ begin
   AsForm.Caption := Title;
   AsForm.Show;
   AsForm.OnResize := @OnResize;
+
   if ResizeNotifier <> nil then begin
     ResizeNotifier.Add(@ResizeNotifierData);
     ResizeNotifier.Enabled := True;
@@ -376,17 +403,29 @@ procedure TUIBit.Render;
 var
   mChild: INode;
 begin
+  //AsControl.Hide;
   DoRender;
-  Log.DebugLn('RENDERED ' + ClassName
-    + ' L:' + IntToStr(AsControl.Left)
-    + ' T:' + IntToStr(AsControl.Top)
-    + ' W:' + IntToStr(AsControl.Width)
-    + ' H:' + IntToStr(AsControl.Height)
-    + ' VIS:' + BoolToStr(AsControl.Visible)
+  if AsControl <> nil then
+    Log.DebugLn('RENDERED ' + ClassName
+      + ' L:' + IntToStr(AsControl.Left)
+      + ' T:' + IntToStr(AsControl.Top)
+      + ' W:' + IntToStr(AsControl.Width)
+      + ' H:' + IntToStr(AsControl.Height)
+      + ' VIS:' + BoolToStr(AsControl.Visible)
+      )
+  else
+    Log.DebugLn('RENDERED NO CONTROL');
+
+  Log.DebugLn('BIT SIZE ' + ClassName
+    + ' L:' + IntToStr(Left)
+    + ' T:' + IntToStr(Top)
+    + ' W:' + IntToStr(Width)
+    + ' H:' + IntToStr(Height)
     );
 
   for mChild in Node do
     (mChild as IUIBit).Render;
+  //AsControl.Show;
 end;
 
 function TUIBit.Surface: TWinControl;

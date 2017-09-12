@@ -29,16 +29,59 @@ type
     property Current: IMetaElement read GetCurrent;
   end;
 
+  TMetaElementArray = array of IMetaElement;
+
   IMetaElementFactory = interface
   ['{64895959-43CF-43E3-A3CE-1EF69608BEBE}']
     function New(const AMetaElement: IMetaElement): IUnknown;
+    function CreateElement(const ATypeGuid: TGuid): IMetaElement;
+    function CreateElement(const ATypeGuid: TGuid; const AProps: IProps): IMetaElement;
+    function CreateElement(const ATypeGuid: TGuid; const AChildren: array of IMetaElement): IMetaElement;
+    function CreateElement(const ATypeGuid: TGuid; const AProps: IProps;
+      const AChildren: array of IMetaElement): IMetaElement;
+    function CreateElement(const ATypeGuid: TGuid; const ATypeID: string): IMetaElement;
+    function CreateElement(const ATypeGuid: TGuid; const ATypeID: string; const AProps: IProps): IMetaElement;
+    function CreateElement(const ATypeGuid: TGuid; const ATypeID: string; const AChildren: array of IMetaElement): IMetaElement;
+    function CreateElement(const ATypeGuid: TGuid; const ATypeID: string; const AProps: IProps;
+      const AChildren: array of IMetaElement): IMetaElement;
   end;
 
   IComposite = interface
   ['{177488BD-84E8-4E08-821E-A3D25DE36B5C}']
-    // props + state - create metadata what objekt should be created
-    function Render: IMetaElement;
+    function CreateElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement;
   end;
+
+  { IComposites }
+
+  IComposites = interface
+  ['{146EB9CF-576B-4362-A28C-6EBF734F6517}']
+    function GetCount: integer;
+    function GetItem(const AIndex: integer): IComposite;
+    procedure Add(const AComposite: IComposite);
+    property Count: integer read GetCount;
+    property Item[const AIndex: integer]: IComposite read GetItem; default;
+  end;
+
+  IAppComposite = interface(IComposite)
+  ['{CAD729C0-F921-4932-9583-921B177142D2}']
+  end;
+
+  IFormComposite = interface(IComposite)
+  ['{E549424C-6C94-48BC-934D-B100341207C9}']
+  end;
+
+  IEditComposite = interface(IComposite)
+  ['{E649F83B-D785-4209-B2F1-B072ECFDC680}']
+  end;
+
+  IEditsComposite = interface(IComposite)
+  ['{B5B85863-29E5-4444-A65C-890A713E51C6}']
+  end;
+
+  IButtonsComposite = interface(IComposite)
+  ['{C19CED59-51A0-46C0-8082-5776491C97A1}']
+  end;
+
 
   IReconciliator = interface
   ['{066DDE74-0738-4636-B8DD-E3E1BA873D2E}']
@@ -47,16 +90,29 @@ type
 
   IReact = interface
   ['{AE38F1CF-3993-425E-AF47-065ED87D11BA}']
-    function CreateElement(const ATypeGuid: TGuid): IMetaElement;
-    function CreateElement(const ATypeGuid: TGuid; const AProps: IProps): IMetaElement;
-    function CreateElement(const ATypeGuid: TGuid; const AProps: IProps;
-      const AChildren: array of IMetaElement): IMetaElement;
-    function CreateElement(const ATypeGuid: TGuid; const ATypeID: string): IMetaElement;
-    function CreateElement(const ATypeGuid: TGuid; const ATypeID: string; const AProps: IProps): IMetaElement;
-    function CreateElement(const ATypeGuid: TGuid; const ATypeID: string; const AProps: IProps;
-      const AChildren: array of IMetaElement): IMetaElement;
-    procedure Render(const AElement: IMetaElement{; ATo: someplace??? - probably not necessary});
+    procedure Render(const AElement: IMetaElement);
+    procedure Rerender;
   end;
+
+  { IReactComponent }
+
+  IReactComponent = interface
+  ['{FB2D2C72-1E52-40C0-BE52-63AFA7448590}']
+    procedure Rerender;
+    procedure AddComposite(const AComposite: IComposite);
+    procedure ResetData(const AElement: IMetaElement; const ABit: IUIBit);
+    function GetElement: IMetaElement;
+    property Element: IMetaElement read GetElement;
+    function GetBit: IUIBit;
+    property Bit: IUIBit read GetBit;
+  end;
+
+  IReactFactory = interface
+  ['{6F9A1695-2442-401C-98ED-893CFF586962}']
+    function New(const AElement: IMetaElement): IReactComponent;
+    function New1(const AMetaElement: IMetaElement; const AParentComponent: IReactComponent): IUIBit;
+  end;
+
 
 implementation
 

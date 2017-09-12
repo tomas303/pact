@@ -19,7 +19,7 @@ type
     property Props: IProps read GetProps;
   end;
 
-  { IAppState }
+  { IAppLogic }
 
   IAppLogic = interface
   ['{DDA9D37C-8F7D-48F5-B70B-1E3C8E0F0C43}']
@@ -27,14 +27,20 @@ type
     procedure ShutDown;
   end;
 
+  { IAppState }
+
   IAppState = interface
   ['{0930F255-E3FB-423E-B8BE-81109F56FDE4}']
   end;
+
+  { IAppFunc }
 
   IAppFunc = interface
   ['{D5CD4D66-CC4B-4A5E-A206-3D2838BB6CC6}']
     function Redux(const AAppState: IAppState; const AAppAction: IAppAction): IAppState;
   end;
+
+  { IAppDispatcher }
 
   IAppDispatcher = interface
   ['{935D8630-D358-49BA-977B-E4BF88C804ED}']
@@ -63,6 +69,14 @@ type
     function GetEnabled: Boolean;
     procedure SetEnabled(AValue: Boolean);
     property Enabled: Boolean read GetEnabled write SetEnabled;
+  end;
+
+  { IMapStateToProps }
+
+  IMapStateToProps = interface
+  ['{A311ED5F-8C3C-4751-86AB-E5FCEE278024}']
+    function Map(const AProps: IProps): IProps;
+    function AddPath(const APath: string; AKeys: TStringArray): IMapStateToProps;
   end;
 
 implementation
