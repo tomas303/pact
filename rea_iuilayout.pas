@@ -7,19 +7,34 @@ interface
 uses
   iuibits;
 
-const
-  // place - how inner control should be placed within container
-  uiPlaceElastic = 0;  // will use all free space if any
-  uiPlaceFixFront = 1;  // push to front(usually left or top)
-  uiPlaceFixMiddle = 2; // if in the middle, then space will be distrubeted evenly(otherwise is pushed)
-  uiPlaceFixBack = 3; // push to back(usually right or botttom)
-
-  // layout - in which direction container should place chidren
-  uiLayoutHorizontal = 0;  // horizontally
-  uiLayoutVertical = 1;  //vertically
-  uiLayoutOverlay = 2;  // all same size as container(suppose app. will make visible one of them)
+//const
+//  // place - how inner control should be placed within container
+//  uiPlaceElastic = 0;  // will use all free space if any
+//  uiPlaceFixFront = 1;  // push to front(usually left or top)
+//  uiPlaceFixMiddle = 2; // if in the middle, then space will be distrubeted evenly(otherwise is pushed)
+//  uiPlaceFixBack = 3; // push to back(usually right or botttom)
+//
+//  // layout - in which direction container should place chidren
+//  uiLayoutHorizontal = 0;  // horizontally
+//  uiLayoutVertical = 1;  //vertically
+//  uiLayoutOverlay = 2;  // all same size as container(suppose app. will make visible one of them)
 
 type
+
+  cPlace = class
+  public const
+    Elastic = 0;  // will use all free space if any
+    FixFront = 1;  // push to front(usually left or top)
+    FixMiddle = 2; // if in the middle, then space will be distrubeted evenly(otherwise is pushed)
+    FixBack = 3; // push to back(usually right or botttom)
+  end;
+
+  cLayout = class
+  public const
+    Horizontal = 0;  // horizontally
+    Vertical = 1;  //vertically
+    Overlay = 2;  // all same size as container(suppose app. will make visible one of them)
+  end;
 
   { IUIPlacement }
 

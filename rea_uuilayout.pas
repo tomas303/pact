@@ -120,7 +120,7 @@ begin
   for mChild in ANode do begin
     mUni := AClass.Create(mChild);
     case mUni.Place of
-      uiPlaceElastic:
+      cPlace.Elastic:
         Result := Result + mUni.MMSize;
     end;
   end;
@@ -136,7 +136,7 @@ begin
   for mChild in ANode do begin
     mUni := AClass.Create(mChild);
     case mUni.Place of
-      uiPlaceFixFront, uiPlaceFixMiddle, uiPlaceFixBack:
+      cPlace.FixFront, cPlace.FixMiddle, cPlace.FixBack:
         begin
           mUni.Size :=  AR.Restate(mUni.MMSize);
           Result := Result + mUni.Size;
@@ -155,7 +155,7 @@ begin
   for mChild in ANode do begin
     mUni := AClass.Create(mChild);
     case mUni.Place of
-      uiPlaceElastic:
+      cPlace.Elastic:
         begin
           if AElasticMMTotal = 0 then
           begin
@@ -190,11 +190,11 @@ begin
     for mChild in ANode do begin
       mUni := AClass.Create(mChild);
       case mUni.Place of
-        uiPlaceFixMiddle:
+        cPlace.FixMiddle:
           begin
             mMiddles.Add(mUni);
           end;
-        uiPlaceFixBack:
+        cPlace.FixBack:
           begin
              mFixBackHit := True;
              // move postion so last place will touch opposite line(uiPlaceFixBack will push
@@ -256,17 +256,17 @@ procedure TUIDesktopLayout.ReplaceChildren(const AContainer: IUIBit);
 begin
   // setup same height and count width of fixed fields
   case (AContainer as IUIPlacement).Layout of
-    uiLayoutHorizontal:
+    cLayout.Horizontal:
       begin
         Replace(AContainer as INode, TUniHorizontalItem, (AContainer as IUIPlace).Width, HR);
         Reposition(AContainer as INode, TUniVerticalItem, 0, (AContainer as IUIPlace).Height);
       end;
-    uiLayoutVertical:
+    cLayout.Vertical:
       begin
         Replace(AContainer as INode, TUniVerticalItem, (AContainer as IUIPlace).Height, VR);
         Reposition(AContainer as INode, TUniHorizontalItem, 0, (AContainer as IUIPlace).Width);
       end;
-    uiLayoutOverlay:
+    cLayout.Overlay:
       begin
         Reposition(AContainer as INode, TUniHorizontalItem, 0, (AContainer as IUIPlace).Width);
         Reposition(AContainer as INode, TUniVerticalItem, 0, (AContainer as IUIPlace).Height);

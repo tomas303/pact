@@ -338,7 +338,7 @@ begin
         TProps.New
         .SetStr('Title', mTitle)
         .SetStr('Value', mValues[i])
-        .SetInt('Place', uiPlaceFixFront)
+        .SetInt('Place', cPlace.FixFront)
         .SetInt('MMHeight', 22)
         ) as INode);
   end;
@@ -362,7 +362,7 @@ begin
      ]
    );
   }
-  Result := Factory.CreateElement(IUIStripBit, AProps.SetInt('Layout', uiLayoutHorizontal));
+  Result := Factory.CreateElement(IUIStripBit, AProps.SetInt('Layout', cLayout.Horizontal));
   if mTitle <> '' then
     (Result as INode).AddChild(Factory.CreateElement(IUITextBit, TProps.New.SetStr('Text', mTitle)) as INode);
   (Result as INode).AddChild(Factory.CreateElement(IUIEditBit, TProps.New.SetStr('Text', mValue)) as INode);
@@ -396,7 +396,7 @@ begin
 
   AProps
     .SetStr('Title', 'Hello world')
-    .SetInt('Layout', uiLayoutVertical);
+    .SetInt('Layout', cLayout.Vertical);
   Result := Factory.CreateElement(
     IFormComposite, AProps,
     [
@@ -404,7 +404,7 @@ begin
         TProps.New
           .SetStr('Titles', 'Name|Surname|Age')
           .SetStr('Values', 'Bob|MacIntosh|24')
-          .SetInt('Layout', uiLayoutVertical)
+          .SetInt('Layout', cLayout.Vertical)
           //.SetInt('MMWidth', 100)
           //.SetInt('MMHeight', 10)
       )
