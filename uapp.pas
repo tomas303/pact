@@ -216,7 +216,8 @@ begin
   //
   mReg := DIC.Add(TReconciliator, IReconciliator);
   mReg.InjectProp('Log', ILog);
-  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  //mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('ReactFactory', IReactFactory);
   mReg.InjectProp('Injector', IInjector);
   //
   mReg := DIC.Add(TComposite, IComposite);
@@ -234,6 +235,9 @@ begin
   mReg.InjectProp('Factory', IMetaElementFactory);
   //
   mReg := DIC.Add(TEditsComposite, IEditsComposite);
+  mReg.InjectProp('Factory', IMetaElementFactory);
+  //
+  mReg := DIC.Add(THeaderComposite, IHeaderComposite);
   mReg.InjectProp('Factory', IMetaElementFactory);
   //
   mReg := DIC.Add(TReact, IReact);

@@ -78,14 +78,8 @@ type
   ['{B5B85863-29E5-4444-A65C-890A713E51C6}']
   end;
 
-  IButtonsComposite = interface(IComposite)
-  ['{C19CED59-51A0-46C0-8082-5776491C97A1}']
-  end;
-
-
-  IReconciliator = interface
-  ['{066DDE74-0738-4636-B8DD-E3E1BA873D2E}']
-    procedure Reconciliate(var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
+  IHeaderComposite = interface(IComposite)
+  ['{4F6C423B-D002-4717-B455-67232370A145}']
   end;
 
   IReact = interface
@@ -113,6 +107,10 @@ type
     function New1(const AMetaElement: IMetaElement; const AParentComponent: IReactComponent): IUIBit;
   end;
 
+  IReconciliator = interface
+  ['{066DDE74-0738-4636-B8DD-E3E1BA873D2E}']
+    procedure Reconciliate(const AParentComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
+  end;
 
 implementation
 
