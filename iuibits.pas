@@ -5,7 +5,7 @@ unit iuibits;
 interface
 
 uses
-  Classes, SysUtils, Controls, trl_iprops;
+  Classes, SysUtils, Controls, trl_iprops, Graphics;
 
 type
   // wrapper for real control and its binder
@@ -14,6 +14,7 @@ type
     // create / updater cocrete objects from FCL(but from factory ... addclass with owner)
     procedure Render;
     function Surface: TWinControl;
+    procedure RenderPaint(const ACanvas: TCanvas);
   end;
 
   IUIFormBit = interface

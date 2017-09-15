@@ -28,6 +28,7 @@ type
     // IUIBit
     procedure Render;
     function Surface: TWinControl; virtual;
+    procedure RenderPaint(const ACanvas: TCanvas);
   protected
     fColor: TColor;
     function AsControl: TControl;
@@ -35,6 +36,7 @@ type
     procedure SetParentElement(AValue: IUnknown);
   protected
     procedure DoRender; virtual;
+    procedure DoRenderPaint(const ACanvas: TCanvas); virtual;
   public
     destructor Destroy; override;
   protected
@@ -99,6 +101,7 @@ type
     procedure ResetScroll;
     procedure OnResize(Sender: TObject);
     procedure ResizeNotifierData(const AProps: IProps);
+    procedure OnPaint(Sender: TObject);
   protected
     procedure DoRender; override;
     function Surface: TWinControl; override;
@@ -120,10 +123,23 @@ type
   TUIStripBit = class(TUIBit, IUIStripBit)
   protected
     procedure DoRender; override;
+    procedure DoRenderPaint(const ACanvas: TCanvas); override;
   protected
     fTiler: IUITiler;
+    fTransparent: Boolean;
+    fTitle: string;
+    fFontColor: TColor;
+    fBorder: integer;
+    fBorderColor: TColor;
+  public
+    procedure AfterConstruction; override;
   published
     property Tiler: IUITiler read fTiler write fTiler;
+    property Transparent: Boolean read fTransparent write fTransparent default True;
+    property Title: string read fTitle write fTitle;
+    property FontColor: TColor read fFontColor write fFontColor;
+    property Border: integer read fBorder write fBorder;
+    property BorderColor: TColor read fBorderColor write fBorderColor;
   end;
 
   { TUIEditBit }
@@ -185,6 +201,32 @@ begin
     mPlace.Left := Left + mPlace.Left;
     mPlace.Top := Top + mPlace.Top;
   end;
+end;
+
+procedure TUIStripBit.DoRenderPaint(const ACanvas: TCanvas);
+var
+  i: integer;
+begin
+  inherited DoRenderPaint(ACanvas);
+  if not Transparent then begin
+    ACanvas.Brush.Color := Color;
+    ACanvas.FillRect(Left, Top, Left + Width, Top + Height - i);
+  end;
+  if Border > 0 then begin
+    ACanvas.Pen.Color := BorderColor;
+    for i := 0 to Border - 1 do
+      ACanvas.Rectangle(Left + i, Top + i, Left + Width - i, Top + Height - i);
+  end;
+  if Title <> '' then begin
+    ACanvas.Font.Color := FontColor;
+    ACanvas.TextOut(Left + Border + 1, Top + Border + 1, Title);
+  end;
+end;
+
+procedure TUIStripBit.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  fTransparent := True;
 end;
 
 { TUIButtonBit }
@@ -310,6 +352,14 @@ begin
   .SetInt('Height', AsControl.Height);
 end;
 
+procedure TUIFormBit.OnPaint(Sender: TObject);
+var
+  mChild: INode;
+begin
+  for mChild in Node do
+    (mChild as IUIBit).RenderPaint(AsForm.Canvas);
+end;
+
 procedure TUIFormBit.DoRender;
 begin
   // discard during render should be samewhat general(callbacks could result in
@@ -326,6 +376,7 @@ begin
   //AsForm.HorzScrollBar.Range:=;
   //AsForm.VertScrollBar.Range:=;
 
+  AsForm.OnPaint := @OnPaint;
   AsForm.Caption := Title;
   AsForm.Show;
   AsForm.OnResize := @OnResize;
@@ -436,6 +487,11 @@ begin
     Result := nil;
 end;
 
+procedure TUIBit.RenderPaint(const ACanvas: TCanvas);
+begin
+  DoRenderPaint(ACanvas);
+end;
+
 function TUIBit.GetLayout: integer;
 begin
   Result := fLayout;
@@ -497,7 +553,10 @@ begin
 end;
 
 procedure TUIBit.SetLeft(AValue: integer);
+var
+  m:string;
 begin
+  m:=classname;
   fLeft := AValue;
 end;
 
@@ -529,6 +588,10 @@ begin
   AsControl.Width := Width;
   AsControl.Height := Height;
   AsControl.Color := Color;
+end;
+
+procedure TUIBit.DoRenderPaint(const ACanvas: TCanvas);
+begin
 end;
 
 destructor TUIBit.Destroy;
