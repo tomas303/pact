@@ -20,6 +20,7 @@ type
     procedure btnHelloWorldClick(Sender: TObject);
     procedure btnPerspectiveClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure FormPaint(Sender: TObject);
   protected type
     t2ar = array[0..1] of variant;
   protected
@@ -109,6 +110,11 @@ begin
   ////podle elementu vytvorit IUI objekt - ten vytvori form a binder a zobrazi
   //// co za metodu taky Render? v podstate (do)vytvorit / aktualizovat obsah
   //
+end;
+
+procedure TForm1.FormPaint(Sender: TObject);
+begin
+
 end;
 
 procedure TForm1.kvik(a: array of t2ar);
