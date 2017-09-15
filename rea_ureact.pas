@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, rea_ireact, fgl, trl_iprops, iuibits,
   trl_itree, trl_idifactory, trl_irttibroker, trl_urttibroker,
-  trl_uprops, trl_udifactory, trl_ilog, trl_iinjector, rea_iredux, rea_iuilayout;
+  trl_uprops, trl_udifactory, trl_ilog, trl_iinjector, rea_iredux, rea_iuilayout,
+  graphics;
 
 type
 
@@ -200,16 +201,16 @@ type
   TReactFactory = class(TDIFactory, IReactFactory)
   protected
     function MakeBit(const AMetaElement: IMetaElement; const AComposites: IComposites): IUIBit;
-    function MakeBit1(const AMetaElement: IMetaElement; const AParentComponent: IReactComponent;
+    function MakeBit1(const AMetaElement: IMetaElement; const AComponent: IReactComponent;
       const AChainComposite: Boolean): IUIBit;
     procedure MakeChildren(const AParentElement: INode; const AParentInstance: INode);
     procedure MakeChildren1(const AParentElement: INode; const AParentInstance: INode;
-      const AParentComponent: IReactComponent);
+      const AComponent: IReactComponent);
     function GetChildrenAsArray(const AParentElement: INode): TMetaElementArray;
   protected
     // IReactFactory
     function New(const AMetaElement: IMetaElement): IReactComponent;
-    function New1(const AMetaElement: IMetaElement; const AParentComponent: IReactComponent): IUIBit;
+    function New1(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
   protected
     fLog: ILog;
   published
@@ -226,13 +227,13 @@ type
     // setup diff of props between AOldElement / ANewElement to ABit
     function EqualizeProps(var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
     // elements exists in both old and new structure or only in old structure
-    function EqualizeOriginalChildren(const AParentComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
+    function EqualizeOriginalChildren(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
     // elements exists only in new structure
-    function EqualizeNewChildren(const AParentComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
-    procedure Equalize(const AParentComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
+    function EqualizeNewChildren(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
+    procedure Equalize(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
   protected
     // IReconciliator
-    procedure Reconciliate(const AParentComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
+    procedure Reconciliate(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
   protected
     fLog: ILog;
     //fElementFactory: IMetaElementFactory;
@@ -399,20 +400,36 @@ begin
   //    )
   //  ]);
 
+  //AProps
+  //  .SetStr('Title', 'Hello world')
+  //  .SetInt('Layout', cLayout.Vertical);
+  //Result := Factory.CreateElement(
+  //  IFormComposite, AProps,
+  //  [
+  //    Factory.CreateElement(IHeaderComposite),
+  //    Factory.CreateElement(IEditsComposite,
+  //      TProps.New
+  //        .SetStr('Titles', 'Name|Surname|Age')
+  //        .SetStr('Values', 'Bob|MacIntosh|24')
+  //        .SetInt('Layout', cLayout.Vertical)
+  //        //.SetInt('MMWidth', 100)
+  //        //.SetInt('MMHeight', 10)
+  //    )
+  //  ]);
+
   AProps
     .SetStr('Title', 'Hello world')
     .SetInt('Layout', cLayout.Vertical);
   Result := Factory.CreateElement(
-    IFormComposite, AProps,
+    IFormComposite, AProps.Clone.SetInt('Color', clYellow),
     [
-      Factory.CreateElement(IHeaderComposite),
-      Factory.CreateElement(IEditsComposite,
-        TProps.New
-          .SetStr('Titles', 'Name|Surname|Age')
-          .SetStr('Values', 'Bob|MacIntosh|24')
-          .SetInt('Layout', cLayout.Vertical)
-          //.SetInt('MMWidth', 100)
-          //.SetInt('MMHeight', 10)
+      Factory.CreateElement(IHeaderComposite,
+      AProps.Clone.SetBool('Transparent', False)
+      .SetInt('Color', clBlue)
+      .SetInt('FontColor', clRed)
+      .SetStr('Title', 'Pokusna hlavicka')
+      .SetInt('Border', 5)
+      .SetInt('BorderColor', clLime)
       )
     ]);
 end;
@@ -424,7 +441,7 @@ function THeaderComposite.ComposeElement(const AProps: IProps;
 var
   mChild: IMetaElement;
 begin
-  Result := Factory.CreateElement(IEditComposite, AProps.SetStr('Title', 'HEADER').SetStr('Value', 'HEADER'));
+  Result := Factory.CreateElement(IUIStripBit, AProps);
 end;
 
 { TReactComponent }
@@ -466,7 +483,7 @@ begin
     // budu renderovat znovu, tak je zase zahodim ....
 
     mNewElement := Composites[0].CreateElement(Element.Props, mChildren);
-
+    // this can be aswell composite
     Reconciliator.Reconciliate(self, mNewBit, Element, mNewElement);
     if Bit <> mNewBit  then begin
       ResetData(mNewElement, mNewBit);
@@ -596,7 +613,7 @@ begin
 end;
 
 function TReactFactory.MakeBit1(const AMetaElement: IMetaElement;
-  const AParentComponent: IReactComponent; const AChainComposite: Boolean): IUIBit;
+  const AComponent: IReactComponent; const AChainComposite: Boolean): IUIBit;
 var
   mNew: IUnknown;
   mComposite: IComposite;
@@ -611,15 +628,20 @@ begin
   begin
     if AChainComposite then
     begin
-      //AParentComponent.AddComposite(mComposite);
+      AComponent.AddComposite(mComposite);
       mElement := mComposite.CreateElement(AMetaElement.Props, GetChildrenAsArray(AMetaElement as INode));
-      Result := MakeBit1(mElement, AParentComponent, True);
+      Result := MakeBit1(mElement, AComponent, True);
     end
     else
     begin
+      // AMetaelement -> composite
+
+      // best structuer ... one composite, in case of more composite it will be metacomposite
+      // which will keep inputxml, bit, and list of composites participated in createion
+      // (so from outer view will be no difference ...)
+
       mComponent := IReactComponent(Container.Locate(IReactComponent));
-      (AParentComponent as INode).AddChild(mComponent as INode);
-      // clear composites
+      (AComponent as INode).AddChild(mComponent as INode);
       mComponent.AddComposite(mComposite);
       mElement := mComposite.CreateElement(AMetaElement.Props, GetChildrenAsArray(AMetaElement as INode));
       Result := MakeBit1(mElement, mComponent, True);
@@ -629,7 +651,7 @@ begin
   else
   if Supports(mNew, IUIBit, Result) then
   begin
-    MakeChildren1(AMetaElement as INode, Result as INode, AParentComponent);
+    MakeChildren1(AMetaElement as INode, Result as INode, AComponent);
   end
   else
   begin
@@ -656,7 +678,7 @@ begin
 end;
 
 procedure TReactFactory.MakeChildren1(const AParentElement: INode;
-  const AParentInstance: INode; const AParentComponent: IReactComponent);
+  const AParentInstance: INode; const AComponent: IReactComponent);
 var
   mChild: IUIBit;
   mChildNode: INode;
@@ -666,7 +688,7 @@ begin
   for mChildNode in AParentElement do begin
     mChildElement := mChildNode as IMetaElement;
     mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
-    mChild := New1(mChildElement, AParentComponent);
+    mChild := New1(mChildElement, AComponent);
     AParentInstance.AddChild(mChild as INode);
   end;
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
@@ -695,10 +717,10 @@ begin
 end;
 
 function TReactFactory.New1(const AMetaElement: IMetaElement;
-  const AParentComponent: IReactComponent): IUIBit;
+  const AComponent: IReactComponent): IUIBit;
 begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
-  Result := MakeBit1(AMetaElement, AParentComponent, False);
+  Result := MakeBit1(AMetaElement, AComponent, False);
   Log.DebugLnExit({$I %CURRENTROUTINE%});
 end;
 
@@ -734,21 +756,21 @@ end;
 
 { TReconciliator }
 
-procedure TReconciliator.Equalize(const AParentComponent: IReactComponent;
+procedure TReconciliator.Equalize(const AComponent: IReactComponent;
   var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
 var
   mRender: Boolean;
 begin
   mRender := EqualizeProps(ABit, AOldElement, ANewElement);
-  if EqualizeOriginalChildren(AParentComponent, ABit, AOldElement, ANewElement) then
+  if EqualizeOriginalChildren(AComponent, ABit, AOldElement, ANewElement) then
     mRender := True;
-  if EqualizeNewChildren(AParentComponent, ABit, AOldElement, ANewElement) then
+  if EqualizeNewChildren(AComponent, ABit, AOldElement, ANewElement) then
     mRender := True;
   if mRender then
     ABit.Render;
 end;
 
-function TReconciliator.EqualizeNewChildren(const AParentComponent: IReactComponent; var ABit: IUIBit;
+function TReconciliator.EqualizeNewChildren(const AComponent: IReactComponent; var ABit: IUIBit;
   const AOldElement, ANewElement: IMetaElement): Boolean;
 var
   i: integer;
@@ -760,7 +782,7 @@ begin
     mNewBit := nil;
     mNewEl := (ANewElement as INode).Child[i] as IMetaElement;
     mNewEl.Props.SetIntf('ParentElement', ABit);
-    Reconciliate(AParentComponent, mNewBit, nil, mNewEl);
+    Reconciliate(AComponent, mNewBit, nil, mNewEl);
     if mNewBit <> nil then begin
       (ABit as INode).AddChild(mNewBit as INode);
       Result := True;
@@ -768,7 +790,7 @@ begin
   end;
 end;
 
-function TReconciliator.EqualizeOriginalChildren(const AParentComponent: IReactComponent;
+function TReconciliator.EqualizeOriginalChildren(const AComponent: IReactComponent;
   var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
 var
   i: integer;
@@ -790,7 +812,7 @@ begin
     else
       mNewEl := nil;
     mNewBit := mBit;
-    Reconciliate(AParentComponent, mNewBit, mOldEl, mNewEl);
+    Reconciliate(AComponent, mNewBit, mOldEl, mNewEl);
     if mNewBit <> mBit then begin
       (ABit as INode).Delete(i - mRemoved);
       if mNewBit <> nil then begin
@@ -861,7 +883,7 @@ begin
   end;
 end;
 
-procedure TReconciliator.Reconciliate(const AParentComponent: IReactComponent;
+procedure TReconciliator.Reconciliate(const AComponent: IReactComponent;
   var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
 begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
@@ -874,14 +896,14 @@ begin
     Log.DebugLn(AOldElement.TypeGuid + '.' + AOldElement.TypeID + ' to nil');
   end else
   if (AOldElement = nil) and (ANewElement <> nil) then begin
-    ABit := ReactFactory.New1(ANewElement, AParentComponent) as IUIBit;
+    ABit := ReactFactory.New1(ANewElement, AComponent) as IUIBit;
     Log.DebugLn('from nil to ' + ANewElement.TypeGuid + '.' + ANewElement.TypeID);
   end else
   if (AOldElement.TypeGuid <> ANewElement.TypeGuid) or (AOldElement.TypeID <> ANewElement.TypeID) then begin
-    ABit := ReactFactory.New1(ANewElement, AParentComponent) as IUIBit;
+    ABit := ReactFactory.New1(ANewElement, AComponent) as IUIBit;
     Log.DebugLn('from ' + AOldElement.TypeGuid + '.' + AOldElement.TypeID + ' to ' + ANewElement.TypeGuid + '.' + ANewElement.TypeID);
   end else begin
-    Equalize(AParentComponent, ABit, AOldElement, ANewElement);
+    Equalize(AComponent, ABit, AOldElement, ANewElement);
   end;
   Log.DebugLnExit({$I %CURRENTROUTINE%});
 end;
