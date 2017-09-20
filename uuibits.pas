@@ -122,6 +122,9 @@ type
 
   TUIStripBit = class(TUIBit, IUIStripBit)
   protected
+    procedure PaintBackground(const ACanvas: TCanvas);
+    procedure PaintBorder(const ACanvas: TCanvas);
+    procedure PaintTitle(const ACanvas: TCanvas);
     procedure DoRender; override;
     procedure DoRenderPaint(const ACanvas: TCanvas); override;
   protected
@@ -204,22 +207,69 @@ begin
 end;
 
 procedure TUIStripBit.DoRenderPaint(const ACanvas: TCanvas);
-var
-  i: integer;
 begin
   inherited DoRenderPaint(ACanvas);
+  PaintBorder(ACanvas);
+  PaintBackground(ACanvas);
+  PaintTitle(ACanvas);
+end;
+
+procedure TUIStripBit.PaintBackground(const ACanvas: TCanvas);
+var
+  mBColor: TColor;
+begin
   if not Transparent then begin
-    ACanvas.Brush.Color := Color;
-    ACanvas.FillRect(Left, Top, Left + Width, Top + Height - i);
+    mBColor := ACanvas.Brush.Color;
+    try
+      ACanvas.Brush.Color := Color;
+      ACanvas.FillRect(Left + Border, Top + Border, Left + Width - Border, Top
+        + Height - Border);
+    finally
+      ACanvas.Brush.Color := mBColor;
+    end;
   end;
+end;
+
+procedure TUIStripBit.PaintBorder(const ACanvas: TCanvas);
+var
+  mBColor: TColor;
+begin
   if Border > 0 then begin
-    ACanvas.Pen.Color := BorderColor;
-    for i := 0 to Border - 1 do
-      ACanvas.Rectangle(Left + i, Top + i, Left + Width - i, Top + Height - i);
+    mBColor := ACanvas.Brush.Color;
+    try
+      ACanvas.Brush.Color := BorderColor;
+      // top
+      ACanvas.FillRect(Left, Top, Left + Width, Top + Border);
+      // bottom
+      ACanvas.FillRect(Left, Top + Height - Border, Left + Width, Top + Height);
+      // left
+      ACanvas.FillRect(Left, Top + Border, Left + Border, Top + Height - Border
+        );
+      // right
+      ACanvas.FillRect(Left + Width - Border, Top + Border, Left + Width, Top +
+        Height - Border);
+    finally
+      ACanvas.Brush.Color := mBColor;
+    end;
   end;
+end;
+
+procedure TUIStripBit.PaintTitle(const ACanvas: TCanvas);
+var
+  mFColor: TColor;
+  mBColor: TColor;
+begin
   if Title <> '' then begin
-    ACanvas.Font.Color := FontColor;
-    ACanvas.TextOut(Left + Border + 1, Top + Border + 1, Title);
+    mBColor := ACanvas.Brush.Color;
+    mFColor := ACanvas.Font.Color;
+    try
+      ACanvas.Font.Color := FontColor;
+      ACanvas.Brush.Color := Color;
+      ACanvas.TextOut(Left + Border + 1, Top + Border + 1, Title);
+    finally
+      ACanvas.Font.Color := mFColor;
+      ACanvas.Brush.Color := mBColor;
+    end;
   end;
 end;
 
@@ -488,8 +538,12 @@ begin
 end;
 
 procedure TUIBit.RenderPaint(const ACanvas: TCanvas);
+var
+  mChild: INode;
 begin
   DoRenderPaint(ACanvas);
+  for mChild in Node do
+    (mChild as IUIBit).RenderPaint(ACanvas);
 end;
 
 function TUIBit.GetLayout: integer;
