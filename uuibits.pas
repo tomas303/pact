@@ -27,8 +27,8 @@ type
   protected
     // IUIBit
     procedure Render;
-    function Surface: TWinControl; virtual;
     procedure RenderPaint(const ACanvas: TCanvas);
+    procedure HookParent(const AParent: TWinControl);
   protected
     fColor: TColor;
     function AsControl: TControl;
@@ -37,6 +37,7 @@ type
   protected
     procedure DoRender; virtual;
     procedure DoRenderPaint(const ACanvas: TCanvas); virtual;
+    procedure DoHookParent(const AParent: TWinControl); virtual;
   public
     destructor Destroy; override;
   protected
@@ -104,7 +105,6 @@ type
     procedure OnPaint(Sender: TObject);
   protected
     procedure DoRender; override;
-    function Surface: TWinControl; override;
   public
     destructor Destroy; override;
   protected
@@ -127,6 +127,7 @@ type
     procedure PaintTitle(const ACanvas: TCanvas);
     procedure DoRender; override;
     procedure DoRenderPaint(const ACanvas: TCanvas); override;
+    procedure DoHookParent(const AParent: TWinControl); override;
   protected
     fTiler: IUITiler;
     fTransparent: Boolean;
@@ -214,6 +215,15 @@ begin
   PaintTitle(ACanvas);
 end;
 
+procedure TUIStripBit.DoHookParent(const AParent: TWinControl);
+var
+  mChild: INode;
+begin
+  for mChild in (Self as INode) do begin
+    (mChild as IUIBit).HookParent(AParent);
+  end;
+end;
+
 procedure TUIStripBit.PaintBackground(const ACanvas: TCanvas);
 var
   mBColor: TColor;
@@ -295,8 +305,6 @@ end;
 procedure TUIButtonBit.DoRender;
 begin
   inherited DoRender;
-  if ParentElement <> nil then
-    AsButton.Parent := (ParentElement as IUIBit).Surface;
   AsButton.Caption := Caption;
   AsButton.OnClick := @OnClick;
   if ClickNotifier <> nil then
@@ -314,8 +322,6 @@ end;
 procedure TUITextBit.DoRender;
 begin
   inherited;
-  if ParentElement <> nil then
-    AsText.Parent := (ParentElement as IUIBit).Surface;
   AsText.Caption := Text;
   AsText.Show;
 end;
@@ -330,8 +336,6 @@ end;
 procedure TUIEditBit.DoRender;
 begin
   inherited;
-  if ParentElement <> nil then
-    AsEdit.Parent := (ParentElement as IUIBit).Surface;
   AsEdit.Text := Text;
   AsEdit.Show;
 end;
@@ -411,6 +415,8 @@ begin
 end;
 
 procedure TUIFormBit.DoRender;
+var
+  mChild: INode;
 begin
   // discard during render should be samewhat general(callbacks could result in
   // another render call .... anyway, do not want to allow whatsever call back during
@@ -435,11 +441,10 @@ begin
     ResizeNotifier.Add(@ResizeNotifierData);
     ResizeNotifier.Enabled := True;
   end;
-end;
 
-function TUIFormBit.Surface: TWinControl;
-begin
-  Result := AsForm;
+  for mChild in Node do
+    (mChild as IUIBit).HookParent(AsForm);
+
 end;
 
 destructor TUIFormBit.Destroy;
@@ -529,14 +534,6 @@ begin
   //AsControl.Show;
 end;
 
-function TUIBit.Surface: TWinControl;
-begin
-  if ParentElement <> nil then
-    Result := (ParentElement as IUIBit).Surface
-  else
-    Result := nil;
-end;
-
 procedure TUIBit.RenderPaint(const ACanvas: TCanvas);
 var
   mChild: INode;
@@ -544,6 +541,11 @@ begin
   DoRenderPaint(ACanvas);
   for mChild in Node do
     (mChild as IUIBit).RenderPaint(ACanvas);
+end;
+
+procedure TUIBit.HookParent(const AParent: TWinControl);
+begin
+  DoHookParent(AParent);
 end;
 
 function TUIBit.GetLayout: integer;
@@ -646,6 +648,11 @@ end;
 
 procedure TUIBit.DoRenderPaint(const ACanvas: TCanvas);
 begin
+end;
+
+procedure TUIBit.DoHookParent(const AParent: TWinControl);
+begin
+  AsControl.Parent := AParent;
 end;
 
 destructor TUIBit.Destroy;

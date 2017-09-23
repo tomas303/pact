@@ -13,8 +13,8 @@ type
   ['{479784FA-9E6B-4826-BCFE-92A676B2F7DD}']
     // create / updater cocrete objects from FCL(but from factory ... addclass with owner)
     procedure Render;
-    function Surface: TWinControl;
     procedure RenderPaint(const ACanvas: TCanvas);
+    procedure HookParent(const AParent: TWinControl);
   end;
 
   IUIFormBit = interface
