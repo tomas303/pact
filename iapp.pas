@@ -33,6 +33,11 @@ type
     Height = 'Height';
   public const
     MainForm = 'MainForm';
+  public const
+    MainFormLeft = MainForm + '.' + Left;
+    MainFormTop = MainForm + '.' + Top;
+    MainFormWidth = MainForm + '.' + Width;
+    MainFormHeight = MainForm + '.' + Height;
   end;
 
   cActions = class
@@ -40,6 +45,9 @@ type
     InitFunc = 0;
     ResizeFunc = 1;
     HelloFunc = 2;
+    ClickOne = 3;
+    ClickTwo = 4;
+    ClickThree = 5;
   end;
 
 implementation

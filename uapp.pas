@@ -206,7 +206,7 @@ begin
   mReg := DIC.Add(TReactComponent, IReactComponent);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Node', INode, 'parent');
-  mReg.InjectProp('Composites', IComposites);
+  //mReg.InjectProp('Composites', IComposites);
   mReg.InjectProp('Reconciliator', IReconciliator);
   mReg.InjectProp('ReactFactory', IReactFactory);
   //
@@ -221,24 +221,58 @@ begin
   mReg.InjectProp('Injector', IInjector);
   //
   mReg := DIC.Add(TComposite, IComposite);
-  mReg.InjectProp('Factory', IMetaElementFactory);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TComposites, IComposites);
   //
   mReg := DIC.Add(TAppComposite, IAppComposite);
-  mReg.InjectProp('Factory', IMetaElementFactory);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TFormComposite, IFormComposite);
-  mReg.InjectProp('Factory', IMetaElementFactory);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Log', ILog);
+  //
+  mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'mainform');
+  mReg.InjectProp('AppState', IAppState);
+  mReg.InjectProp('AddKey', cAppState.MainFormWidth);
+  mReg.InjectProp('AddKey', cAppState.MainFormHeight);
+  mReg := DIC.Add(TFormComposite, IFormComposite, 'mainform');
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('MapStateToProps', IMapStateToProps, 'mainform');
+  mReg.InjectProp('Log', ILog);
+  mReg.InjectProp('ActionResize', cActions.ResizeFunc);
+
   //
   mReg := DIC.Add(TEditComposite, IEditComposite);
-  mReg.InjectProp('Factory', IMetaElementFactory);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TEditsComposite, IEditsComposite);
-  mReg.InjectProp('Factory', IMetaElementFactory);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Log', ILog);
+  //
+  mReg := DIC.Add(TButtonComposite, IButtonComposite);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Log', ILog);
+  //
+  mReg := DIC.Add(TButtonsComposite, IButtonsComposite);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(THeaderComposite, IHeaderComposite);
-  mReg.InjectProp('Factory', IMetaElementFactory);
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TReact, IReact);
   mReg.InjectProp('Log', ILog);

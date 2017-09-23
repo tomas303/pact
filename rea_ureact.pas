@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, rea_ireact, fgl, trl_iprops, iuibits,
   trl_itree, trl_idifactory, trl_irttibroker, trl_urttibroker,
   trl_uprops, trl_udifactory, trl_ilog, trl_iinjector, rea_iredux, rea_iuilayout,
-  graphics;
+  graphics, iapp;
 
 type
 
@@ -64,16 +64,23 @@ type
 
   TComposite = class(TInterfacedObject, IComposite)
   protected
+    function NewNotifier(const AActionID: integer): IAppNotifier;
+    function NewProps: IProps;
+  protected
     function ComposeElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement; virtual; abstract;
   protected
     // IComposite
-    function CreateElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement;
+    function CreateElement(const ASourceElement: IMetaElement): IMetaElement;
   protected
-    fFactory: IMetaElementFactory;
+    fFactory: IDIFactory;
+    fElementFactory: IMetaElementFactory;
     fMapStateToProps: IMapStateToProps;
+    fLog: ILog;
   published
-    property Factory: IMetaElementFactory read fFactory write fFactory;
+    property Factory: IDIFactory read fFactory write fFactory;
+    property ElementFactory: IMetaElementFactory read fElementFactory write fElementFactory;
     property MapStateToProps: IMapStateToProps read fMapStateToProps write fMapStateToProps;
+    property Log: ILog read fLog write fLog;
   end;
 
   { TComposites }
@@ -108,6 +115,10 @@ type
   TFormComposite = class(TComposite, IFormComposite)
   protected
     function ComposeElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement; override;
+  protected
+    fActionResize: integer;
+  published
+    property ActionResize: integer read fActionResize write fActionResize;
   end;
 
   { TEditComposite }
@@ -120,6 +131,24 @@ type
   { TEditsComposite }
 
   TEditsComposite = class(TComposite, IEditsComposite)
+  protected
+    function ComposeElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement; override;
+  end;
+
+  { TButtonComposite }
+
+  TButtonComposite = class(TComposite, IButtonComposite)
+  protected
+    function ComposeElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement; override;
+  protected
+    fActionClick: integer;
+  published
+    property ActionClick: integer read fActionClick write fActionClick;
+  end;
+
+  { TButtonsComposite }
+
+  TButtonsComposite = class(TComposite, IButtonsComposite)
   protected
     function ComposeElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement; override;
   end;
@@ -138,14 +167,18 @@ type
     // later remove setting from interface and made it part of on demand injection
     // in place, where react component is created
     fElement: IMetaElement;
+    fComposite: IComposite;
     fBit: IUIBit;
   protected
     // IReactComponent
-    procedure Rerender;
-    procedure AddComposite(const AComposite: IComposite);
-    procedure ResetData(const AElement: IMetaElement; const ABit: IUIBit);
+    procedure Rerender(const AUpperComponent: IReactComponent);
+    //procedure AddComposite(const AComposite: IComposite);
+    procedure ResetData(const AElement: IMetaElement; const AComposite: IComposite;
+      const ABit: IUIBit);
     function GetElement: IMetaElement;
     property Element: IMetaElement read GetElement;
+    function GetComposite: IComposite;
+    property Composite: IComposite read GetComposite;
     function GetBit: IUIBit;
     property Bit: IUIBit read GetBit;
   protected
@@ -161,16 +194,63 @@ type
   protected
     fLog: ILog;
     fNode: INode;
-    fComposites: IComposites;
+    //fComposites: IComposites;
     fReconciliator: IReconciliator;
     fReactFactory: IReactFactory;
   published
     property Log: ILog read fLog write fLog;
     property Node: INode read fNode write fNode;
-    property Composites: IComposites read fComposites write fComposites;
+    //property Composites: IComposites read fComposites write fComposites;
     property Reconciliator: IReconciliator read fReconciliator write fReconciliator;
     property ReactFactory: IReactFactory read fReactFactory write fReactFactory;
   end;
+
+  { TXReactComponent }
+
+  TXReactComponent = class(TInterfacedObject, IXReactComponent, INode)
+  protected
+    procedure DoRerender; virtual;
+  protected
+    // IXReactComponent
+    procedure Rerender;
+    procedure ResetData(const AElement: IMetaElement; const AObject: IUnknown);
+    function GetElement: IMetaElement;
+    property Element: IMetaElement read GetElement;
+  protected
+    fNode: INode;
+    fReconciliator: IReconciliator;
+    property NodeImp: INode read fNode implements INode;
+  published
+    property Node: INode read fNode write fNode;
+    property Reconciliator: IReconciliator read fReconciliator write fReconciliator;
+  end;
+
+  { TUIBitComponent }
+
+  TUIBitComponent = class(TXReactComponent, IUIBitComponent)
+  protected
+    procedure DoRerender; override;
+  protected
+    // IUIBitComponent
+    function GetUIBit: IUIBit;
+    property UIBit: IUIBit read GetUIBit;
+  protected
+    fUIBit: IUIBit;
+  end;
+
+  { TCompositeComponent }
+
+  TCompositeComponent = class(TXReactComponent, ICompositeComponent)
+  protected
+    procedure DoRerender; override;
+  protected
+    // ICompositeComponent
+    function GetComposite: IComposite;
+    property Composite: IComposite read GetComposite;
+  protected
+    fComposite: IComposite;
+  end;
+
 
   { TMetaElementFactory }
 
@@ -201,16 +281,18 @@ type
   TReactFactory = class(TDIFactory, IReactFactory)
   protected
     function MakeBit(const AMetaElement: IMetaElement; const AComposites: IComposites): IUIBit;
-    function MakeBit1(const AMetaElement: IMetaElement; const AComponent: IReactComponent;
-      const AChainComposite: Boolean): IUIBit;
+    function MakeBit1(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
     procedure MakeChildren(const AParentElement: INode; const AParentInstance: INode);
     procedure MakeChildren1(const AParentElement: INode; const AParentInstance: INode;
       const AComponent: IReactComponent);
     function GetChildrenAsArray(const AParentElement: INode): TMetaElementArray;
   protected
+    function MakeComponent3(const AMetaElement: IMetaElement; const AParentBit: IUIBit): IXReactComponent;
+  protected
     // IReactFactory
     function New(const AMetaElement: IMetaElement): IReactComponent;
     function New1(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
+    function New2(const AMetaElement: IMetaElement): IXReactComponent;
   protected
     fLog: ILog;
   published
@@ -230,10 +312,10 @@ type
     function EqualizeOriginalChildren(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
     // elements exists only in new structure
     function EqualizeNewChildren(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
-    procedure Equalize(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
+    function Equalize(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
   protected
     // IReconciliator
-    procedure Reconciliate(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
+    function Reconciliate(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
   protected
     fLog: ILog;
     //fElementFactory: IMetaElementFactory;
@@ -301,6 +383,7 @@ type
   protected
     fTopBit: IUIBit;
     fTopElement: IMetaElement;
+    fTopComponent: IXReactComponent;
   protected
     //IReact
     procedure Render(const AElement: IMetaElement);
@@ -321,6 +404,122 @@ type
 
 implementation
 
+{ TButtonsComposite }
+
+function TButtonsComposite.ComposeElement(const AProps: IProps;
+  const AChildren: array of IMetaElement): IMetaElement;
+var
+  i: integer;
+  mButtons: IProps;
+  mButton: IProps;
+begin
+  Result := ElementFactory.CreateElement(IUIStripBit, TProps.New.SetInt('Layout', AProps.AsInt('Layout')));
+  mButtons := AProps.AsIntf('Buttons') as IProps;
+  for i := 0 to mButtons.Count - 1 do
+  begin
+    mButton := mButtons.AsIntf(i) as IProps;
+    (Result as INode).AddChild(
+      ElementFactory.CreateElement(IButtonComposite,
+        TProps.New
+        .SetStr('Caption', mButton.AsStr('Caption'))
+        .SetInt('ActionClick', mButton.AsInt('ActionClick'))
+        .SetInt('Place', cPlace.FixFront)
+        .SetInt('MMWidth', 100)
+        .SetInt('MMHeight', 22)
+        ) as INode);
+  end;
+end;
+
+{ TButtonComposite }
+
+function TButtonComposite.ComposeElement(const AProps: IProps;
+  const AChildren: array of IMetaElement): IMetaElement;
+begin
+  if ActionClick <> 0 then
+  begin
+    AProps.SetIntf('ClickNotifier', NewNotifier(ActionClick));
+  end;
+  Result := ElementFactory.CreateElement(IUIButtonBit, AProps);
+end;
+
+{ TUIBitComponent }
+
+procedure TUIBitComponent.DoRerender;
+begin
+  inherited DoRerender;
+  //Reconciliator.Reconciliate(); ????
+  //element bit ?
+  {
+
+
+
+   CC - El a composite .... composite.new
+     if child.el <> mnew el, zrusime child a dame nove .... in this case
+     only one child either composite or bit
+
+     ReactFactory.New2(AElement);
+
+     can have whatsever child ....
+
+   BC - bit rerender
+
+
+
+
+
+
+
+
+
+  }
+
+  UIBit.Render;
+end;
+
+function TUIBitComponent.GetUIBit: IUIBit;
+begin
+  Result := fUIBit;
+end;
+
+{ TCompositeComponent }
+
+procedure TCompositeComponent.DoRerender;
+begin
+  inherited DoRerender;
+end;
+
+function TCompositeComponent.GetComposite: IComposite;
+begin
+  Result := fComposite;
+end;
+
+{ TXReactComponent }
+
+procedure TXReactComponent.DoRerender;
+begin
+end;
+
+procedure TXReactComponent.Rerender;
+var
+  mChild: INode;
+begin
+  DoRerender;
+  for mChild in Node do begin
+    (mChild as IXReactComponent).Rerender;
+  end;
+end;
+
+procedure TXReactComponent.ResetData(const AElement: IMetaElement;
+  const AObject: IUnknown);
+begin
+
+end;
+
+function TXReactComponent.GetElement: IMetaElement;
+begin
+
+end;
+
 { TEditsComposite }
 
 function TEditsComposite.ComposeElement(const AProps: IProps;
@@ -333,14 +532,14 @@ begin
   // maybe add support for array ... as generic? probably with new fpc sources
   mTitles := AProps.AsStr('Titles').Split('|');
   mValues := AProps.AsStr('Values').Split('|');
-  Result := Factory.CreateElement(IUIStripBit, AProps{.SetInt('Layout', uiLayoutVertical)});
+  Result := ElementFactory.CreateElement(IUIStripBit, AProps{.SetInt('Layout', uiLayoutVertical)});
   for i := 0 to High(mValues) do begin
     if i > High(mTitles) then
       mTitle := ''
     else
       mTitle := mTitles[i];
     (Result as INode).AddChild(
-      Factory.CreateElement(IEditComposite,
+      ElementFactory.CreateElement(IEditComposite,
         TProps.New
         .SetStr('Title', mTitle)
         .SetStr('Value', mValues[i])
@@ -361,23 +560,27 @@ begin
   mTitle := AProps.AsStr('Title');
   mValue := AProps.AsStr('Value');
   {
-  Result := Factory.CreateElement(IUIStripBit,
+  Result := ElementFactory.CreateElement(IUIStripBit,
     AProps.SetInt('Layout', 0),
-    [Factory.CreateElement(IUITextBit, TProps.New.SetStr('Text', mTitle)),
-     Factory.CreateElement(IUIEditBit, TProps.New.SetStr('Text', mValue)))
+    [ElementFactory.CreateElement(IUITextBit, TProps.New.SetStr('Text', mTitle)),
+     ElementFactory.CreateElement(IUIEditBit, TProps.New.SetStr('Text', mValue)))
      ]
    );
   }
-  Result := Factory.CreateElement(IUIStripBit, AProps.SetInt('Layout', cLayout.Horizontal));
+  Result := ElementFactory.CreateElement(IUIStripBit, AProps.SetInt('Layout', cLayout.Horizontal));
   if mTitle <> '' then
-    (Result as INode).AddChild(Factory.CreateElement(IUITextBit, TProps.New.SetStr('Text', mTitle)) as INode);
-  (Result as INode).AddChild(Factory.CreateElement(IUIEditBit, TProps.New.SetStr('Text', mValue)) as INode);
+    (Result as INode).AddChild(ElementFactory.CreateElement(IUITextBit, TProps.New.SetStr('Text', mTitle)) as INode);
+  (Result as INode).AddChild(ElementFactory.CreateElement(IUIEditBit, TProps.New.SetStr('Text', mValue)) as INode);
 end;
 
 { TAppComposite }
 
 function TAppComposite.ComposeElement(const AProps: IProps;
   const AChildren: array of IMetaElement): IMetaElement;
+var
+  mProps: IProps;
+  mButtons: IProps;
+  mButton: IProps;
 begin
   // from original props used to create this element are properties, children
   // are not covered, but best will be make composit aswell tree aware ... so
@@ -388,10 +591,10 @@ begin
   //AProps
   //  .SetStr('Title', 'Hello world')
   //  .SetInt('Layout', 0);
-  //Result := Factory.CreateElement(
+  //Result := ElementFactory.CreateElement(
   //  IFormComposite, AProps,
   //  [
-  //    Factory.CreateElement(IEditComposite,
+  //    ElementFactory.CreateElement(IEditComposite,
   //      TProps.New
   //        .SetStr('Title', 'Name')
   //        .SetStr('Value', '<empty>')
@@ -403,11 +606,11 @@ begin
   //AProps
   //  .SetStr('Title', 'Hello world')
   //  .SetInt('Layout', cLayout.Vertical);
-  //Result := Factory.CreateElement(
+  //Result := ElementFactory.CreateElement(
   //  IFormComposite, AProps,
   //  [
-  //    Factory.CreateElement(IHeaderComposite),
-  //    Factory.CreateElement(IEditsComposite,
+  //    ElementFactory.CreateElement(IHeaderComposite),
+  //    ElementFactory.CreateElement(IEditsComposite,
   //      TProps.New
   //        .SetStr('Titles', 'Name|Surname|Age')
   //        .SetStr('Values', 'Bob|MacIntosh|24')
@@ -417,20 +620,53 @@ begin
   //    )
   //  ]);
 
-  AProps
-    .SetStr('Title', 'Hello world')
-    .SetInt('Layout', cLayout.Vertical);
-  Result := Factory.CreateElement(
-    IFormComposite, AProps.Clone.SetInt('Color', clYellow),
+  //an idea
+  //.SetInt('ChildPlace', cPlace.FixFront)
+
+  mButtons := NewProps;
+  mButton := NewProps;
+  mButton.SetStr('Caption', 'One').SetInt('ActionClick', cActions.ClickOne);
+  mButtons.SetIntf('1', mButton);
+  mButton := NewProps;
+  mButton.SetStr('Caption', 'Two').SetInt('ActionClick', cActions.ClickTwo);
+  mButtons.SetIntf('2', mButton);
+  mButton := NewProps;
+  mButton.SetStr('Caption', 'Three').SetInt('ActionClick', cActions.ClickThree);
+  mButtons.SetIntf('3', mButton);
+
+
+  mProps := TProps.New;
+  Result := ElementFactory.CreateElement(
+    IFormComposite, 'mainform',  mProps.Clone.SetStr('Title', 'Hello world').SetInt('Layout', cLayout.Horizontal){.SetInt('Color', clYellow)},
     [
-      Factory.CreateElement(IHeaderComposite,
-      AProps.Clone.SetBool('Transparent', False)
-      .SetInt('Color', clBlue)
-      .SetInt('FontColor', clRed)
-      .SetStr('Title', 'Pokusna hlavicka')
-      .SetInt('Border', 5)
-      .SetInt('BorderColor', clLime)
-      )
+
+      ElementFactory.CreateElement(IButtonsComposite,
+      NewProps.SetIntf('Buttons', mButtons).SetInt('Layout', cLayout.Vertical)),
+
+      ElementFactory.CreateElement(IHeaderComposite,
+      TProps.New,
+      [
+        ElementFactory.CreateElement(IHeaderComposite,
+        mProps.Clone.SetInt('Layout', cLayout.Horizontal),
+        [
+          ElementFactory.CreateElement(IHeaderComposite,
+          mProps.Clone.SetBool('Transparent', False)
+          .SetInt('Color', clRed)
+          .SetStr('Title', 'One')
+          .SetInt('FontColor', clYellow)
+          .SetInt('Border', 5)
+          .SetInt('BorderColor', clPurple)
+          ),
+          ElementFactory.CreateElement(IHeaderComposite,
+          mProps.Clone.SetBool('Transparent', False)
+          .SetInt('Color', clBlack)
+          .SetStr('Title', 'Two')
+          .SetInt('FontColor', clLime)
+          .SetInt('Border', 5)
+          .SetInt('BorderColor', clAqua)
+          )
+        ])
+      ])
     ]);
 end;
 
@@ -441,76 +677,73 @@ function THeaderComposite.ComposeElement(const AProps: IProps;
 var
   mChild: IMetaElement;
 begin
-  Result := Factory.CreateElement(IUIStripBit, AProps);
+  Result := ElementFactory.CreateElement(IUIStripBit, AProps);
+  for mChild in AChildren do
+    (Result as INode).AddChild(mChild as INode);
 end;
 
 { TReactComponent }
 
-procedure TReactComponent.Rerender;
+procedure TReactComponent.Rerender(const AUpperComponent: IReactComponent);
 var
   mNewBit: IUIBit;
   mNewElement: IMetaElement;
-  mChildren: TMetaElementArray;
-  i: integer;
   mChildNode: INode;
   mChildComponent: IReactComponent;
-  mc: integer;
 begin
   //if composite.shouldupdate ... and later througs all, maybe via composites
-  if Composites.Count > 0 then
+  if Composite <> nil then
   begin
+    Log.DebugLn('rerendering %s', [(Composite as TObject).ClassName]);
+
     mNewBit := Bit;
-
-    mc:=(Element as INode).Count;
-    SetLength(mChildren, (Element as INode).Count);
-    for i := 0 to (Element as INode).Count - 1 do begin
-      mChildren[i] := (Element as INode).Child[i] as IMetaElement;
-    end;
-
-    {
-    Element.Props.Clone + merge part of AppState
-    so esencially callback
-    MergeState(AState, APRops): AProps
-    IMapStateToProps - this will get All State
-    }
-
-    // tohle musim rozvinout na elementy renderujici bity, ale dokud
-    // to nevytvorim, tak nevim .....
-    // anebo nemusi mit bity .... novy element muze byt metaelement,
-    // takze reconciliate  musi pouzit reactfactory a jako parentcomponent sebe
-    // pokud je prvni v chainu stejny, da se predpokladat, ze vznikne stejny chain
-    // jediny duvod, proc bych mel composity ukladat, je jejich perz. pokud ale
-    // budu renderovat znovu, tak je zase zahodim ....
-
-    mNewElement := Composites[0].CreateElement(Element.Props, mChildren);
-    // this can be aswell composite
-    Reconciliator.Reconciliate(self, mNewBit, Element, mNewElement);
-    if Bit <> mNewBit  then begin
-      ResetData(mNewElement, mNewBit);
+    mNewElement := Composite.CreateElement(Element);
+    if Reconciliator.Reconciliate(self, mNewBit, Element, mNewElement) then
+    begin
+      if Bit <> mNewBit  then begin
+        fBit := mNewBit;
+        fElement := mNewElement;
+      end;
       Bit.Render;
+    end
+    else
+    begin
+      for mChildNode in Node do begin
+        mChildComponent := mChildNode as IReactComponent;
+        mChildComponent.Rerender(Self);
+      end;
     end;
-  end;
-  for mChildNode in Node do begin
-    mChildComponent := mChildNode as IReactComponent;
-    mChildComponent.Rerender;
+  end
+  else
+  begin
+    for mChildNode in Node do begin
+      mChildComponent := mChildNode as IReactComponent;
+      mChildComponent.Rerender(Self);
+    end;
   end;
 end;
 
-procedure TReactComponent.AddComposite(const AComposite: IComposite);
-begin
-  Composites.Add(AComposite);
-end;
+//procedure TReactComponent.AddComposite(const AComposite: IComposite);
+//begin
+//  Composites.Add(AComposite);
+//end;
 
 procedure TReactComponent.ResetData(const AElement: IMetaElement;
-  const ABit: IUIBit);
+  const AComposite: IComposite; const ABit: IUIBit);
 begin
   fElement := AElement;
+  fComposite := AComposite;
   fBit := ABit;
 end;
 
 function TReactComponent.GetElement: IMetaElement;
 begin
   Result := fElement;
+end;
+
+function TReactComponent.GetComposite: IComposite;
+begin
+  Result := fComposite;
 end;
 
 function TReactComponent.GetBit: IUIBit;
@@ -597,7 +830,8 @@ begin
   mNew := IUnknown(Container.Locate(AMetaElement.Guid, AMetaElement.TypeID, AMetaElement.Props));
   if Supports(mNew, IComposite, mComposite) then begin
     AComposites.Add(mComposite);
-    mElement := mComposite.CreateElement(AMetaElement.Props, GetChildrenAsArray(AMetaElement as INode));  //getchildelements
+//    mElement := mComposite.CreateElement(AMetaElement.Props, GetChildrenAsArray(AMetaElement as INode));  //getchildelements
+    mElement := mComposite.CreateElement(AMetaElement);  //getchildelements
     Result := MakeBit(mElement, AComposites);
   end
   else
@@ -613,7 +847,7 @@ begin
 end;
 
 function TReactFactory.MakeBit1(const AMetaElement: IMetaElement;
-  const AComponent: IReactComponent; const AChainComposite: Boolean): IUIBit;
+  const AComponent: IReactComponent): IUIBit;
 var
   mNew: IUnknown;
   mComposite: IComposite;
@@ -626,27 +860,11 @@ begin
   mNew := IUnknown(Container.Locate(AMetaElement.Guid, AMetaElement.TypeID, AMetaElement.Props));
   if Supports(mNew, IComposite, mComposite) then
   begin
-    if AChainComposite then
-    begin
-      AComponent.AddComposite(mComposite);
-      mElement := mComposite.CreateElement(AMetaElement.Props, GetChildrenAsArray(AMetaElement as INode));
-      Result := MakeBit1(mElement, AComponent, True);
-    end
-    else
-    begin
-      // AMetaelement -> composite
-
-      // best structuer ... one composite, in case of more composite it will be metacomposite
-      // which will keep inputxml, bit, and list of composites participated in createion
-      // (so from outer view will be no difference ...)
-
-      mComponent := IReactComponent(Container.Locate(IReactComponent));
-      (AComponent as INode).AddChild(mComponent as INode);
-      mComponent.AddComposite(mComposite);
-      mElement := mComposite.CreateElement(AMetaElement.Props, GetChildrenAsArray(AMetaElement as INode));
-      Result := MakeBit1(mElement, mComponent, True);
-      mComponent.ResetData(mElement, Result);
-    end;
+    mComponent := IReactComponent(Container.Locate(IReactComponent));
+    (AComponent as INode).AddChild(mComponent as INode);
+    mElement := mComposite.CreateElement(AMetaElement);
+    Result := MakeBit1(mElement, mComponent);
+    mComponent.ResetData(mElement, mComposite, Result);
   end
   else
   if Supports(mNew, IUIBit, Result) then
@@ -670,7 +888,7 @@ begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
   for mChildNode in AParentElement do begin
     mChildElement := mChildNode as IMetaElement;
-    mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
+    //mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
 //    mChild := New(mChildElement);
 //    AParentInstance.AddChild(mChild.UIBit as INode);
   end;
@@ -687,7 +905,7 @@ begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
   for mChildNode in AParentElement do begin
     mChildElement := mChildNode as IMetaElement;
-    mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
+    //mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
     mChild := New1(mChildElement, AComponent);
     AParentInstance.AddChild(mChild as INode);
   end;
@@ -708,6 +926,53 @@ begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
 end;
 
+function TReactFactory.MakeComponent3(const AMetaElement: IMetaElement;
+  const AParentBit: IUIBit): IXReactComponent;
+var
+  mNew: IUnknown;
+  mResult: IUnknown;
+
+  mComposite: IComposite;
+  mBit: IUIBit;
+  mElement: IMetaElement;
+  mComponent: IReactComponent;
+  mc, i: integer;
+
+  mChild: IXReactComponent;
+  mChildNode: INode;
+begin
+  Log.DebugLnEnter({$I %CURRENTROUTINE%});
+  mNew := IUnknown(Container.Locate(AMetaElement.Guid, AMetaElement.TypeID, AMetaElement.Props));
+  if Supports(mNew, IComposite, mComposite) then
+  begin
+    mResult := IUnknown(Container.Locate(ICompositeComponent, '',
+      TProps.New.SetIntf('Composite', mComposite).SetIntf('Element', AMetaElement)));
+    mElement := mComposite.CreateElement(AMetaElement);
+    mChild := MakeComponent3(mElement, AParentBit);
+    (mResult as INode).AddChild(mChild as INode);
+  end
+  else
+  if Supports(mNew, IUIBit, mBit) then
+  begin
+    mResult := IUnknown(Container.Locate(IUIBitComponent, '',
+      TProps.New.SetIntf('UIBit', mBit).SetIntf('Element', AMetaElement)));
+    if AParentBit <> nil then
+      (AParentBit as INode).AddChild(mNew as INode);
+    for mChildNode in (AMetaElement as INode) do begin
+      mElement := mChildNode as IMetaElement;
+      //mElement.Props.SetIntf( 'ParentElement', mBit);
+      mChild := MakeComponent3(mElement, mBit);
+      (mResult as INode).AddChild(mChild as INode);
+    end;
+  end
+  else
+  begin
+    raise Exception.Create('unsupported element definition');
+  end;
+  Result := mResult as IXReactComponent;
+  Log.DebugLnExit({$I %CURRENTROUTINE%});
+end;
+
 function TReactFactory.New(const AMetaElement: IMetaElement): IReactComponent;
 begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
@@ -720,8 +985,13 @@ function TReactFactory.New1(const AMetaElement: IMetaElement;
   const AComponent: IReactComponent): IUIBit;
 begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
-  Result := MakeBit1(AMetaElement, AComponent, False);
+  Result := MakeBit1(AMetaElement, AComponent);
   Log.DebugLnExit({$I %CURRENTROUTINE%});
+end;
+
+function TReactFactory.New2(const AMetaElement: IMetaElement): IXReactComponent;
+begin
+  Result := MakeComponent3(AMetaElement, nil);
 end;
 
 { TFormComposite }
@@ -734,7 +1004,11 @@ var
 begin
   //mw := AProps.AsInt('Width');
   //AProps.SetInt('Color', Random($FFFFFF));
-  Result := Factory.CreateElement(IUIFormBit, AProps);
+  if ActionResize <> 0 then
+  begin
+    AProps.SetIntf('ResizeNotifier', NewNotifier(ActionResize));
+  end;
+  Result := ElementFactory.CreateElement(IUIFormBit, AProps);
   for mChild in AChildren do begin
     (Result as INode).AddChild(mChild as INode);
   end;
@@ -742,32 +1016,51 @@ end;
 
 { TComposite }
 
-function TComposite.CreateElement(const AProps: IProps;
-  const AChildren: array of IMetaElement): IMetaElement;
+function TComposite.NewNotifier(const AActionID: integer): IAppNotifier;
+begin
+  Result := IAppNotifier(Factory.Locate(IAppNotifier, '', TProps.New.SetInt('ActionID', AActionID)));
+end;
+
+function TComposite.NewProps: IProps;
+begin
+  Result := IProps(Factory.Locate(IProps));
+end;
+
+function TComposite.CreateElement(const ASourceElement: IMetaElement): IMetaElement;
 var
   mProps: IProps;
+  mChildren: TMetaElementArray;
+  i: integer;
 begin
   if MapStateToProps <> nil then
-    mProps := MapStateToProps.Map(AProps)
+  begin
+    Log.DebugLn('map props %s info %s', [ClassName, ASourceElement.Props.Info]);
+    mProps := MapStateToProps.Map(ASourceElement.Props);
+  end
   else
-    mProps := AProps.Clone;
-  Result := ComposeElement(mProps, AChildren);
+  begin
+    Log.DebugLn('clone props %s info %s', [ClassName, ASourceElement.Props.Info]);
+    mProps := ASourceElement.Props.Clone;
+  end;
+  SetLength(mChildren, (ASourceElement as INode).Count);
+  for i := 0 to (ASourceElement as INode).Count - 1 do begin
+    mChildren[i] := (ASourceElement as INode).Child[i] as IMetaElement;
+  end;
+  Result := ComposeElement(mProps, mChildren);
 end;
 
 { TReconciliator }
 
-procedure TReconciliator.Equalize(const AComponent: IReactComponent;
-  var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
+function TReconciliator.Equalize(const AComponent: IReactComponent;
+  var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
 var
   mRender: Boolean;
 begin
-  mRender := EqualizeProps(ABit, AOldElement, ANewElement);
+  Result := EqualizeProps(ABit, AOldElement, ANewElement);
   if EqualizeOriginalChildren(AComponent, ABit, AOldElement, ANewElement) then
-    mRender := True;
+    Result := True;
   if EqualizeNewChildren(AComponent, ABit, AOldElement, ANewElement) then
-    mRender := True;
-  if mRender then
-    ABit.Render;
+    Result := True;
 end;
 
 function TReconciliator.EqualizeNewChildren(const AComponent: IReactComponent; var ABit: IUIBit;
@@ -781,7 +1074,7 @@ begin
   for i := (AOldElement as INode).Count to (ANewElement as INode).Count - 1 do begin
     mNewBit := nil;
     mNewEl := (ANewElement as INode).Child[i] as IMetaElement;
-    mNewEl.Props.SetIntf('ParentElement', ABit);
+    //mNewEl.Props.SetIntf('ParentElement', ABit);
     Reconciliate(AComponent, mNewBit, nil, mNewEl);
     if mNewBit <> nil then begin
       (ABit as INode).AddChild(mNewBit as INode);
@@ -807,7 +1100,7 @@ begin
     mOldEl := (AOldElement as INode).Child[i] as IMetaElement;
     if i <= (ANewElement as INode).Count - 1 then begin
       mNewEl := (ANewElement as INode).Child[i] as IMetaElement;
-      mNewEl.Props.SetIntf('ParentElement', ABit);
+      //mNewEl.Props.SetIntf('ParentElement', ABit);
     end
     else
       mNewEl := nil;
@@ -883,10 +1176,11 @@ begin
   end;
 end;
 
-procedure TReconciliator.Reconciliate(const AComponent: IReactComponent;
-  var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement);
+function TReconciliator.Reconciliate(const AComponent: IReactComponent;
+  var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
 begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
+  Result := False;
   if (AOldElement = nil) and (ANewElement = nil) then begin
     ABit := nil;
     Log.DebugLn('both nil');
@@ -894,16 +1188,19 @@ begin
   if (AOldElement <> nil) and (ANewElement = nil) then begin
     ABit := nil;
     Log.DebugLn(AOldElement.TypeGuid + '.' + AOldElement.TypeID + ' to nil');
+    Result := True;
   end else
   if (AOldElement = nil) and (ANewElement <> nil) then begin
     ABit := ReactFactory.New1(ANewElement, AComponent) as IUIBit;
     Log.DebugLn('from nil to ' + ANewElement.TypeGuid + '.' + ANewElement.TypeID);
+    Result := True;
   end else
   if (AOldElement.TypeGuid <> ANewElement.TypeGuid) or (AOldElement.TypeID <> ANewElement.TypeID) then begin
     ABit := ReactFactory.New1(ANewElement, AComponent) as IUIBit;
     Log.DebugLn('from ' + AOldElement.TypeGuid + '.' + AOldElement.TypeID + ' to ' + ANewElement.TypeGuid + '.' + ANewElement.TypeID);
+    Result := True;
   end else begin
-    Equalize(AComponent, ABit, AOldElement, ANewElement);
+    Result := Equalize(AComponent, ABit, AOldElement, ANewElement);
   end;
   Log.DebugLnExit({$I %CURRENTROUTINE%});
 end;
@@ -936,7 +1233,7 @@ var
 begin
   for mChildNode in AParentElement do begin
     mChildElement := mChildNode as IMetaElement;
-    mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
+    //mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
     mChild := New(mChildElement);
     AParentInstance.AddChild(mChild as INode);
     Log.DebugLn( 'created child ' + (mChild as TObject).ClassName);
@@ -1041,14 +1338,23 @@ begin
   end;
   fTopElement := AElement;
   }
+
   mBit := ReactFactory.New1(AElement, RootComponent);
-  RootComponent.ResetData(AElement, mBit);
+  RootComponent.ResetData(AElement, nil, mBit);
   RootComponent.Bit.Render;
+  {
+  fTopComponent := ReactFactory.New2(AElement);
+  fTopComponent.Rerender;
+  }
 end;
 
 procedure TReact.Rerender;
 begin
-  RootComponent.Rerender;
+  RootComponent.Rerender(nil);
+  {
+  if fTopComponent;
+  fTopComponent.Rerender;
+  }
 end;
 
 { TMetaElement }

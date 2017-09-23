@@ -57,9 +57,11 @@ begin
     ElFactory.CreateElement(IAppComposite,
       TProps.New
       .SetIntf('ResizeNotifier', NewNotifier(cActions.ResizeFunc))
+      {
       .SetIntf('MapStateToProps',NewMapper
         .AddPath(cAppState.MainForm, TStringArray.Create(
           cAppState.Left, cAppState.Top, cAppState.Width, cAppState.Height)))
+       }
      )
   );
 end;

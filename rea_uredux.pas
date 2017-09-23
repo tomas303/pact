@@ -101,6 +101,7 @@ type
     TItems = specialize TFPGObjectList<TItem>;
   protected
     fItems: TItems;
+    fKeys: TStringList;
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
@@ -110,8 +111,10 @@ type
     function AddPath(const APath: string; AKeys: TStringArray): IMapStateToProps;
   protected
     fAppState: IAppState;
+    procedure SetAddKey(const AKey: string);
   published
     property AppState: IAppState read fAppState write fAppState;
+    property AddKey: string write SetAddKey;
   end;
 
 implementation
@@ -142,11 +145,13 @@ procedure TMapStateToProps.AfterConstruction;
 begin
   inherited AfterConstruction;
   fItems := TItems.Create;
+  fKeys := TStringList.Create;
 end;
 
 procedure TMapStateToProps.BeforeDestruction;
 begin
   FreeAndNil(fItems);
+  FreeAndNil(fKeys);
   inherited BeforeDestruction;
 end;
 
@@ -154,9 +159,11 @@ function TMapStateToProps.Map(const AProps: IProps): IProps;
 var
   mProp, mKeyProp: IProp;
   mItem: TItem;
+  mKey: string;
   i: integer;
 begin
   Result := AProps.Clone;
+  {
   for mItem in fItems do
   begin
     mProp := (AppState as IPropFinder).Find(mItem.Path);
@@ -169,6 +176,13 @@ begin
       end;
     end;
   end;
+  }
+  for mKey in fKeys do
+  begin
+   mProp := (AppState as IPropFinder).Find(mKey);
+   if mProp <> nil then
+     Result.SetProp(mProp.Name, mProp);
+  end;
 end;
 
 function TMapStateToProps.AddPath(const APath: string; AKeys: TStringArray
@@ -176,6 +190,13 @@ function TMapStateToProps.AddPath(const APath: string; AKeys: TStringArray
 begin
   Result := Self;
   fItems.Add(TItem.Create(APath, AKeys));
+end;
+
+procedure TMapStateToProps.SetAddKey(const AKey: string);
+begin
+  if fKeys.IndexOf(AKey) <> -1 then
+    raise Exception.CreateFmt('Key %s for map state already added', [AKey]);
+  fKeys.Add(AKey);
 end;
 
 { TAppNotifier }
