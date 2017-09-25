@@ -40,6 +40,7 @@ end;
 procedure TAppState.Build;
 begin
   Data.SetIntf(cAppState.MainForm, IUnknown(Factory.Locate(IProps)));
+  Data.SetInt(cAppState.Perspective, 0);
 end;
 
 function TAppState.Find(const APath: string): IProp;

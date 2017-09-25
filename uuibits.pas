@@ -385,23 +385,14 @@ end;
 procedure TUIFormBit.OnResize(Sender: TObject);
 begin
   if ResizeNotifier <> nil then
-{
-  ResizeNotifier.Notify(
-    TProps.New
-    .SetInt('Left', AsControl.Left)
-    .SetInt('Top', AsControl.Top)
-    .SetInt('Width', AsControl.Width)
-    .SetInt('Height', AsControl.Height)
-    );
-    }
     ResizeNotifier.Notify;
 end;
 
 procedure TUIFormBit.ResizeNotifierData(const AProps: IProps);
 begin
   AProps
-  .SetInt('Left', AsControl.Left)
-  .SetInt('Top', AsControl.Top)
+  //.SetInt('Left', AsControl.Left)
+  //.SetInt('Top', AsControl.Top)
   .SetInt('Width', AsControl.Width)
   .SetInt('Height', AsControl.Height);
 end;

@@ -56,7 +56,7 @@ begin
   React.Render(
     ElFactory.CreateElement(IAppComposite,
       TProps.New
-      .SetIntf('ResizeNotifier', NewNotifier(cActions.ResizeFunc))
+      //.SetIntf('ResizeNotifier', NewNotifier(cActions.ResizeFunc))
       {
       .SetIntf('MapStateToProps',NewMapper
         .AddPath(cAppState.MainForm, TStringArray.Create(

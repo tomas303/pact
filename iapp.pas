@@ -33,6 +33,7 @@ type
     Height = 'Height';
   public const
     MainForm = 'MainForm';
+    Perspective = 'Perspective';
   public const
     MainFormLeft = MainForm + '.' + Left;
     MainFormTop = MainForm + '.' + Top;

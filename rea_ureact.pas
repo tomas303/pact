@@ -38,6 +38,7 @@ type
     function GetTypeGuid: string;
     function GetTypeID: string;
     function GetProps: IProps;
+    function Info: string;
   published
     property TypeGuid: string read GetTypeGuid write fTypeGuid;
     property TypeID: string read GetTypeID write fTypeID;
@@ -581,61 +582,38 @@ var
   mProps: IProps;
   mButtons: IProps;
   mButton: IProps;
+  mFrames: TMetaElementArray;
+  i: integer;
 begin
-  // from original props used to create this element are properties, children
-  // are not covered, but best will be make composit aswell tree aware ... so
-  // composite after creation will have its own tree(props was alredy used for creation) and children given
-  // as parameters are dynamic one ... from last creation
-  // even though i dont know for what good they will be
-
-  //AProps
-  //  .SetStr('Title', 'Hello world')
-  //  .SetInt('Layout', 0);
-  //Result := ElementFactory.CreateElement(
-  //  IFormComposite, AProps,
-  //  [
-  //    ElementFactory.CreateElement(IEditComposite,
-  //      TProps.New
-  //        .SetStr('Title', 'Name')
-  //        .SetStr('Value', '<empty>')
-  //        .SetInt('MMWidth', 100)
-  //        .SetInt('MMHeight', 10)
-  //    )
-  //  ]);
-
-  //AProps
-  //  .SetStr('Title', 'Hello world')
-  //  .SetInt('Layout', cLayout.Vertical);
-  //Result := ElementFactory.CreateElement(
-  //  IFormComposite, AProps,
-  //  [
-  //    ElementFactory.CreateElement(IHeaderComposite),
-  //    ElementFactory.CreateElement(IEditsComposite,
-  //      TProps.New
-  //        .SetStr('Titles', 'Name|Surname|Age')
-  //        .SetStr('Values', 'Bob|MacIntosh|24')
-  //        .SetInt('Layout', cLayout.Vertical)
-  //        //.SetInt('MMWidth', 100)
-  //        //.SetInt('MMHeight', 10)
-  //    )
-  //  ]);
-
-  //an idea
-  //.SetInt('ChildPlace', cPlace.FixFront)
-
   mButtons := NewProps;
+
   mButton := NewProps;
   mButton.SetStr('Caption', 'One').SetInt('ActionClick', cActions.ClickOne);
   mButtons.SetIntf('1', mButton);
+
   mButton := NewProps;
   mButton.SetStr('Caption', 'Two').SetInt('ActionClick', cActions.ClickTwo);
   mButtons.SetIntf('2', mButton);
+
   mButton := NewProps;
   mButton.SetStr('Caption', 'Three').SetInt('ActionClick', cActions.ClickThree);
   mButtons.SetIntf('3', mButton);
 
-
   mProps := TProps.New;
+
+  SetLength(mFrames, AProps.AsInt(cAppState.Perspective));
+  for i := 0 to AProps.AsInt(cAppState.Perspective) - 1 do
+  begin
+    mFrames[i] := ElementFactory.CreateElement(IHeaderComposite,
+          mProps.Clone.SetBool('Transparent', False)
+          .SetInt('Color', clRed)
+          .SetStr('Title', i.ToString)
+          .SetInt('FontColor', clYellow)
+          .SetInt('Border', 5)
+          .SetInt('BorderColor', clPurple)
+          );
+  end;
+
   Result := ElementFactory.CreateElement(
     IFormComposite, 'mainform',  mProps.Clone.SetStr('Title', 'Hello world').SetInt('Layout', cLayout.Horizontal){.SetInt('Color', clYellow)},
     [
@@ -648,7 +626,8 @@ begin
       [
         ElementFactory.CreateElement(IHeaderComposite,
         mProps.Clone.SetInt('Layout', cLayout.Horizontal),
-        [
+         mFrames
+        {[
           ElementFactory.CreateElement(IHeaderComposite,
           mProps.Clone.SetBool('Transparent', False)
           .SetInt('Color', clRed)
@@ -665,7 +644,7 @@ begin
           .SetInt('Border', 5)
           .SetInt('BorderColor', clAqua)
           )
-        ])
+        ]})
       ])
     ]);
 end;
@@ -695,16 +674,19 @@ begin
   if Composite <> nil then
   begin
     Log.DebugLn('rerendering %s', [(Composite as TObject).ClassName]);
-
     mNewBit := Bit;
     mNewElement := Composite.CreateElement(Element);
+    if Element <> nil then
+      Log.DebugLn('ELEMENT: %s', [Element.Info]);
+    if mNewElement <> nil then
+     Log.DebugLn('NEW ELEMENT: %s', [mNewElement.Info]);
     if Reconciliator.Reconciliate(self, mNewBit, Element, mNewElement) then
     begin
       if Bit <> mNewBit  then begin
         fBit := mNewBit;
-        fElement := mNewElement;
       end;
       Bit.Render;
+      fElement := mNewElement;
     end
     else
     begin
@@ -888,7 +870,6 @@ begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
   for mChildNode in AParentElement do begin
     mChildElement := mChildNode as IMetaElement;
-    //mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
 //    mChild := New(mChildElement);
 //    AParentInstance.AddChild(mChild.UIBit as INode);
   end;
@@ -905,7 +886,6 @@ begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
   for mChildNode in AParentElement do begin
     mChildElement := mChildNode as IMetaElement;
-    //mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
     mChild := New1(mChildElement, AComponent);
     AParentInstance.AddChild(mChild as INode);
   end;
@@ -960,7 +940,6 @@ begin
       (AParentBit as INode).AddChild(mNew as INode);
     for mChildNode in (AMetaElement as INode) do begin
       mElement := mChildNode as IMetaElement;
-      //mElement.Props.SetIntf( 'ParentElement', mBit);
       mChild := MakeComponent3(mElement, mBit);
       (mResult as INode).AddChild(mChild as INode);
     end;
@@ -1070,17 +1049,17 @@ var
   mNewBit: IUIBit;
   mNewEl: IMetaElement;
 begin
+  Log.DebugLnEnter({$I %CURRENTROUTINE%});
   Result := False;
   for i := (AOldElement as INode).Count to (ANewElement as INode).Count - 1 do begin
     mNewBit := nil;
     mNewEl := (ANewElement as INode).Child[i] as IMetaElement;
-    //mNewEl.Props.SetIntf('ParentElement', ABit);
-    Reconciliate(AComponent, mNewBit, nil, mNewEl);
+    Result := Reconciliate(AComponent, mNewBit, nil, mNewEl);
     if mNewBit <> nil then begin
       (ABit as INode).AddChild(mNewBit as INode);
-      Result := True;
     end;
   end;
+  Log.DebugLnExit({$I %CURRENTROUTINE%});
 end;
 
 function TReconciliator.EqualizeOriginalChildren(const AComponent: IReactComponent;
@@ -1093,6 +1072,7 @@ var
   mOldEl: IMetaElement;
   mNewEl: IMetaElement;
 begin
+  Log.DebugLnEnter({$I %CURRENTROUTINE%});
   Result := False;
   mRemoved := 0;
   for i := 0 to (AOldElement as INode).Count - 1 do begin
@@ -1100,12 +1080,11 @@ begin
     mOldEl := (AOldElement as INode).Child[i] as IMetaElement;
     if i <= (ANewElement as INode).Count - 1 then begin
       mNewEl := (ANewElement as INode).Child[i] as IMetaElement;
-      //mNewEl.Props.SetIntf('ParentElement', ABit);
     end
     else
       mNewEl := nil;
     mNewBit := mBit;
-    Reconciliate(AComponent, mNewBit, mOldEl, mNewEl);
+    Result := Reconciliate(AComponent, mNewBit, mOldEl, mNewEl);
     if mNewBit <> mBit then begin
       (ABit as INode).Delete(i - mRemoved);
       if mNewBit <> nil then begin
@@ -1113,9 +1092,9 @@ begin
         dec(mRemoved);
       end;
       inc(mRemoved);
-      Result := True;
     end;
   end;
+  Log.DebugLnExit({$I %CURRENTROUTINE%});
 end;
 
 function TReconciliator.NewUIBit(const AParentComponent: IReactComponent;
@@ -1158,7 +1137,6 @@ begin
   ////    mOldEl := (AOldElement as INode).Child[i] as IMetaElement;
   ////    if i <= (ANewElement as INode).Count - 1 then begin
   ////      mNewEl := (ANewElement as INode).Child[i] as IMetaElement;
-  ////      mNewEl.Props.SetIntf('ParentElement', ABit);
   ////    end
   //
 end;
@@ -1168,12 +1146,14 @@ var
   mDiffProps: IProps;
   mRender: Boolean;
 begin
+  Log.DebugLnEnter({$I %CURRENTROUTINE%});
   Result := False;
   mDiffProps := ANewElement.Props.Diff(AOldElement.Props);
   if mDiffProps.Count > 0 then begin
     Injector.Write(ABit as TObject, mDiffProps);
     Result := True;
   end;
+  Log.DebugLnExit({$I %CURRENTROUTINE%});
 end;
 
 function TReconciliator.Reconciliate(const AComponent: IReactComponent;
@@ -1233,7 +1213,6 @@ var
 begin
   for mChildNode in AParentElement do begin
     mChildElement := mChildNode as IMetaElement;
-    //mChildElement.Props.SetIntf( 'ParentElement', AParentInstance);
     mChild := New(mChildElement);
     AParentInstance.AddChild(mChild as INode);
     Log.DebugLn( 'created child ' + (mChild as TObject).ClassName);
@@ -1377,6 +1356,19 @@ end;
 function TMetaElement.GetProps: IProps;
 begin
   Result := fProps;
+end;
+
+function TMetaElement.Info: string;
+var
+  mChild: INode;
+  mChildEl: IMetaElement;
+begin
+  Result := TypeGuid + '(' + TypeID + ')';
+  for mChild in Node do
+  begin
+    mChildEl := mChild as IMetaElement;
+    Result := Result + LineEnding + '->' +  mChildEl.Info;
+  end;
 end;
 
 procedure TMetaElement.AddChild(const ANode: INode);

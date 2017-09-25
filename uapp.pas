@@ -227,9 +227,13 @@ begin
   //
   mReg := DIC.Add(TComposites, IComposites);
   //
+  mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'appcomposite');
+  mReg.InjectProp('AppState', IAppState);
+  mReg.InjectProp('AddKey', cAppState.Perspective);
   mReg := DIC.Add(TAppComposite, IAppComposite);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  mReg.InjectProp('MapStateToProps', IMapStateToProps, 'appcomposite');
   mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TFormComposite, IFormComposite);

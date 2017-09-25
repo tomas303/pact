@@ -5,7 +5,7 @@ unit uappfunc;
 interface
 
 uses
-  Classes, SysUtils, rea_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory, Dialogs;
+  Classes, SysUtils, rea_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory;
 
 type
 
@@ -82,22 +82,35 @@ begin
         mProps := FindProps(AAppState, cAppState.MainForm);
         mProps.SetInt(cAppState.Height, 300);
         mProps.SetInt(cAppState.Width, 600);
+        (AAppState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(1);
         Result := AAppState;
       end;
     cActions.ResizeFunc:
       begin
         mProps := FindProps(AAppState, cAppState.MainForm);
-        mProps.SetInt(cAppState.Left, AAppAction.Props.AsInt(cAppState.Left));
-        mProps.SetInt(cAppState.Top, AAppAction.Props.AsInt(cAppState.Top));
+        //mProps.SetInt(cAppState.Left, AAppAction.Props.AsInt(cAppState.Left));
+        //mProps.SetInt(cAppState.Top, AAppAction.Props.AsInt(cAppState.Top));
         mProps.SetInt(cAppState.Width, AAppAction.Props.AsInt(cAppState.Width));
         mProps.SetInt(cAppState.Height, AAppAction.Props.AsInt(cAppState.Height));
         Result := AAppState;
       end;
     cActions.HelloFunc:
       begin
-        // shouldnt be here(if necessary then hello is going to be processed, hello processed
-        // this should be called before and here enter only result .... some piece between button and redux)
-        ShowMessage('hello world');
+        Result := AAppState;
+      end;
+    cActions.ClickOne:
+      begin
+        (AAppState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(1);
+        Result := AAppState;
+      end;
+    cActions.ClickTwo:
+      begin
+        (AAppState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(2);
+        Result := AAppState;
+      end;
+    cActions.ClickThree:
+      begin
+        (AAppState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(3);
         Result := AAppState;
       end;
   else

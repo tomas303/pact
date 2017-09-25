@@ -20,6 +20,7 @@ type
     property TypeGuid: string read GetTypeGuid;
     property TypeID: string read GetTypeID;
     property Props: IProps read GetProps;
+    function Info: string;
   end;
 
   IMetaElementEnumerator = interface
