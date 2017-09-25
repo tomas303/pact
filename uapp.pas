@@ -10,7 +10,7 @@ uses
 
   iapp, uappfunc, uappstate, uapplogic,
 
-  forms, fmain, test,
+  forms,
   tal_uapp, tal_uguilauncher, tal_ilauncher,
   trl_ipersist,  trl_upersist, trl_upersiststore,
   trl_dicontainer,
@@ -56,7 +56,7 @@ implementation
 
 function TApp.CreateMainFormInstance: TObject;
 begin
-  Application.CreateForm(TForm1, Result);
+  Application.CreateForm(TForm, Result);
 end;
 
 procedure TApp.RegisterCore;
@@ -115,13 +115,12 @@ begin
   mReg.InjectProp('VR', IRestatement, 'vertical');
 
 
-  // real control
+  // real controls and their bits
+  // ui bit for handle real control
+
   mReg := DIC.Add(TForm, TDIOwner(DIC.Locate(TDIOwner)), 'uiform');
-  //mDIO := TDIOwner(DIC.Locate(TDIOwner));
-  //mReg := DIC.Add(TForm, mDIO, 'uiform');
   //mReg := DIC.Add(CreateMainFormInstance, 'uiform');
 
-  // ui bit for handle real control
   mReg := DIC.Add(TUIFormBit, IUIFormBit);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
@@ -224,8 +223,6 @@ begin
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('ElementFactory', IMetaElementFactory);
   mReg.InjectProp('Log', ILog);
-  //
-  mReg := DIC.Add(TComposites, IComposites);
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'appcomposite');
   mReg.InjectProp('AppState', IAppState);

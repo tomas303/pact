@@ -11,7 +11,6 @@ type
   // wrapper for real control and its binder
   IUIBit = interface
   ['{479784FA-9E6B-4826-BCFE-92A676B2F7DD}']
-    // create / updater cocrete objects from FCL(but from factory ... addclass with owner)
     procedure Render;
     procedure RenderPaint(const ACanvas: TCanvas);
     procedure HookParent(const AParent: TWinControl);
@@ -35,16 +34,6 @@ type
 
   IUIButtonBit = interface
    ['{7FB3194B-62AB-44B7-8317-603D10706C71}']
-  end;
-
-  // maybe with Store param ....bo it will be ideal to only sent messages to store .... like
-  IUINotifyEvent = procedure(const AProps: IProps) of object;
-
-  IUINotifier = interface
-  ['{110FD82F-1891-4865-A33F-98D6B1E7617C}']
-    procedure Notify(const AProps: IProps);
-    procedure Add(const AEvent: IUINotifyEvent);
-    procedure Remove(const AEvent: IUINotifyEvent);
   end;
 
 implementation

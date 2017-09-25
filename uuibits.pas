@@ -33,7 +33,6 @@ type
     fColor: TColor;
     function AsControl: TControl;
     procedure SetControl(AValue: TControl);
-    procedure SetParentElement(AValue: IUnknown);
   protected
     procedure DoRender; virtual;
     procedure DoRenderPaint(const ACanvas: TCanvas); virtual;
@@ -72,13 +71,11 @@ type
     fNode: INode;
     fFactory: IDIFactory;
     fControl: TControl;
-    fParentElement: IUnknown;
   published
     property Log: ILog read fLog write fLog;
     property Node: INode read fNode write fNode;
     property Factory: IDIFactory read fFactory write fFactory;
     property Control: TControl read fControl write SetControl;
-    property ParentElement: IUnknown read fParentElement write SetParentElement;
     property Layout: integer read GetLayout write SetLayout;
     property Place: integer read GetPlace write SetPlace;
     property MMWidth: integer read GetMMWidth write SetMMWidth;
@@ -94,9 +91,6 @@ type
   { TUIFormBit }
 
   TUIFormBit = class(TUIBit, IUIFormBit)
-  protected
-    function _AddRef : longint;{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF};
-    function _Release : longint;{$IFNDEF WINDOWS}cdecl{$ELSE}stdcall{$ENDIF};
   protected
     function AsForm: TCustomForm;
     procedure ResetScroll;
@@ -114,7 +108,6 @@ type
   published
     property Tiler: IUITiler read fTiler write fTiler;
     property Title: string read fTitle write fTitle;
-    //property ResizeNotifier: IUINotifier read fResizeNotifier write fResizeNotifier;
     property ResizeNotifier: IAppNotifier read fResizeNotifier write fResizeNotifier;
   end;
 
@@ -253,11 +246,9 @@ begin
       // bottom
       ACanvas.FillRect(Left, Top + Height - Border, Left + Width, Top + Height);
       // left
-      ACanvas.FillRect(Left, Top + Border, Left + Border, Top + Height - Border
-        );
+      ACanvas.FillRect(Left, Top + Border, Left + Border, Top + Height - Border);
       // right
-      ACanvas.FillRect(Left + Width - Border, Top + Border, Left + Width, Top +
-        Height - Border);
+      ACanvas.FillRect(Left + Width - Border, Top + Border, Left + Width, Top + Height - Border);
     finally
       ACanvas.Brush.Color := mBColor;
     end;
@@ -341,19 +332,6 @@ begin
 end;
 
 { TUIFormBit }
-
-function TUIFormBit._AddRef: longint; cdecl;
-begin
-  Result := inherited _AddRef;
-  Log.DebugLnEnter('ADDREF');
-end;
-
-function TUIFormBit._Release: longint; cdecl;
-begin
-  if Log <> nil then
-  Log.DebugLnExit('RELEASEREF');
-  Result := inherited _Release;
-end;
 
 function TUIFormBit.AsForm: TCustomForm;
 begin
@@ -451,14 +429,6 @@ begin
     Exit;
   fControl := AValue;
   Color := Control.Color;
-end;
-
-procedure TUIBit.SetParentElement(AValue: IUnknown);
-begin
-  fParentElement := AValue;
-  // parent must be weak reference ... otherwise interface lock
-  if fParentElement <> nil then
-    fParentElement._Release;
 end;
 
 procedure TUIBit.AddChild(const ANode: INode);

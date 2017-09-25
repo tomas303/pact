@@ -53,6 +53,7 @@ type
   {
     Props are collected via notifying, action is generated based on it and
     dispatch by dispatcher
+    So add data means add notifier which add to AProps of notify event
   }
   TAppNotifier = class(TInterfacedObject, IAppNotifier)
   protected type
@@ -163,20 +164,6 @@ var
   i: integer;
 begin
   Result := AProps.Clone;
-  {
-  for mItem in fItems do
-  begin
-    mProp := (AppState as IPropFinder).Find(mItem.Path);
-    if  mProp <> nil then begin
-      for i := 0 to mItem.KeyCount - 1 do begin
-        mKeyProp := (mProp.AsInterface as IPropFinder).Find(mItem.Key[i]);
-        if mKeyProp <> nil then begin
-          Result.SetProp(mKeyProp.Name, mKeyProp);
-        end;
-      end;
-    end;
-  end;
-  }
   for mKey in fKeys do
   begin
    mProp := (AppState as IPropFinder).Find(mKey);

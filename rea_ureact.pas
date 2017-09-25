@@ -84,26 +84,6 @@ type
     property Log: ILog read fLog write fLog;
   end;
 
-  { TComposites }
-
-  TComposites = class(TInterfacedObject, IComposites)
-  protected type
-    TItems = specialize TFPGInterfacedObjectList<IComposite>;
-  protected
-    fItems: TItems;
-    function GetItems: TItems;
-    property Items: TItems read GetItems;
-  protected
-    // IComposites
-    function GetCount: integer;
-    function GetItem(const AIndex: integer): IComposite;
-    procedure Add(const AComposite: IComposite);
-    property Count: integer read GetCount;
-    property Item[const AIndex: integer]: IComposite read GetItem; default;
-  public
-    destructor Destroy; override;
-  end;
-
   { TAppComposite }
 
   TAppComposite = class(TComposite, IAppComposite)
@@ -195,63 +175,14 @@ type
   protected
     fLog: ILog;
     fNode: INode;
-    //fComposites: IComposites;
     fReconciliator: IReconciliator;
     fReactFactory: IReactFactory;
   published
     property Log: ILog read fLog write fLog;
     property Node: INode read fNode write fNode;
-    //property Composites: IComposites read fComposites write fComposites;
     property Reconciliator: IReconciliator read fReconciliator write fReconciliator;
     property ReactFactory: IReactFactory read fReactFactory write fReactFactory;
   end;
-
-  { TXReactComponent }
-
-  TXReactComponent = class(TInterfacedObject, IXReactComponent, INode)
-  protected
-    procedure DoRerender; virtual;
-  protected
-    // IXReactComponent
-    procedure Rerender;
-    procedure ResetData(const AElement: IMetaElement; const AObject: IUnknown);
-    function GetElement: IMetaElement;
-    property Element: IMetaElement read GetElement;
-  protected
-    fNode: INode;
-    fReconciliator: IReconciliator;
-    property NodeImp: INode read fNode implements INode;
-  published
-    property Node: INode read fNode write fNode;
-    property Reconciliator: IReconciliator read fReconciliator write fReconciliator;
-  end;
-
-  { TUIBitComponent }
-
-  TUIBitComponent = class(TXReactComponent, IUIBitComponent)
-  protected
-    procedure DoRerender; override;
-  protected
-    // IUIBitComponent
-    function GetUIBit: IUIBit;
-    property UIBit: IUIBit read GetUIBit;
-  protected
-    fUIBit: IUIBit;
-  end;
-
-  { TCompositeComponent }
-
-  TCompositeComponent = class(TXReactComponent, ICompositeComponent)
-  protected
-    procedure DoRerender; override;
-  protected
-    // ICompositeComponent
-    function GetComposite: IComposite;
-    property Composite: IComposite read GetComposite;
-  protected
-    fComposite: IComposite;
-  end;
-
 
   { TMetaElementFactory }
 
@@ -281,19 +212,13 @@ type
 
   TReactFactory = class(TDIFactory, IReactFactory)
   protected
-    function MakeBit(const AMetaElement: IMetaElement; const AComposites: IComposites): IUIBit;
-    function MakeBit1(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
-    procedure MakeChildren(const AParentElement: INode; const AParentInstance: INode);
-    procedure MakeChildren1(const AParentElement: INode; const AParentInstance: INode;
+    function MakeBit(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
+    procedure MakeChildren(const AParentElement: INode; const AParentInstance: INode;
       const AComponent: IReactComponent);
     function GetChildrenAsArray(const AParentElement: INode): TMetaElementArray;
   protected
-    function MakeComponent3(const AMetaElement: IMetaElement; const AParentBit: IUIBit): IXReactComponent;
-  protected
     // IReactFactory
-    function New(const AMetaElement: IMetaElement): IReactComponent;
-    function New1(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
-    function New2(const AMetaElement: IMetaElement): IXReactComponent;
+    function New(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
   protected
     fLog: ILog;
   published
@@ -303,9 +228,6 @@ type
   { TReconciliator }
 
   TReconciliator = class(TInterfacedObject, IReconciliator)
-  protected
-    function NewUIBit(const AParentComponent: IReactComponent; const ANewElement: IMetaElement): IUIBit;
-    function Decomposite(const AObject: IUnknown): IUIBit;
   protected
     // setup diff of props between AOldElement / ANewElement to ABit
     function EqualizeProps(var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
@@ -332,59 +254,9 @@ type
   { TReact }
 
   TReact = class(TInterfacedObject, IReact)
-
-  // finall solution:
-  // fTopBit - tree of bits
-  // fTopComposite - tree of composites
-  //   this tree will be traversed when rerender - and ShouldUpdate - logiccaly
-  //   arranged in same tree order, so if top is chagned, all in its subtree are
-  //   also
-  //   composite is only node, which can change bits - so this is why, it will
-  //    save children elements (for rerender - those are input params)
-  //   when composite rerender, it will create new metaelement based on which I can
-  //   update part of bits tree
-  //   composite tree will be created together when reconciliate .... reconciliate
-  //   is agnostic because compare only elements
-
-  // old comments
-  // ???
-  // ftopbit - ok - aka DOM
-  // fTopElement - ok - aka vDOM
-  // 1. - where will be reacomponents placed?
-
-  // 2. - from what and how second vDOM will be rendered?
-
-
-  // component ->(render)-> IMetaElement|IReaComponent
-  //           IMetaElement - will add to parent
-  //           IRea-Componet - repaet rekurz.
-  // (react is maybe different - IMetaElement can create IReaComponent or IUIBit
-  //   but I will do it)
-
-  // how to do it? true is that IUIBit is visible part, IReactComponent is nonvisible part
-  // of rendered area
-  // so it make sense do it as react - I can mix it without constrints
-  // (IReaComponets insidet IUIForm) - but dont forget that IReaComponent must register
-  // with connect functions specific for each application
-
-
-  // where to place IReaComponent - question is if is neccessary to leave it
-  // (stateless probably not in anycase) but for now I will
-  // ReaComponent has props and will map to redux to change props in accord of app. state
-
-  // when props are changed, react need Rerender(probably async aswell .... could be
-  // Sync ... but then is not possible to batch more changes and one must have absolute insurance,
-  // that render will cause no callback)
-
-  // so bakc to my question - only part of tree could be rendered - but is hard to find this specific part
-  // so easier is to make entire vDOM new and reconciliate it with old one
-
-  // since lifecycle of IUIBits and IRea
-
   protected
     fTopBit: IUIBit;
     fTopElement: IMetaElement;
-    fTopComponent: IXReactComponent;
   protected
     //IReact
     procedure Render(const AElement: IMetaElement);
@@ -441,84 +313,6 @@ begin
     AProps.SetIntf('ClickNotifier', NewNotifier(ActionClick));
   end;
   Result := ElementFactory.CreateElement(IUIButtonBit, AProps);
-end;
-
-{ TUIBitComponent }
-
-procedure TUIBitComponent.DoRerender;
-begin
-  inherited DoRerender;
-  //Reconciliator.Reconciliate(); ????
-  //element bit ?
-  {
-
-
-
-   CC - El a composite .... composite.new
-     if child.el <> mnew el, zrusime child a dame nove .... in this case
-     only one child either composite or bit
-
-     ReactFactory.New2(AElement);
-
-     can have whatsever child ....
-
-   BC - bit rerender
-
-
-
-
-
-
-
-
-
-  }
-
-  UIBit.Render;
-end;
-
-function TUIBitComponent.GetUIBit: IUIBit;
-begin
-  Result := fUIBit;
-end;
-
-{ TCompositeComponent }
-
-procedure TCompositeComponent.DoRerender;
-begin
-  inherited DoRerender;
-end;
-
-function TCompositeComponent.GetComposite: IComposite;
-begin
-  Result := fComposite;
-end;
-
-{ TXReactComponent }
-
-procedure TXReactComponent.DoRerender;
-begin
-end;
-
-procedure TXReactComponent.Rerender;
-var
-  mChild: INode;
-begin
-  DoRerender;
-  for mChild in Node do begin
-    (mChild as IXReactComponent).Rerender;
-  end;
-end;
-
-procedure TXReactComponent.ResetData(const AElement: IMetaElement;
-  const AObject: IUnknown);
-begin
-
-end;
-
-function TXReactComponent.GetElement: IMetaElement;
-begin
-
 end;
 
 { TEditsComposite }
@@ -705,11 +499,6 @@ begin
   end;
 end;
 
-//procedure TReactComponent.AddComposite(const AComposite: IComposite);
-//begin
-//  Composites.Add(AComposite);
-//end;
-
 procedure TReactComponent.ResetData(const AElement: IMetaElement;
   const AComposite: IComposite; const ABit: IUIBit);
 begin
@@ -768,67 +557,9 @@ begin
   Result := Node.GetEnumerator;
 end;
 
-{ TComposites }
-
-function TComposites.GetItems: TItems;
-begin
-  if fItems = nil then
-    fItems := TItems.Create;
-  Result := fItems;
-end;
-
-function TComposites.GetCount: integer;
-begin
-  Result := Items.Count;
-end;
-
-function TComposites.GetItem(const AIndex: integer): IComposite;
-begin
-  Result := Items[AIndex];
-end;
-
-procedure TComposites.Add(const AComposite: IComposite);
-begin
-  Items.Add(AComposite);
-end;
-
-destructor TComposites.Destroy;
-begin
-  FreeAndNil(fItems);
-  inherited Destroy;
-end;
-
 { TReactFactory }
 
 function TReactFactory.MakeBit(const AMetaElement: IMetaElement;
-  const AComposites: IComposites): IUIBit;
-var
-  mNew: IUnknown;
-  mComposite: IComposite;
-  mElement: IMetaElement;
-  mmm: array of IMetaElement;
-begin
-  Log.DebugLnEnter({$I %CURRENTROUTINE%});
-  mNew := IUnknown(Container.Locate(AMetaElement.Guid, AMetaElement.TypeID, AMetaElement.Props));
-  if Supports(mNew, IComposite, mComposite) then begin
-    AComposites.Add(mComposite);
-//    mElement := mComposite.CreateElement(AMetaElement.Props, GetChildrenAsArray(AMetaElement as INode));  //getchildelements
-    mElement := mComposite.CreateElement(AMetaElement);  //getchildelements
-    Result := MakeBit(mElement, AComposites);
-  end
-  else
-  if Supports(mNew, IUIBit, Result) then
-  begin
-    MakeChildren(AMetaElement as INode, Result as INode);
-  end
-  else
-  begin
-    raise Exception.Create('unsupported element definition');
-  end;
-  Log.DebugLnExit({$I %CURRENTROUTINE%});
-end;
-
-function TReactFactory.MakeBit1(const AMetaElement: IMetaElement;
   const AComponent: IReactComponent): IUIBit;
 var
   mNew: IUnknown;
@@ -845,13 +576,13 @@ begin
     mComponent := IReactComponent(Container.Locate(IReactComponent));
     (AComponent as INode).AddChild(mComponent as INode);
     mElement := mComposite.CreateElement(AMetaElement);
-    Result := MakeBit1(mElement, mComponent);
+    Result := MakeBit(mElement, mComponent);
     mComponent.ResetData(mElement, mComposite, Result);
   end
   else
   if Supports(mNew, IUIBit, Result) then
   begin
-    MakeChildren1(AMetaElement as INode, Result as INode, AComponent);
+    MakeChildren(AMetaElement as INode, Result as INode, AComponent);
   end
   else
   begin
@@ -861,22 +592,6 @@ begin
 end;
 
 procedure TReactFactory.MakeChildren(const AParentElement: INode;
-  const AParentInstance: INode);
-var
-  mChild: IReactComponent;
-  mChildNode: INode;
-  mChildElement: IMetaElement;
-begin
-  Log.DebugLnEnter({$I %CURRENTROUTINE%});
-  for mChildNode in AParentElement do begin
-    mChildElement := mChildNode as IMetaElement;
-//    mChild := New(mChildElement);
-//    AParentInstance.AddChild(mChild.UIBit as INode);
-  end;
-  Log.DebugLnEnter({$I %CURRENTROUTINE%});
-end;
-
-procedure TReactFactory.MakeChildren1(const AParentElement: INode;
   const AParentInstance: INode; const AComponent: IReactComponent);
 var
   mChild: IUIBit;
@@ -886,7 +601,7 @@ begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
   for mChildNode in AParentElement do begin
     mChildElement := mChildNode as IMetaElement;
-    mChild := New1(mChildElement, AComponent);
+    mChild := New(mChildElement, AComponent);
     AParentInstance.AddChild(mChild as INode);
   end;
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
@@ -906,71 +621,12 @@ begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
 end;
 
-function TReactFactory.MakeComponent3(const AMetaElement: IMetaElement;
-  const AParentBit: IUIBit): IXReactComponent;
-var
-  mNew: IUnknown;
-  mResult: IUnknown;
-
-  mComposite: IComposite;
-  mBit: IUIBit;
-  mElement: IMetaElement;
-  mComponent: IReactComponent;
-  mc, i: integer;
-
-  mChild: IXReactComponent;
-  mChildNode: INode;
-begin
-  Log.DebugLnEnter({$I %CURRENTROUTINE%});
-  mNew := IUnknown(Container.Locate(AMetaElement.Guid, AMetaElement.TypeID, AMetaElement.Props));
-  if Supports(mNew, IComposite, mComposite) then
-  begin
-    mResult := IUnknown(Container.Locate(ICompositeComponent, '',
-      TProps.New.SetIntf('Composite', mComposite).SetIntf('Element', AMetaElement)));
-    mElement := mComposite.CreateElement(AMetaElement);
-    mChild := MakeComponent3(mElement, AParentBit);
-    (mResult as INode).AddChild(mChild as INode);
-  end
-  else
-  if Supports(mNew, IUIBit, mBit) then
-  begin
-    mResult := IUnknown(Container.Locate(IUIBitComponent, '',
-      TProps.New.SetIntf('UIBit', mBit).SetIntf('Element', AMetaElement)));
-    if AParentBit <> nil then
-      (AParentBit as INode).AddChild(mNew as INode);
-    for mChildNode in (AMetaElement as INode) do begin
-      mElement := mChildNode as IMetaElement;
-      mChild := MakeComponent3(mElement, mBit);
-      (mResult as INode).AddChild(mChild as INode);
-    end;
-  end
-  else
-  begin
-    raise Exception.Create('unsupported element definition');
-  end;
-  Result := mResult as IXReactComponent;
-  Log.DebugLnExit({$I %CURRENTROUTINE%});
-end;
-
-function TReactFactory.New(const AMetaElement: IMetaElement): IReactComponent;
-begin
-  Log.DebugLnEnter({$I %CURRENTROUTINE%});
-  Result := IReactComponent(Container.Locate(IReactComponent));
-  //Result.UIBit := MakeBit(AMetaElement, Result.Composites);
-  Log.DebugLnExit({$I %CURRENTROUTINE%});
-end;
-
-function TReactFactory.New1(const AMetaElement: IMetaElement;
+function TReactFactory.New(const AMetaElement: IMetaElement;
   const AComponent: IReactComponent): IUIBit;
 begin
   Log.DebugLnEnter({$I %CURRENTROUTINE%});
-  Result := MakeBit1(AMetaElement, AComponent);
+  Result := MakeBit(AMetaElement, AComponent);
   Log.DebugLnExit({$I %CURRENTROUTINE%});
-end;
-
-function TReactFactory.New2(const AMetaElement: IMetaElement): IXReactComponent;
-begin
-  Result := MakeComponent3(AMetaElement, nil);
 end;
 
 { TFormComposite }
@@ -979,10 +635,7 @@ function TFormComposite.ComposeElement(const AProps: IProps;
   const AChildren: array of IMetaElement): IMetaElement;
 var
   mChild: IMetaElement;
-  //mw: integer;
 begin
-  //mw := AProps.AsInt('Width');
-  //AProps.SetInt('Color', Random($FFFFFF));
   if ActionResize <> 0 then
   begin
     AProps.SetIntf('ResizeNotifier', NewNotifier(ActionResize));
@@ -1097,50 +750,6 @@ begin
   Log.DebugLnExit({$I %CURRENTROUTINE%});
 end;
 
-function TReconciliator.NewUIBit(const AParentComponent: IReactComponent;
-  const ANewElement: IMetaElement): IUIBit;
-var
-  mNew: IUnknown;
-begin
-  mNew := ReactFactory.New1(ANewElement, AParentComponent);
-  Result := Decomposite(mNew);
-end;
-
-function TReconciliator.Decomposite(const AObject: IUnknown): IUIBit;
-var
-  i: integer;
-  mComposite: IComposite;
-  mBit: IUIBit;
-begin
-  //// what am I supposed to do with children ?
-  //// it could be composites or bits (or mix)
-  //// when start to decomposite from leaves, it will always be bits ... good
-  //// so when decompositing - and thus createelement - I need pass to it aswell
-  //// all children so far .... but problem is those are real bits, not elements
-  //// it is probalby as react function anyway??? but how to do it, since result
-  //// is IMetaElement and it will create its own children --- better to
-  //
-  //// in case I will do it directly in new, I have those childre still as IMetaelements
-  //// so I can pass it to component.render .... so this is really where to go
-  ////
-  //
-  //if Supports(AObject, IComposite, mComposite) then begin
-  //  Result := NewUIBit(mComposite.Render);
-  //end
-  //else if Supports(AObject, IUIBit, mBit) then begin
-  //  Result := mBit;
-  //else
-  //  raise Exception.Create('unable decomposite');
-  //end;
-  ////for i := 0 to (ABit as INode).Count - 1 do begin
-  ////    mBit := (ABit as INode).Child[i - mRemoved] as IUIBit;
-  ////    mOldEl := (AOldElement as INode).Child[i] as IMetaElement;
-  ////    if i <= (ANewElement as INode).Count - 1 then begin
-  ////      mNewEl := (ANewElement as INode).Child[i] as IMetaElement;
-  ////    end
-  //
-end;
-
 function TReconciliator.EqualizeProps(var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
 var
   mDiffProps: IProps;
@@ -1171,12 +780,12 @@ begin
     Result := True;
   end else
   if (AOldElement = nil) and (ANewElement <> nil) then begin
-    ABit := ReactFactory.New1(ANewElement, AComponent) as IUIBit;
+    ABit := ReactFactory.New(ANewElement, AComponent) as IUIBit;
     Log.DebugLn('from nil to ' + ANewElement.TypeGuid + '.' + ANewElement.TypeID);
     Result := True;
   end else
   if (AOldElement.TypeGuid <> ANewElement.TypeGuid) or (AOldElement.TypeID <> ANewElement.TypeID) then begin
-    ABit := ReactFactory.New1(ANewElement, AComponent) as IUIBit;
+    ABit := ReactFactory.New(ANewElement, AComponent) as IUIBit;
     Log.DebugLn('from ' + AOldElement.TypeGuid + '.' + AOldElement.TypeID + ' to ' + ANewElement.TypeGuid + '.' + ANewElement.TypeID);
     Result := True;
   end else begin
@@ -1308,32 +917,14 @@ var
   mNewTopBit: IUIBit;
   mBit: IUIBit;
 begin
-  {
-  mNewTopBit := fTopBit;
-  Reconciliator.Reconciliate(mNewTopBit, fTopElement, AElement);
-  if fTopBit <> mNewTopBit  then begin
-    fTopBit := mNewTopBit;
-    fTopBit.Render;
-  end;
-  fTopElement := AElement;
-  }
-
-  mBit := ReactFactory.New1(AElement, RootComponent);
+  mBit := ReactFactory.New(AElement, RootComponent);
   RootComponent.ResetData(AElement, nil, mBit);
   RootComponent.Bit.Render;
-  {
-  fTopComponent := ReactFactory.New2(AElement);
-  fTopComponent.Rerender;
-  }
 end;
 
 procedure TReact.Rerender;
 begin
   RootComponent.Rerender(nil);
-  {
-  if fTopComponent;
-  fTopComponent.Rerender;
-  }
 end;
 
 { TMetaElement }

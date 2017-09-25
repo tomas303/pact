@@ -52,17 +52,6 @@ type
     function CreateElement(const ASourceElement: IMetaElement): IMetaElement;
   end;
 
-  { IComposites }
-
-  IComposites = interface
-  ['{146EB9CF-576B-4362-A28C-6EBF734F6517}']
-    function GetCount: integer;
-    function GetItem(const AIndex: integer): IComposite;
-    procedure Add(const AComposite: IComposite);
-    property Count: integer read GetCount;
-    property Item[const AIndex: integer]: IComposite read GetItem; default;
-  end;
-
   IAppComposite = interface(IComposite)
   ['{CAD729C0-F921-4932-9583-921B177142D2}']
   end;
@@ -112,57 +101,9 @@ type
     property Bit: IUIBit read GetBit;
   end;
 
-  {
-
-     XCp -> XCp -> Xb1 -> Xb
-                       -> Xcp -> Xb2 -> Xb
-                                     -> Xb
-                       -> Xb
-
-
-                  Xb1 -> Xb
-                      -> Xb2 -> Xb
-                             -> Xb
-                      -> Xb
-
-            (Xb1)   (xb2)
-     XCp -> XCp -> XCp
-
-     because when XCp something change, it will be Xb who will be reconciliated
-     similarly if in parent XCP something change, it will be XCp who will be reconciliated
-
-     it make sence that bits will be 1 net, composites will be 2 net ... od I ever
-     need composite? Yes - to connect both nest together ... to deliver change from rerender
-
-  }
-
-
-
-  IXReactComponent = interface
-  ['{B7822CA4-A760-466E-843F-82715084F931}']
-    procedure Rerender;
-    procedure ResetData(const AElement: IMetaElement; const AObject: IUnknown);
-    function GetElement: IMetaElement;
-    property Element: IMetaElement read GetElement;
-  end;
-
-  IUIBitComponent = interface(IXReactComponent)
-  ['{0F3CE857-3C45-4FE7-B64D-1E733A3DEAF0}']
-    function GetUIBit: IUIBit;
-    property UIBit: IUIBit read GetUIBit;
-  end;
-
-  ICompositeComponent = interface(IXReactComponent)
-  ['{0F3CE857-3C45-4FE7-B64D-1E733A3DEAF0}']
-    function GetComposite: IComposite;
-    property Composite: IComposite read GetComposite;
-  end;
-
   IReactFactory = interface
   ['{6F9A1695-2442-401C-98ED-893CFF586962}']
-    function New(const AElement: IMetaElement): IReactComponent;
-    function New1(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
-    function New2(const AMetaElement: IMetaElement): IXReactComponent;
+    function New(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
   end;
 
   IReconciliator = interface
