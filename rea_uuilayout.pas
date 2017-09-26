@@ -5,7 +5,7 @@ unit rea_uuilayout;
 interface
 
 uses
-  Classes, SysUtils, rea_iuilayout, trl_itree, fgl, trl_ilog, trl_irestatement,
+  Classes, SysUtils, rea_iuilayout, trl_itree, fgl, trl_ilog,
   iuibits;
 
 type
@@ -91,23 +91,51 @@ type
     procedure Reposition(const ANode: INode; const AClass: TUniItemClass; AStart, ASize: integer);
   protected
     function ElasticMMSize(const ANode: INode; const AClass: TUniItemClass): integer;
-    function ResizeFixed(const ANode: INode; const AClass: TUniItemClass; const AR: IRestatement): integer;
+    function ResizeFixed(const ANode: INode; const AClass: TUniItemClass; const AScale: IUIScale): integer;
     function ResizeElastic(const ANode: INode; const AClass: TUniItemClass; const AElasticMMTotal, AElasticTotal: integer): integer;
     procedure Spread(const ANode: INode; const AClass: TUniItemClass; ASize, AUsedSize: integer);
-    procedure Replace(const ANode: INode; const AClass: TUniItemClass; ASize: integer; const AR: IRestatement);
+    procedure Replace(const ANode: INode; const AClass: TUniItemClass; ASize: integer; const AScale: IUIScale);
   protected
     // IUITiler
     procedure ReplaceChildren(const AContainer: IUIBit);
   protected
-    fHR: IRestatement;
-    fVR: IRestatement;
+    fHScale: IUIScale;
+    fVScale: IUIScale;
   published
-    property HR: IRestatement read fHR write fHR;
-    property VR: IRestatement read fVR write fVR;
+    property HScale: IUIScale read fHScale write fHScale;
+    property VScale: IUIScale read fVScale write fVScale;
   end;
 
+  { TUIScale }
+
+  TUIScale = class(TInterfacedObject, IUIScale)
+  protected
+    // IUIScale
+    function Scale(const ASize: integer): integer;
+  public
+    procedure AfterConstruction; override;
+  protected
+    fMultiplicator, fDivider: integer;
+  published
+    property Multiplicator: integer read fMultiplicator write fMultiplicator;
+    property Divider: integer read fDivider write fDivider;
+  end;
 
 implementation
+
+{ TUIScale }
+
+function TUIScale.Scale(const ASize: integer): integer;
+begin
+  Result := Round(ASize * Multiplicator / Divider);
+end;
+
+procedure TUIScale.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  fMultiplicator := 1;
+  fDivider := 1;
+end;
 
 { TUIDesktopLayout }
 
@@ -127,7 +155,7 @@ begin
 end;
 
 function TUIDesktopLayout.ResizeFixed(const ANode: INode; const AClass: TUniItemClass;
-  const AR: IRestatement): integer;
+  const AScale: IUIScale): integer;
 var
   mChild: INode;
   mUni: IUniItem;
@@ -138,7 +166,7 @@ begin
     case mUni.Place of
       cPlace.FixFront, cPlace.FixMiddle, cPlace.FixBack:
         begin
-          mUni.Size :=  AR.Restate(mUni.MMSize);
+          mUni.Size :=  AScale.Scale(mUni.MMSize);
           Result := Result + mUni.Size;
         end;
     end;
@@ -240,14 +268,14 @@ begin
 end;
 
 procedure TUIDesktopLayout.Replace(const ANode: INode;
-  const AClass: TUniItemClass; ASize: integer; const AR: IRestatement);
+  const AClass: TUniItemClass; ASize: integer; const AScale: IUIScale);
 var
   mElasticMMTotal: integer;
   mFixedSize: integer;
   mElasticSize: integer;
 begin
   mElasticMMTotal := ElasticMMSize(ANode, AClass);
-  mFixedSize := ResizeFixed(ANode, AClass, AR);
+  mFixedSize := ResizeFixed(ANode, AClass, AScale);
   mElasticSize := ResizeElastic(ANode, AClass, mElasticMMTotal, ASize - mFixedSize);
   Spread(ANode, AClass, ASize, mFixedSize + mElasticSize);
 end;
@@ -258,12 +286,12 @@ begin
   case (AContainer as IUIPlacement).Layout of
     cLayout.Horizontal:
       begin
-        Replace(AContainer as INode, TUniHorizontalItem, (AContainer as IUIPlace).Width, HR);
+        Replace(AContainer as INode, TUniHorizontalItem, (AContainer as IUIPlace).Width, HScale);
         Reposition(AContainer as INode, TUniVerticalItem, 0, (AContainer as IUIPlace).Height);
       end;
     cLayout.Vertical:
       begin
-        Replace(AContainer as INode, TUniVerticalItem, (AContainer as IUIPlace).Height, VR);
+        Replace(AContainer as INode, TUniVerticalItem, (AContainer as IUIPlace).Height, VScale);
         Reposition(AContainer as INode, TUniHorizontalItem, 0, (AContainer as IUIPlace).Width);
       end;
     cLayout.Overlay:

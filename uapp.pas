@@ -26,7 +26,6 @@ uses
   trl_idifactory, trl_udifactory,
   rea_ireact, rea_ureact,
   trl_itree, trl_utree,
-  trl_irestatement, trl_urestatement,
   rea_iuilayout, rea_uuilayout,
   trl_iprops, trl_uprops,
   trl_iinjector, trl_uinjector,
@@ -103,16 +102,16 @@ var
 begin
 
   // for recount size to pixel(for now nothing)
-  mReg := DIC.Add(TRestatement, IRestatement, 'horizontal');
-  mReg.InjectProp('Multi', 1);
-  mReg.InjectProp('Divid', 1);
-  mReg := DIC.Add(TRestatement, IRestatement, 'vertical');
-  mReg.InjectProp('Multi', 1);
-  mReg.InjectProp('Divid', 1);
+  mReg := DIC.Add(TUIScale, IUIScale, 'horizontal');
+  mReg.InjectProp('Multiplicator', 1);
+  mReg.InjectProp('Divider', 1);
+  mReg := DIC.Add(TUIScale, IUIScale, 'vertical');
+  mReg.InjectProp('Multiplicator', 1);
+  mReg.InjectProp('Divider', 1);
   // layout
   mReg := DIC.Add(TUIDesktopLayout, IUITiler, 'desktop');
-  mReg.InjectProp('HR', IRestatement, 'horizontal');
-  mReg.InjectProp('VR', IRestatement, 'vertical');
+  mReg.InjectProp('HScale', IUIScale, 'horizontal');
+  mReg.InjectProp('VScale', IUIScale, 'vertical');
 
 
   // real controls and their bits

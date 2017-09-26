@@ -87,6 +87,12 @@ type
     procedure ReplaceChildren(const AContainer: IUIBit);
   end;
 
+  IUIScale = interface
+  ['{1AD4124D-F767-4E1E-AC33-303384E9FBE9}']
+    function Scale(const ASize: integer): integer;
+  end;
+
+
 implementation
 
 end.
