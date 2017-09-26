@@ -34,7 +34,6 @@ type
 
   IMetaElementFactory = interface
   ['{64895959-43CF-43E3-A3CE-1EF69608BEBE}']
-    function New(const AMetaElement: IMetaElement): IUnknown;
     function CreateElement(const ATypeGuid: TGuid): IMetaElement;
     function CreateElement(const ATypeGuid: TGuid; const AProps: IProps): IMetaElement;
     function CreateElement(const ATypeGuid: TGuid; const AChildren: array of IMetaElement): IMetaElement;

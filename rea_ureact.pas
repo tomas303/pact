@@ -188,10 +188,7 @@ type
 
   TMetaElementFactory = class(TDIFactory, IMetaElementFactory)
   protected
-    procedure CreateChildren(const AParentElement: INode; const AParentInstance: INode);
-    procedure CopyChildren(const AParentElement: INode; const AParentInstance: INode);
     //IMetaElementFactory
-    function New(const AMetaElement: IMetaElement): IUnknown;
     function CreateElement(const ATypeGuid: TGuid): IMetaElement;
     function CreateElement(const ATypeGuid: TGuid; const AProps: IProps): IMetaElement;
     function CreateElement(const ATypeGuid: TGuid; const AChildren: array of IMetaElement): IMetaElement;
@@ -813,41 +810,6 @@ begin
 end;
 
 { TMetaElementFactory }
-
-procedure TMetaElementFactory.CreateChildren(const AParentElement: INode; const AParentInstance: INode);
-var
-  mChild: IUnknown;
-  mChildNode: INode;
-  mChildElement: IMetaElement;
-begin
-  for mChildNode in AParentElement do begin
-    mChildElement := mChildNode as IMetaElement;
-    mChild := New(mChildElement);
-    AParentInstance.AddChild(mChild as INode);
-    Log.DebugLn( 'created child ' + (mChild as TObject).ClassName);
-  end;
-end;
-
-procedure TMetaElementFactory.CopyChildren(const AParentElement: INode;
-  const AParentInstance: INode);
-var
-  mChildNode: INode;
-  mChildElement: IMetaElement;
-begin
-  for mChildNode in AParentElement do begin
-    AParentInstance.AddChild(mChildNode);
-    Log.DebugLn( 'added child ');
-  end;
-end;
-
-function TMetaElementFactory.New(const AMetaElement: IMetaElement): IUnknown;
-begin
-  Log.DebugLnEnter({$I %CURRENTROUTINE%});
-  Result := IUnknown(Locate(AMetaElement.Guid, AMetaElement.TypeID, AMetaElement.Props));
-  Log.DebugLn('created ' + (Result as TObject).ClassName);
-  CreateChildren(AMetaElement as INode, Result as INode);
-  Log.DebugLnExit({$I %CURRENTROUTINE%});
-end;
 
 function TMetaElementFactory.CreateElement(const ATypeGuid: TGuid
   ): IMetaElement;
