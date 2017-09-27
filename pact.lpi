@@ -35,7 +35,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="17">
+    <Units Count="15">
       <Unit0>
         <Filename Value="pact.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -57,53 +57,45 @@
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="trl_itree.pas"/>
+        <Filename Value="rea_ureact.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="trl_utree.pas"/>
+        <Filename Value="rea_uuilayout.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit6>
       <Unit7>
-        <Filename Value="rea_ureact.pas"/>
+        <Filename Value="rea_iuilayout.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit7>
       <Unit8>
-        <Filename Value="rea_uuilayout.pas"/>
+        <Filename Value="rea_iredux.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit8>
       <Unit9>
-        <Filename Value="rea_iuilayout.pas"/>
+        <Filename Value="rea_uredux.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit9>
       <Unit10>
-        <Filename Value="rea_iredux.pas"/>
+        <Filename Value="rea_ulauncher.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit10>
       <Unit11>
-        <Filename Value="rea_uredux.pas"/>
+        <Filename Value="uappfunc.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit11>
       <Unit12>
-        <Filename Value="rea_ulauncher.pas"/>
+        <Filename Value="uappstate.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit12>
       <Unit13>
-        <Filename Value="uappfunc.pas"/>
+        <Filename Value="uapplogic.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit13>
       <Unit14>
-        <Filename Value="uappstate.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit14>
-      <Unit15>
-        <Filename Value="uapplogic.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit15>
-      <Unit16>
         <Filename Value="iapp.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit16>
+      </Unit14>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
