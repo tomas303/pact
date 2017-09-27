@@ -45,11 +45,11 @@
         <IsPartOfProject Value="True"/>
       </Unit1>
       <Unit2>
-        <Filename Value="iuibits.pas"/>
+        <Filename Value="rea_iuibits.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="uuibits.pas"/>
+        <Filename Value="rea_uuibits.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
@@ -69,11 +69,11 @@
         <IsPartOfProject Value="True"/>
       </Unit7>
       <Unit8>
-        <Filename Value="rea_iredux.pas"/>
+        <Filename Value="rdx_iredux.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit8>
       <Unit9>
-        <Filename Value="rea_uredux.pas"/>
+        <Filename Value="rdx_uredux.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit9>
       <Unit10>
@@ -81,11 +81,11 @@
         <IsPartOfProject Value="True"/>
       </Unit10>
       <Unit11>
-        <Filename Value="uappfunc.pas"/>
+        <Filename Value="rdx_ufunc.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit11>
       <Unit12>
-        <Filename Value="uappstate.pas"/>
+        <Filename Value="rdx_ustate.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit12>
       <Unit13>

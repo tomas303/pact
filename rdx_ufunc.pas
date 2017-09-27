@@ -1,11 +1,11 @@
-unit uappfunc;
+unit rdx_ufunc;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, rea_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory;
+  Classes, SysUtils, rdx_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory;
 
 type
 

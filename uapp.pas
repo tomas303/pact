@@ -8,7 +8,7 @@ uses
   Classes, SysUtils,
   StdCtrls,
 
-  iapp, uappfunc, uappstate, uapplogic,
+  iapp, rdx_ufunc, rdx_ustate, uapplogic,
 
   forms,
   tal_uapp, tal_uguilauncher, tal_ilauncher,
@@ -22,14 +22,14 @@ uses
 
   tvl_udatabinder, tvl_udatabinders, tvl_utallybinders,
   tvl_ibindings, tal_iedit, tvl_ubehavebinder,
-  iuibits, uuibits,
+  rea_iuibits, rea_uuibits,
   trl_idifactory, trl_udifactory,
   rea_ireact, rea_ureact,
   trl_itree, trl_utree,
   rea_iuilayout, rea_uuilayout,
   trl_iprops, trl_uprops,
   trl_iinjector, trl_uinjector,
-  rea_iredux, rea_uredux,
+  rdx_iredux, rdx_uredux,
   rea_ulauncher;
 
 type

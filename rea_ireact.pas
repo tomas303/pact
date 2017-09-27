@@ -5,7 +5,7 @@ unit rea_ireact;
 interface
 
 uses
-  Classes, SysUtils, trl_iprops, trl_itree, iuibits;
+  Classes, SysUtils, trl_iprops, trl_itree, rea_iuibits;
 
 type
 

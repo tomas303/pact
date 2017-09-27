@@ -1,11 +1,11 @@
-unit uappstate;
+unit rdx_ustate;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, rea_iredux, trl_iprops, iapp, trl_idifactory;
+  Classes, SysUtils, rdx_iredux, trl_iprops, iapp, trl_idifactory;
 
 type
 

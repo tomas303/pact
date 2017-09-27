@@ -1,13 +1,13 @@
-unit uuibits;
+unit rea_uuibits;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, iuibits, Controls, trl_idifactory, forms, trl_itree,
+  Classes, SysUtils, rea_iuibits, Controls, trl_idifactory, forms, trl_itree,
   StdCtrls, trl_iprops, trl_uprops, trl_iinjector, Graphics, trl_ilog, fgl,
-  rea_iuilayout, rea_iredux;
+  rea_iuilayout, rdx_iredux;
 
 type
 

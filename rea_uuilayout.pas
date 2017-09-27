@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, rea_iuilayout, trl_itree, fgl, trl_ilog,
-  iuibits;
+  rea_iuibits;
 
 type
 

@@ -5,9 +5,9 @@ unit rea_ureact;
 interface
 
 uses
-  Classes, SysUtils, rea_ireact, fgl, trl_iprops, iuibits,
+  Classes, SysUtils, rea_ireact, fgl, trl_iprops, rea_iuibits,
   trl_itree, trl_idifactory, trl_irttibroker, trl_urttibroker,
-  trl_uprops, trl_udifactory, trl_ilog, trl_iinjector, rea_iredux, rea_iuilayout,
+  trl_uprops, trl_udifactory, trl_ilog, trl_iinjector, rdx_iredux, rea_iuilayout,
   graphics, iapp;
 
 type

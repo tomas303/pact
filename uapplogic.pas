@@ -5,7 +5,7 @@ unit uapplogic;
 interface
 
 uses
-  Classes, SysUtils, iapp, rea_ireact, rea_iredux, iuibits, trl_uprops, graphics,
+  Classes, SysUtils, iapp, rea_ireact, rdx_iredux, rea_iuibits, trl_uprops, graphics,
   trl_idifactory, trl_iprops;
 
 type

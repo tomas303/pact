@@ -5,7 +5,7 @@ unit rea_iuilayout;
 interface
 
 uses
-  iuibits;
+  rea_iuibits;
 
 //const
 //  // place - how inner control should be placed within container

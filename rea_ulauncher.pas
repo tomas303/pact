@@ -5,7 +5,7 @@ unit rea_ulauncher;
 interface
 
 uses
-  Classes, SysUtils, tal_ilauncher, forms, rea_iredux;
+  Classes, SysUtils, tal_ilauncher, forms, rdx_iredux;
 
 type
 
