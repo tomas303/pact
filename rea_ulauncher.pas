@@ -1,4 +1,4 @@
-unit rea_uapplauncher;
+unit rea_ulauncher;
 
 {$mode objfpc}{$H+}
 

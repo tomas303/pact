@@ -30,7 +30,7 @@ uses
   trl_iprops, trl_uprops,
   trl_iinjector, trl_uinjector,
   rea_iredux, rea_uredux,
-  rea_uapplauncher;
+  rea_ulauncher;
 
 type
 
@@ -38,7 +38,7 @@ type
 
   TApp = class(TALApp)
   protected
-    function CreateMainFormInstance: TObject;
+    function NewByApplication(const AClass: TClass): TObject;
   protected
     procedure RegisterCore;
     procedure RegisterLauncher;
@@ -53,9 +53,12 @@ implementation
 
 { TApp }
 
-function TApp.CreateMainFormInstance: TObject;
+function TApp.NewByApplication(const AClass: TClass): TObject;
 begin
-  Application.CreateForm(TForm, Result);
+  if AClass.InheritsFrom(TComponent) then
+    Application.CreateForm(TComponentClass(AClass), Result)
+  else
+    raise Exception.Create('class must be component class');
 end;
 
 procedure TApp.RegisterCore;
@@ -117,9 +120,7 @@ begin
   // real controls and their bits
   // ui bit for handle real control
 
-  mReg := DIC.Add(TForm, TDIOwner(DIC.Locate(TDIOwner)), 'uiform');
-  //mReg := DIC.Add(CreateMainFormInstance, 'uiform');
-
+  mReg := DIC.Add(NewByApplication, TForm, 'uiform');
   mReg := DIC.Add(TUIFormBit, IUIFormBit);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
@@ -282,7 +283,7 @@ begin
   mReg.InjectProp('Reconciliator', IReconciliator);
   mReg.InjectProp('RootComponent', IReactComponent);
   //
-  mReg := DIC.Add(CreateMainFormInstance, IMainForm);
+  mReg := DIC.Add(NewByApplication, IMainForm);
   mReg.InjectProp('React', IReact);
 end;
 
