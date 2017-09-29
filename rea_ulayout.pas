@@ -1,12 +1,12 @@
-unit rea_uuilayout;
+unit rea_ulayout;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  SysUtils, rea_iuilayout, trl_itree, fgl,
-  rea_iuibits;
+  SysUtils, rea_ilayout, trl_itree, fgl,
+  rea_ibits;
 
 type
 
@@ -82,35 +82,35 @@ type
     procedure SetStart(AValue: integer); override;
   end;
 
-  { TUIDesktopLayout }
+  { TDesktopTiler }
 
-  TUIDesktopLayout = class(TInterfacedObject, IUITiler)
+  TDesktopTiler = class(TInterfacedObject, ITiler)
   protected type
     TPlaceItems = specialize TFPGInterfacedObjectList<IUniItem>;
   protected
     procedure Reposition(const ANode: INode; const AClass: TUniItemClass; AStart, ASize: integer);
   protected
     function ElasticMMSize(const ANode: INode; const AClass: TUniItemClass): integer;
-    function ResizeFixed(const ANode: INode; const AClass: TUniItemClass; const AScale: IUIScale): integer;
+    function ResizeFixed(const ANode: INode; const AClass: TUniItemClass; const AScale: IScale): integer;
     function ResizeElastic(const ANode: INode; const AClass: TUniItemClass; const AElasticMMTotal, AElasticTotal: integer): integer;
     procedure Spread(const ANode: INode; const AClass: TUniItemClass; ASize, AUsedSize: integer);
-    procedure Replace(const ANode: INode; const AClass: TUniItemClass; ASize: integer; const AScale: IUIScale);
+    procedure Replace(const ANode: INode; const AClass: TUniItemClass; ASize: integer; const AScale: IScale);
   protected
-    // IUITiler
-    procedure ReplaceChildren(const AContainer: IUIBit);
+    // ITiler
+    procedure ReplaceChildren(const AContainer: IBit);
   protected
-    fHScale: IUIScale;
-    fVScale: IUIScale;
+    fHScale: IScale;
+    fVScale: IScale;
   published
-    property HScale: IUIScale read fHScale write fHScale;
-    property VScale: IUIScale read fVScale write fVScale;
+    property HScale: IScale read fHScale write fHScale;
+    property VScale: IScale read fVScale write fVScale;
   end;
 
-  { TUIScale }
+  { TScale }
 
-  TUIScale = class(TInterfacedObject, IUIScale)
+  TScale = class(TInterfacedObject, IScale)
   protected
-    // IUIScale
+    // IScale
     function Scale(const ASize: integer): integer;
   public
     procedure AfterConstruction; override;
@@ -123,23 +123,23 @@ type
 
 implementation
 
-{ TUIScale }
+{ TScale }
 
-function TUIScale.Scale(const ASize: integer): integer;
+function TScale.Scale(const ASize: integer): integer;
 begin
   Result := Round(ASize * Multiplicator / Divider);
 end;
 
-procedure TUIScale.AfterConstruction;
+procedure TScale.AfterConstruction;
 begin
   inherited AfterConstruction;
   fMultiplicator := 1;
   fDivider := 1;
 end;
 
-{ TUIDesktopLayout }
+{ TDesktopTiler }
 
-function TUIDesktopLayout.ElasticMMSize(const ANode: INode; const AClass: TUniItemClass): integer;
+function TDesktopTiler.ElasticMMSize(const ANode: INode; const AClass: TUniItemClass): integer;
 var
   mChild: INode;
   mUni: IUniItem;
@@ -154,8 +154,8 @@ begin
   end;
 end;
 
-function TUIDesktopLayout.ResizeFixed(const ANode: INode; const AClass: TUniItemClass;
-  const AScale: IUIScale): integer;
+function TDesktopTiler.ResizeFixed(const ANode: INode; const AClass: TUniItemClass;
+  const AScale: IScale): integer;
 var
   mChild: INode;
   mUni: IUniItem;
@@ -173,7 +173,7 @@ begin
   end;
 end;
 
-function TUIDesktopLayout.ResizeElastic(const ANode: INode; const AClass: TUniItemClass;
+function TDesktopTiler.ResizeElastic(const ANode: INode; const AClass: TUniItemClass;
   const AElasticMMTotal, AElasticTotal: integer): integer;
 var
   mChild: INode;
@@ -200,7 +200,7 @@ begin
   end;
 end;
 
-procedure TUIDesktopLayout.Spread(const ANode: INode;
+procedure TDesktopTiler.Spread(const ANode: INode;
   const AClass: TUniItemClass; ASize, AUsedSize: integer);
 var
   mChild: INode;
@@ -254,7 +254,7 @@ begin
   end;
 end;
 
-procedure TUIDesktopLayout.Reposition(const ANode: INode;
+procedure TDesktopTiler.Reposition(const ANode: INode;
   const AClass: TUniItemClass; AStart, ASize: integer);
 var
   mChild: INode;
@@ -267,8 +267,8 @@ begin
   end;
 end;
 
-procedure TUIDesktopLayout.Replace(const ANode: INode;
-  const AClass: TUniItemClass; ASize: integer; const AScale: IUIScale);
+procedure TDesktopTiler.Replace(const ANode: INode;
+  const AClass: TUniItemClass; ASize: integer; const AScale: IScale);
 var
   mElasticMMTotal: integer;
   mFixedSize: integer;
@@ -280,24 +280,24 @@ begin
   Spread(ANode, AClass, ASize, mFixedSize + mElasticSize);
 end;
 
-procedure TUIDesktopLayout.ReplaceChildren(const AContainer: IUIBit);
+procedure TDesktopTiler.ReplaceChildren(const AContainer: IBit);
 begin
   // setup same height and count width of fixed fields
-  case (AContainer as IUIPlacement).Layout of
+  case (AContainer as IPlacement).Layout of
     cLayout.Horizontal:
       begin
-        Replace(AContainer as INode, TUniHorizontalItem, (AContainer as IUIPlace).Width, HScale);
-        Reposition(AContainer as INode, TUniVerticalItem, 0, (AContainer as IUIPlace).Height);
+        Replace(AContainer as INode, TUniHorizontalItem, (AContainer as IPlace).Width, HScale);
+        Reposition(AContainer as INode, TUniVerticalItem, 0, (AContainer as IPlace).Height);
       end;
     cLayout.Vertical:
       begin
-        Replace(AContainer as INode, TUniVerticalItem, (AContainer as IUIPlace).Height, VScale);
-        Reposition(AContainer as INode, TUniHorizontalItem, 0, (AContainer as IUIPlace).Width);
+        Replace(AContainer as INode, TUniVerticalItem, (AContainer as IPlace).Height, VScale);
+        Reposition(AContainer as INode, TUniHorizontalItem, 0, (AContainer as IPlace).Width);
       end;
     cLayout.Overlay:
       begin
-        Reposition(AContainer as INode, TUniHorizontalItem, 0, (AContainer as IUIPlace).Width);
-        Reposition(AContainer as INode, TUniVerticalItem, 0, (AContainer as IUIPlace).Height);
+        Reposition(AContainer as INode, TUniHorizontalItem, 0, (AContainer as IPlace).Width);
+        Reposition(AContainer as INode, TUniVerticalItem, 0, (AContainer as IPlace).Height);
       end;
   end;
 end;
@@ -306,42 +306,42 @@ end;
 
 function TUniVerticalItem.GetMMSize: integer;
 begin
-  Result := (fItem as IUIPlacement).MMHeight;
+  Result := (fItem as IPlacement).MMHeight;
 end;
 
 function TUniVerticalItem.GetPlace: integer;
 begin
-  Result := (fItem as IUIPlacement).Place;
+  Result := (fItem as IPlacement).Place;
 end;
 
 function TUniVerticalItem.GetSize: integer;
 begin
-  Result := (fItem as IUIPlace).Height;
+  Result := (fItem as IPlace).Height;
 end;
 
 function TUniVerticalItem.GetStart: integer;
 begin
-  Result := (fItem as IUIPlace).Top;
+  Result := (fItem as IPlace).Top;
 end;
 
 procedure TUniVerticalItem.SetMMSize(AValue: integer);
 begin
-  (fItem as IUIPlacement).MMHeight := AValue;
+  (fItem as IPlacement).MMHeight := AValue;
 end;
 
 procedure TUniVerticalItem.SetPlace(AValue: integer);
 begin
-  (fItem as IUIPlacement).Place := AValue;
+  (fItem as IPlacement).Place := AValue;
 end;
 
 procedure TUniVerticalItem.SetSize(AValue: integer);
 begin
-  (fItem as IUIPlace).Height := AValue;
+  (fItem as IPlace).Height := AValue;
 end;
 
 procedure TUniVerticalItem.SetStart(AValue: integer);
 begin
-  (fItem as IUIPlace).Top := AValue;
+  (fItem as IPlace).Top := AValue;
 end;
 
 { TUniItem }
@@ -355,42 +355,42 @@ end;
 
 function TUniHorizontalItem.GetMMSize: integer;
 begin
-  Result := (fItem as IUIPlacement).MMWidth;
+  Result := (fItem as IPlacement).MMWidth;
 end;
 
 function TUniHorizontalItem.GetPlace: integer;
 begin
-  Result := (fItem as IUIPlacement).Place;
+  Result := (fItem as IPlacement).Place;
 end;
 
 function TUniHorizontalItem.GetSize: integer;
 begin
-  Result := (fItem as IUIPlace).Width;
+  Result := (fItem as IPlace).Width;
 end;
 
 function TUniHorizontalItem.GetStart: integer;
 begin
-  Result := (fItem as IUIPlace).Left;
+  Result := (fItem as IPlace).Left;
 end;
 
 procedure TUniHorizontalItem.SetMMSize(AValue: integer);
 begin
-  (fItem as IUIPlacement).MMWidth := AValue;
+  (fItem as IPlacement).MMWidth := AValue;
 end;
 
 procedure TUniHorizontalItem.SetPlace(AValue: integer);
 begin
-  (fItem as IUIPlacement).Place := AValue;
+  (fItem as IPlacement).Place := AValue;
 end;
 
 procedure TUniHorizontalItem.SetSize(AValue: integer);
 begin
-  (fItem as IUIPlace).Width := AValue;
+  (fItem as IPlace).Width := AValue;
 end;
 
 procedure TUniHorizontalItem.SetStart(AValue: integer);
 begin
-  (fItem as IUIPlace).Left := AValue;
+  (fItem as IPlace).Left := AValue;
 end;
 
 end.

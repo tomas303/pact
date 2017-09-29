@@ -17,11 +17,11 @@ uses
   trl_ilog,
   tal_uwindowlog,
 
-  rea_iuibits, rea_uuibits,
+  rea_ibits, rea_ubits,
   trl_idifactory, trl_udifactory,
   rea_ireact, rea_ureact,
   trl_itree, trl_utree,
-  rea_iuilayout, rea_uuilayout,
+  rea_ilayout, rea_ulayout,
   trl_iprops, trl_uprops,
   trl_iinjector, trl_uinjector,
   rdx_iredux, rdx_uredux,
@@ -101,50 +101,50 @@ var
 begin
 
   // for recount size to pixel(for now nothing)
-  mReg := DIC.Add(TUIScale, IUIScale, 'horizontal');
+  mReg := DIC.Add(TScale, IScale, 'horizontal');
   mReg.InjectProp('Multiplicator', 1);
   mReg.InjectProp('Divider', 1);
-  mReg := DIC.Add(TUIScale, IUIScale, 'vertical');
+  mReg := DIC.Add(TScale, IScale, 'vertical');
   mReg.InjectProp('Multiplicator', 1);
   mReg.InjectProp('Divider', 1);
   // layout
-  mReg := DIC.Add(TUIDesktopLayout, IUITiler, 'desktop');
-  mReg.InjectProp('HScale', IUIScale, 'horizontal');
-  mReg.InjectProp('VScale', IUIScale, 'vertical');
+  mReg := DIC.Add(TDesktopTiler, ITiler, 'desktop');
+  mReg.InjectProp('HScale', IScale, 'horizontal');
+  mReg.InjectProp('VScale', IScale, 'vertical');
 
 
   // real controls and their bits
   // ui bit for handle real control
 
   mReg := DIC.Add(NewByApplication, TForm, 'uiform');
-  mReg := DIC.Add(TUIFormBit, IUIFormBit);
+  mReg := DIC.Add(TFormBit, IFormBit);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Control', TForm, 'uiform');
   mReg.InjectProp('Node', INode, 'parent');
-  mReg.InjectProp('Tiler', IUITiler, 'desktop');
+  mReg.InjectProp('Tiler', ITiler, 'desktop');
   //
-  mReg := DIC.Add(TUIStripBit, IUIStripBit);
+  mReg := DIC.Add(TStripBit, IStripBit);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Node', INode, 'parent');
-  mReg.InjectProp('Tiler', IUITiler, 'desktop');
+  mReg.InjectProp('Tiler', ITiler, 'desktop');
   //
   mReg := DIC.Add(TEdit, nil, 'uiedit');
-  mReg := DIC.Add(TUIEditBit, IUIEditBit);
+  mReg := DIC.Add(TEditBit, IEditBit);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Control', TEdit, 'uiedit');
   mReg.InjectProp('Node', INode, 'leaf');
   //
   mReg := DIC.Add(TLabel, nil, 'uitext');
-  mReg := DIC.Add(TUITextBit, IUITextBit);
+  mReg := DIC.Add(TTextBit, ITextBit);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Control', TLabel, 'uitext');
   mReg.InjectProp('Node', INode, 'leaf');
   //
   mReg := DIC.Add(TButton, nil, 'uibutton');
-  mReg := DIC.Add(TUIButtonBit, IUIButtonBit);
+  mReg := DIC.Add(TButtonBit, IButtonBit);
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Control', TButton, 'uibutton');

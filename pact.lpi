@@ -45,11 +45,11 @@
         <IsPartOfProject Value="True"/>
       </Unit1>
       <Unit2>
-        <Filename Value="rea_iuibits.pas"/>
+        <Filename Value="rea_ibits.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="rea_uuibits.pas"/>
+        <Filename Value="rea_ubits.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
@@ -61,11 +61,11 @@
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="rea_uuilayout.pas"/>
+        <Filename Value="rea_ulayout.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit6>
       <Unit7>
-        <Filename Value="rea_iuilayout.pas"/>
+        <Filename Value="rea_ilayout.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit7>
       <Unit8>

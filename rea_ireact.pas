@@ -5,7 +5,7 @@ unit rea_ireact;
 interface
 
 uses
-  trl_iprops, rea_iuibits;
+  trl_iprops, rea_ibits;
 
 type
 
@@ -91,23 +91,23 @@ type
   ['{FB2D2C72-1E52-40C0-BE52-63AFA7448590}']
     procedure Rerender(const AUpperComponent: IReactComponent);
     //procedure AddComposite(const AComposite: IComposite);
-    procedure ResetData(const AElement: IMetaElement; const AComposite: IComposite; const ABit: IUIBit);
+    procedure ResetData(const AElement: IMetaElement; const AComposite: IComposite; const ABit: IBit);
     function GetElement: IMetaElement;
     property Element: IMetaElement read GetElement;
     function GetComposite: IComposite;
     property Composite: IComposite read GetComposite;
-    function GetBit: IUIBit;
-    property Bit: IUIBit read GetBit;
+    function GetBit: IBit;
+    property Bit: IBit read GetBit;
   end;
 
   IReactFactory = interface
   ['{6F9A1695-2442-401C-98ED-893CFF586962}']
-    function New(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IUIBit;
+    function New(const AMetaElement: IMetaElement; const AComponent: IReactComponent): IBit;
   end;
 
   IReconciliator = interface
   ['{066DDE74-0738-4636-B8DD-E3E1BA873D2E}']
-    function Reconciliate(const AComponent: IReactComponent; var ABit: IUIBit; const AOldElement, ANewElement: IMetaElement): Boolean;
+    function Reconciliate(const AComponent: IReactComponent; var ABit: IBit; const AOldElement, ANewElement: IMetaElement): Boolean;
   end;
 
 implementation

@@ -1,19 +1,19 @@
-unit rea_uuibits;
+unit rea_ubits;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  SysUtils, rea_iuibits, Controls, trl_idifactory, forms, trl_itree,
+  SysUtils, rea_ibits, Controls, trl_idifactory, forms, trl_itree,
   StdCtrls, trl_iprops, Graphics, trl_ilog,
-  rea_iuilayout, flu_iflux;
+  rea_ilayout, flu_iflux;
 
 type
 
-  { TUIBit }
+  { TBit }
 
-  TUIBit = class(TInterfacedObject, IUIBit, INode, IUIPlacement, IUIPlace)
+  TBit = class(TInterfacedObject, IBit, INode, IPlacement, IPlace)
   protected
     // INode
     procedure AddChild(const ANode: INode);
@@ -25,7 +25,7 @@ type
     function GetNodeEnumerator: INodeEnumerator;
     function INode.GetEnumerator = GetNodeEnumerator;
   protected
-    // IUIBit
+    // IBit
     procedure Render;
     procedure RenderPaint(const ACanvas: TCanvas);
     procedure HookParent(const AParent: TWinControl);
@@ -53,7 +53,7 @@ type
     procedure SetMMWidth(AValue: integer);
     procedure SetMMHeight(AValue: integer);
   protected
-    // IUIPlace
+    // IPlace
     fLeft: integer;
     fTop: integer;
     fWidth: integer;
@@ -88,9 +88,9 @@ type
   end;
 
 
-  { TUIFormBit }
+  { TFormBit }
 
-  TUIFormBit = class(TUIBit, IUIFormBit)
+  TFormBit = class(TBit, IFormBit)
   protected
     function AsForm: TCustomForm;
     procedure ResetScroll;
@@ -102,18 +102,18 @@ type
   public
     destructor Destroy; override;
   protected
-    fTiler: IUITiler;
+    fTiler: ITiler;
     fTitle: string;
     fResizeNotifier: IFluxNotifier;
   published
-    property Tiler: IUITiler read fTiler write fTiler;
+    property Tiler: ITiler read fTiler write fTiler;
     property Title: string read fTitle write fTitle;
     property ResizeNotifier: IFluxNotifier read fResizeNotifier write fResizeNotifier;
   end;
 
-  { TUIStripBit }
+  { TStripBit }
 
-  TUIStripBit = class(TUIBit, IUIStripBit)
+  TStripBit = class(TBit, IStripBit)
   protected
     procedure PaintBackground(const ACanvas: TCanvas);
     procedure PaintBorder(const ACanvas: TCanvas);
@@ -122,7 +122,7 @@ type
     procedure DoRenderPaint(const ACanvas: TCanvas); override;
     procedure DoHookParent(const AParent: TWinControl); override;
   protected
-    fTiler: IUITiler;
+    fTiler: ITiler;
     fTransparent: Boolean;
     fTitle: string;
     fFontColor: TColor;
@@ -131,7 +131,7 @@ type
   public
     procedure AfterConstruction; override;
   published
-    property Tiler: IUITiler read fTiler write fTiler;
+    property Tiler: ITiler read fTiler write fTiler;
     property Transparent: Boolean read fTransparent write fTransparent default True;
     property Title: string read fTitle write fTitle;
     property FontColor: TColor read fFontColor write fFontColor;
@@ -139,9 +139,9 @@ type
     property BorderColor: TColor read fBorderColor write fBorderColor;
   end;
 
-  { TUIEditBit }
+  { TEditBit }
 
-  TUIEditBit = class(TUIBit, IUIEditBit)
+  TEditBit = class(TBit, IEditBit)
   protected
     function AsEdit: TCustomEdit;
   protected
@@ -152,9 +152,9 @@ type
     property Text: string read fText write fText;
   end;
 
-  { TUITextBit }
+  { TTextBit }
 
-  TUITextBit = class(TUIBit, IUITextBit)
+  TTextBit = class(TBit, ITextBit)
   protected
     function AsText: TCustomLabel;
   protected
@@ -165,9 +165,9 @@ type
     property Text: string read fText write fText;
   end;
 
-  { TUIButtonBit }
+  { TButtonBit }
 
-  TUIButtonBit = class(TUIBit, IUIButtonBit)
+  TButtonBit = class(TBit, IButtonBit)
   protected
     function AsButton: TCustomButton;
     procedure OnClick(Sender: TObject);
@@ -183,24 +183,24 @@ type
 
 implementation
 
-{ TUIStripBit }
+{ TStripBit }
 
-procedure TUIStripBit.DoRender;
+procedure TStripBit.DoRender;
 var
   mChild: INode;
-  mPlace: IUIPlace;
+  mPlace: IPlace;
 begin
   // need to shift children relatively to surface this strip is on(because strip
   // has no control to render ... intentionaly)
   Tiler.ReplaceChildren(Self);
   for mChild in (Self as INode) do begin
-    mPlace := mChild as IUIPlace;
+    mPlace := mChild as IPlace;
     mPlace.Left := Left + mPlace.Left;
     mPlace.Top := Top + mPlace.Top;
   end;
 end;
 
-procedure TUIStripBit.DoRenderPaint(const ACanvas: TCanvas);
+procedure TStripBit.DoRenderPaint(const ACanvas: TCanvas);
 begin
   inherited DoRenderPaint(ACanvas);
   PaintBorder(ACanvas);
@@ -208,16 +208,16 @@ begin
   PaintTitle(ACanvas);
 end;
 
-procedure TUIStripBit.DoHookParent(const AParent: TWinControl);
+procedure TStripBit.DoHookParent(const AParent: TWinControl);
 var
   mChild: INode;
 begin
   for mChild in (Self as INode) do begin
-    (mChild as IUIBit).HookParent(AParent);
+    (mChild as IBit).HookParent(AParent);
   end;
 end;
 
-procedure TUIStripBit.PaintBackground(const ACanvas: TCanvas);
+procedure TStripBit.PaintBackground(const ACanvas: TCanvas);
 var
   mBColor: TColor;
 begin
@@ -233,7 +233,7 @@ begin
   end;
 end;
 
-procedure TUIStripBit.PaintBorder(const ACanvas: TCanvas);
+procedure TStripBit.PaintBorder(const ACanvas: TCanvas);
 var
   mBColor: TColor;
 begin
@@ -255,7 +255,7 @@ begin
   end;
 end;
 
-procedure TUIStripBit.PaintTitle(const ACanvas: TCanvas);
+procedure TStripBit.PaintTitle(const ACanvas: TCanvas);
 var
   mFColor: TColor;
   mBColor: TColor;
@@ -274,26 +274,26 @@ begin
   end;
 end;
 
-procedure TUIStripBit.AfterConstruction;
+procedure TStripBit.AfterConstruction;
 begin
   inherited AfterConstruction;
   fTransparent := True;
 end;
 
-{ TUIButtonBit }
+{ TButtonBit }
 
-function TUIButtonBit.AsButton: TCustomButton;
+function TButtonBit.AsButton: TCustomButton;
 begin
   Result := AsControl as TCustomButton;
 end;
 
-procedure TUIButtonBit.OnClick(Sender: TObject);
+procedure TButtonBit.OnClick(Sender: TObject);
 begin
   if ClickNotifier <> nil then
     ClickNotifier.Notify;
 end;
 
-procedure TUIButtonBit.DoRender;
+procedure TButtonBit.DoRender;
 begin
   inherited DoRender;
   AsButton.Caption := Caption;
@@ -303,42 +303,42 @@ begin
   AsButton.Show;
 end;
 
-{ TUITextBit }
+{ TTextBit }
 
-function TUITextBit.AsText: TCustomLabel;
+function TTextBit.AsText: TCustomLabel;
 begin
   Result := AsControl as TCustomLabel;
 end;
 
-procedure TUITextBit.DoRender;
+procedure TTextBit.DoRender;
 begin
   inherited;
   AsText.Caption := Text;
   AsText.Show;
 end;
 
-{ TUIEditBit }
+{ TEditBit }
 
-function TUIEditBit.AsEdit: TCustomEdit;
+function TEditBit.AsEdit: TCustomEdit;
 begin
   Result := AsControl as TCustomEdit;
 end;
 
-procedure TUIEditBit.DoRender;
+procedure TEditBit.DoRender;
 begin
   inherited;
   AsEdit.Text := Text;
   AsEdit.Show;
 end;
 
-{ TUIFormBit }
+{ TFormBit }
 
-function TUIFormBit.AsForm: TCustomForm;
+function TFormBit.AsForm: TCustomForm;
 begin
   Result := AsControl as TCustomForm;
 end;
 
-procedure TUIFormBit.ResetScroll;
+procedure TFormBit.ResetScroll;
 var
   mLastChild: INode;
   mOpposite: integer;
@@ -347,12 +347,12 @@ begin
     mLastChild := Node[Node.Count - 1];
   if mLastChild <> nil then
   begin
-    mOpposite := (mLastChild as IUIPlace).Left + (mLastChild as IUIPlace).Width - 1;
+    mOpposite := (mLastChild as IPlace).Left + (mLastChild as IPlace).Width - 1;
     if mOpposite > Width then
        AsForm.HorzScrollBar.Range := mOpposite
      else
        AsForm.HorzScrollBar.Range := 0;
-    mOpposite := (mLastChild as IUIPlace).Top + (mLastChild as IUIPlace).Height - 1;
+    mOpposite := (mLastChild as IPlace).Top + (mLastChild as IPlace).Height - 1;
     if mOpposite > Height then
        AsForm.VertScrollBar.Range := mOpposite
      else
@@ -360,13 +360,13 @@ begin
   end;
 end;
 
-procedure TUIFormBit.OnResize(Sender: TObject);
+procedure TFormBit.OnResize(Sender: TObject);
 begin
   if ResizeNotifier <> nil then
     ResizeNotifier.Notify;
 end;
 
-procedure TUIFormBit.ResizeNotifierData(const AProps: IProps);
+procedure TFormBit.ResizeNotifierData(const AProps: IProps);
 begin
   AProps
   //.SetInt('Left', AsControl.Left)
@@ -375,15 +375,15 @@ begin
   .SetInt('Height', AsControl.Height);
 end;
 
-procedure TUIFormBit.OnPaint(Sender: TObject);
+procedure TFormBit.OnPaint(Sender: TObject);
 var
   mChild: INode;
 begin
   for mChild in Node do
-    (mChild as IUIBit).RenderPaint(AsForm.Canvas);
+    (mChild as IBit).RenderPaint(AsForm.Canvas);
 end;
 
-procedure TUIFormBit.DoRender;
+procedure TFormBit.DoRender;
 var
   mChild: INode;
 begin
@@ -412,18 +412,18 @@ begin
   end;
 
   for mChild in Node do
-    (mChild as IUIBit).HookParent(AsForm);
+    (mChild as IBit).HookParent(AsForm);
 
 end;
 
-destructor TUIFormBit.Destroy;
+destructor TFormBit.Destroy;
 begin
   inherited Destroy;
 end;
 
-{ TUIBit }
+{ TBit }
 
-procedure TUIBit.SetControl(AValue: TControl);
+procedure TBit.SetControl(AValue: TControl);
 begin
   if fControl = AValue then
     Exit;
@@ -431,42 +431,42 @@ begin
   Color := Control.Color;
 end;
 
-procedure TUIBit.AddChild(const ANode: INode);
+procedure TBit.AddChild(const ANode: INode);
 begin
   Node.AddChild(ANode);
 end;
 
-procedure TUIBit.RemoveChild(const ANode: INode);
+procedure TBit.RemoveChild(const ANode: INode);
 begin
   Node.RemoveChild(ANode);
 end;
 
-procedure TUIBit.Insert(const AIndex: integer; const ANode: INode);
+procedure TBit.Insert(const AIndex: integer; const ANode: INode);
 begin
   Node.Insert(AIndex, ANode);
 end;
 
-procedure TUIBit.Delete(const AIndex: integer);
+procedure TBit.Delete(const AIndex: integer);
 begin
  Node.Delete(AIndex);
 end;
 
-function TUIBit.Count: integer;
+function TBit.Count: integer;
 begin
   Result := Node.Count;
 end;
 
-function TUIBit.GetChild(const AIndex: integer): INode;
+function TBit.GetChild(const AIndex: integer): INode;
 begin
   Result := Node[AIndex];
 end;
 
-function TUIBit.GetNodeEnumerator: INodeEnumerator;
+function TBit.GetNodeEnumerator: INodeEnumerator;
 begin
   Result := Node.GetEnumerator;
 end;
 
-procedure TUIBit.Render;
+procedure TBit.Render;
 var
   mChild: INode;
 begin
@@ -491,85 +491,85 @@ begin
     );
 
   for mChild in Node do
-    (mChild as IUIBit).Render;
+    (mChild as IBit).Render;
   //AsControl.Show;
 end;
 
-procedure TUIBit.RenderPaint(const ACanvas: TCanvas);
+procedure TBit.RenderPaint(const ACanvas: TCanvas);
 var
   mChild: INode;
 begin
   DoRenderPaint(ACanvas);
   for mChild in Node do
-    (mChild as IUIBit).RenderPaint(ACanvas);
+    (mChild as IBit).RenderPaint(ACanvas);
 end;
 
-procedure TUIBit.HookParent(const AParent: TWinControl);
+procedure TBit.HookParent(const AParent: TWinControl);
 begin
   DoHookParent(AParent);
 end;
 
-function TUIBit.GetLayout: integer;
+function TBit.GetLayout: integer;
 begin
   Result := fLayout;
 end;
 
-function TUIBit.GetPlace: integer;
+function TBit.GetPlace: integer;
 begin
   Result := fPlace;
 end;
 
-function TUIBit.GetMMWidth: integer;
+function TBit.GetMMWidth: integer;
 begin
   Result := fMMWidth;
 end;
 
-function TUIBit.GetMMHeight: integer;
+function TBit.GetMMHeight: integer;
 begin
   Result := fMMHeight;
 end;
 
-function TUIBit.GetLeft: integer;
+function TBit.GetLeft: integer;
 begin
   Result := fLeft;
 end;
 
-function TUIBit.GetTop: integer;
+function TBit.GetTop: integer;
 begin
   Result := fTop;
 end;
 
-function TUIBit.GetWidth: integer;
+function TBit.GetWidth: integer;
 begin
   Result := fWidth;
 end;
 
-function TUIBit.GetHeight: integer;
+function TBit.GetHeight: integer;
 begin
   Result := fHeight;
 end;
 
-procedure TUIBit.SetLayout(AValue: integer);
+procedure TBit.SetLayout(AValue: integer);
 begin
   fLayout := AValue;
 end;
 
-procedure TUIBit.SetPlace(AValue: integer);
+procedure TBit.SetPlace(AValue: integer);
 begin
   fPlace := AValue;
 end;
 
-procedure TUIBit.SetMMWidth(AValue: integer);
+procedure TBit.SetMMWidth(AValue: integer);
 begin
   fMMWidth := AValue;
 end;
 
-procedure TUIBit.SetMMHeight(AValue: integer);
+procedure TBit.SetMMHeight(AValue: integer);
 begin
   fMMHeight := AValue;
 end;
 
-procedure TUIBit.SetLeft(AValue: integer);
+procedure TBit.SetLeft(AValue: integer);
 var
   m:string;
 begin
@@ -577,27 +577,27 @@ begin
   fLeft := AValue;
 end;
 
-procedure TUIBit.SetTop(AValue: integer);
+procedure TBit.SetTop(AValue: integer);
 begin
   fTop := AValue;
 end;
 
-procedure TUIBit.SetWidth(AValue: integer);
+procedure TBit.SetWidth(AValue: integer);
 begin
   fWidth := AValue;
 end;
 
-procedure TUIBit.SetHeight(AValue: integer);
+procedure TBit.SetHeight(AValue: integer);
 begin
   fHeight := AValue;
 end;
 
-function TUIBit.AsControl: TControl;
+function TBit.AsControl: TControl;
 begin
   Result := fControl;
 end;
 
-procedure TUIBit.DoRender;
+procedure TBit.DoRender;
 begin
   AsControl.AutoSize := False;
   AsControl.Left := Left;
@@ -607,16 +607,16 @@ begin
   AsControl.Color := Color;
 end;
 
-procedure TUIBit.DoRenderPaint(const ACanvas: TCanvas);
+procedure TBit.DoRenderPaint(const ACanvas: TCanvas);
 begin
 end;
 
-procedure TUIBit.DoHookParent(const AParent: TWinControl);
+procedure TBit.DoHookParent(const AParent: TWinControl);
 begin
   AsControl.Parent := AParent;
 end;
 
-destructor TUIBit.Destroy;
+destructor TBit.Destroy;
 begin
   FreeAndNil(fControl);
   inherited Destroy;

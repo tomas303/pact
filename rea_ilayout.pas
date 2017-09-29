@@ -1,11 +1,11 @@
-unit rea_iuilayout;
+unit rea_ilayout;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  rea_iuibits;
+  rea_ibits;
 
 //const
 //  // place - how inner control should be placed within container
@@ -36,9 +36,9 @@ type
     Overlay = 2;  // all same size as container(suppose app. will make visible one of them)
   end;
 
-  { IUIPlacement }
+  { IPlacement }
 
-  IUIPlacement = interface
+  IPlacement = interface
   ['{197AD85C-B4FC-4AC8-8951-9BC04E06FB25}']
     function GetLayout: integer;
     function GetPlace: integer;
@@ -58,9 +58,9 @@ type
     property MMHeight: integer read GetMMHeight write SetMMHeight;
   end;
 
-  { IUIPlace }
+  { IPlace }
 
-  IUIPlace = interface
+  IPlace = interface
   ['{CF0A8291-FA25-4D20-B12C-8A417E32B3D4}']
     function GetLeft: integer;
     function GetTop: integer;
@@ -82,12 +82,12 @@ type
 
   { IUIRelativePoint }
 
-  IUITiler = interface
+  ITiler = interface
   ['{E658DAE2-51E6-4CC0-86F6-055E5888E5E4}']
-    procedure ReplaceChildren(const AContainer: IUIBit);
+    procedure ReplaceChildren(const AContainer: IBit);
   end;
 
-  IUIScale = interface
+  IScale = interface
   ['{1AD4124D-F767-4E1E-AC33-303384E9FBE9}']
     function Scale(const ASize: integer): integer;
   end;
