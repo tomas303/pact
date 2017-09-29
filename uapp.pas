@@ -30,7 +30,8 @@ uses
   trl_iprops, trl_uprops,
   trl_iinjector, trl_uinjector,
   rdx_iredux, rdx_uredux,
-  rea_ulauncher;
+  rea_ulauncher,
+  flu_iflux, flu_uflux;
 
 type
 
@@ -164,10 +165,10 @@ begin
   mReg.InjectProp('AppState', IAppState);
   mReg.InjectProp('AppFunc', IAppFunc);
   //
-  mReg := DIC.Add(TAppAction, IAppAction);
+  mReg := DIC.Add(TFluxAction, IFluxAction);
   mReg.InjectProp('Props', IProps);
   //
-  mReg := DIC.Add(TAppNotifier, IAppNotifier);
+  mReg := DIC.Add(TFluxNotifier, IFluxNotifier);
   // asi az pri reactu mozna    mReg.InjectProp('ActionID', cResizeFunc);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Dispatcher', IAppStore);

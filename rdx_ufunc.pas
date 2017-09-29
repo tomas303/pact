@@ -5,7 +5,8 @@ unit rdx_ufunc;
 interface
 
 uses
-  Classes, SysUtils, rdx_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory;
+  Classes, SysUtils, rdx_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory,
+  flu_iflux;
 
 type
 
@@ -13,12 +14,12 @@ type
 
   TAppFunc = class(TInterfacedObject, IAppFunc)
   protected
-    function DoResize(const AMainForm: IProps; const AAppAction: IAppAction): IProps;
+    function DoResize(const AMainForm: IProps; const AAppAction: IFluxAction): IProps;
     function DefaultMainForm: IProps;
     function FindProps(const AAppState: IAppState; const APath: string): IProps;
   protected
     // IAppFunc
-    function Redux(const AAppState: IAppState; const AAppAction: IAppAction): IAppState;
+    function Redux(const AAppState: IAppState; const AAppAction: IFluxAction): IAppState;
   protected
     fInjector: IInjector;
     fFactory: IDIFactory;
@@ -32,7 +33,7 @@ implementation
 { TAppFunc }
 
 function TAppFunc.DoResize(const AMainForm: IProps;
-  const AAppAction: IAppAction): IProps;
+  const AAppAction: IFluxAction): IProps;
 begin
   if AAppAction = nil then begin
     Result := IProps(Factory.Locate(IProps));
@@ -69,7 +70,7 @@ begin
   Result := mProp.AsInterface as IProps;
 end;
 
-function TAppFunc.Redux(const AAppState: IAppState; const AAppAction: IAppAction
+function TAppFunc.Redux(const AAppState: IAppState; const AAppAction: IFluxAction
   ): IAppState;
 var
   mProp: IProp;

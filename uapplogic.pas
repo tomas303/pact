@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, iapp, rea_ireact, rdx_iredux, rea_iuibits, trl_uprops, graphics,
-  trl_idifactory, trl_iprops;
+  trl_idifactory, trl_iprops, flu_iflux;
 
 type
 
@@ -37,11 +37,11 @@ implementation
 
 procedure TAppLogic.StartUp;
 var
-  mAction: IAppAction;
+  mAction: IFluxAction;
 begin
   AppStore.Add(@AppStoreChanged);
-  mAction := IAppAction(Factory.Locate(IAppAction, '', TProps.New.SetInt('ID', cActions.InitFunc)));
-  (AppStore as IAppDispatcher).Dispatch(mAction);
+  mAction := IFluxAction(Factory.Locate(IFluxAction, '', TProps.New.SetInt('ID', cActions.InitFunc)));
+  (AppStore as IFluxDispatcher).Dispatch(mAction);
   React.Render(ElFactory.CreateElement(IAppComposite));
 end;
 

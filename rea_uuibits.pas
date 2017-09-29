@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, rea_iuibits, Controls, trl_idifactory, forms, trl_itree,
   StdCtrls, trl_iprops, trl_uprops, trl_iinjector, Graphics, trl_ilog, fgl,
-  rea_iuilayout, rdx_iredux;
+  rea_iuilayout, rdx_iredux, flu_iflux;
 
 type
 
@@ -104,11 +104,11 @@ type
   protected
     fTiler: IUITiler;
     fTitle: string;
-    fResizeNotifier: IAppNotifier;
+    fResizeNotifier: IFluxNotifier;
   published
     property Tiler: IUITiler read fTiler write fTiler;
     property Title: string read fTitle write fTitle;
-    property ResizeNotifier: IAppNotifier read fResizeNotifier write fResizeNotifier;
+    property ResizeNotifier: IFluxNotifier read fResizeNotifier write fResizeNotifier;
   end;
 
   { TUIStripBit }
@@ -175,10 +175,10 @@ type
     procedure DoRender; override;
   protected
     fCaption: string;
-    fClickNotifier: IAppNotifier;
+    fClickNotifier: IFluxNotifier;
   published
     property Caption: string read fCaption write fCaption;
-    property ClickNotifier: IAppNotifier read fClickNotifier write fClickNotifier;
+    property ClickNotifier: IFluxNotifier read fClickNotifier write fClickNotifier;
   end;
 
 implementation

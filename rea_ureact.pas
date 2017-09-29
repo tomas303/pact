@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, rea_ireact, fgl, trl_iprops, rea_iuibits,
   trl_itree, trl_idifactory, trl_irttibroker, trl_urttibroker,
   trl_uprops, trl_udifactory, trl_ilog, trl_iinjector, rdx_iredux, rea_iuilayout,
-  graphics, iapp;
+  graphics, iapp, flu_iflux;
 
 type
 
@@ -65,7 +65,7 @@ type
 
   TComposite = class(TInterfacedObject, IComposite)
   protected
-    function NewNotifier(const AActionID: integer): IAppNotifier;
+    function NewNotifier(const AActionID: integer): IFluxNotifier;
     function NewProps: IProps;
   protected
     function ComposeElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement; virtual; abstract;
@@ -645,9 +645,9 @@ end;
 
 { TComposite }
 
-function TComposite.NewNotifier(const AActionID: integer): IAppNotifier;
+function TComposite.NewNotifier(const AActionID: integer): IFluxNotifier;
 begin
-  Result := IAppNotifier(Factory.Locate(IAppNotifier, '', TProps.New.SetInt('ActionID', AActionID)));
+  Result := IFluxNotifier(Factory.Locate(IFluxNotifier, '', TProps.New.SetInt('ActionID', AActionID)));
 end;
 
 function TComposite.NewProps: IProps;
