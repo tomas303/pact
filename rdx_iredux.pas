@@ -9,14 +9,6 @@ uses
 
 type
 
-  { IAppLogic }
-
-  IAppLogic = interface
-  ['{DDA9D37C-8F7D-48F5-B70B-1E3C8E0F0C43}']
-    procedure StartUp;
-    procedure ShutDown;
-  end;
-
   { IAppState }
 
   IAppState = interface

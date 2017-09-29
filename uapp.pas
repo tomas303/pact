@@ -8,7 +8,7 @@ uses
   Classes, SysUtils,
   StdCtrls,
 
-  iapp, rdx_ufunc, rdx_ustate, uapplogic,
+  iapp, rdx_ufunc, rdx_ustate, ureactapp,
 
   forms,
   tal_uapp, tal_ilauncher,
@@ -25,7 +25,7 @@ uses
   trl_iprops, trl_uprops,
   trl_iinjector, trl_uinjector,
   rdx_iredux, rdx_uredux,
-  rea_ulauncher,
+  rea_ulauncher, rea_iapp,
   flu_iflux, flu_uflux;
 
 type
@@ -83,7 +83,7 @@ begin
 //  mReg := DIC.Add(TGUILauncher, ILauncher);
 //  mReg.InjectProp('MainForm', IMainForm);
   mReg := DIC.Add(TReactLauncher, ILauncher);
-  mReg.InjectProp('AppLogic', IAppLogic);
+  mReg.InjectProp('ReactApp', IReactApp);
   //
 end;
 
@@ -179,7 +179,7 @@ begin
   mReg.InjectProp('Injector', IInjector);
   mReg.InjectProp('Factory', IDIFactory);
   //
-  mReg := DIC.Add(TAppLogic, IAppLogic, '', ckSingle);
+  mReg := DIC.Add(TReactApp, IReactApp, '', ckSingle);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('React', IReact);
   mReg.InjectProp('AppStore', IAppStore);

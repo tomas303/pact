@@ -5,7 +5,7 @@ unit rea_ulauncher;
 interface
 
 uses
-  tal_ilauncher, forms, rdx_iredux;
+  tal_ilauncher, forms, rea_iapp;
 
 type
 
@@ -18,9 +18,9 @@ type
   public
     procedure AfterConstruction; override;
   protected
-    fAppLogic: IAppLogic;
+    fReactApp: IReactApp;
   published
-    property AppLogic: IAppLogic read fAppLogic write fAppLogic;
+    property ReactApp: IReactApp read fReactApp write fReactApp;
   end;
 
 implementation
@@ -29,11 +29,11 @@ implementation
 
 procedure TReactLauncher.Launch;
 begin
-  AppLogic.StartUp;
+  ReactApp.StartUp;
   try
     Application.Run;
   finally
-    AppLogic.ShutDown;
+    ReactApp.ShutDown;
   end;
 end;
 

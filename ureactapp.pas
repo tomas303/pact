@@ -1,4 +1,4 @@
-unit uapplogic;
+unit ureactapp;
 
 {$mode objfpc}{$H+}
 
@@ -6,15 +6,15 @@ interface
 
 uses
   SysUtils, iapp, rea_ireact, rdx_iredux, trl_uprops,
-  trl_idifactory, flu_iflux;
+  trl_idifactory, flu_iflux, rea_iapp;
 
 type
 
-  { TAppLogic }
+  { TReactApp }
 
-  TAppLogic = class(TInterfacedObject, IAppLogic)
+  TReactApp = class(TInterfacedObject, IReactApp)
   protected
-    // IAppLogic
+    // IReactApp
     procedure StartUp;
     procedure ShutDown;
   protected
@@ -33,9 +33,9 @@ type
 
 implementation
 
-{ TAppLogic }
+{ TReactApp }
 
-procedure TAppLogic.StartUp;
+procedure TReactApp.StartUp;
 var
   mAction: IFluxAction;
 begin
@@ -45,12 +45,12 @@ begin
   React.Render(ElFactory.CreateElement(IAppComposite));
 end;
 
-procedure TAppLogic.ShutDown;
+procedure TReactApp.ShutDown;
 begin
   AppStore.Remove(@AppStoreChanged);
 end;
 
-procedure TAppLogic.AppStoreChanged(const AAppState: IAppState);
+procedure TReactApp.AppStoreChanged(const AAppState: IAppState);
 begin
   // for now synchronous change, what all will be rendered will be decided by
   // react componenets itself

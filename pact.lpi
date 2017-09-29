@@ -35,7 +35,7 @@
         <PackageName Value="LCL"/>
       </Item4>
     </RequiredPackages>
-    <Units Count="17">
+    <Units Count="18">
       <Unit0>
         <Filename Value="pact.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -89,7 +89,7 @@
         <IsPartOfProject Value="True"/>
       </Unit12>
       <Unit13>
-        <Filename Value="uapplogic.pas"/>
+        <Filename Value="ureactapp.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit13>
       <Unit14>
@@ -104,6 +104,10 @@
         <Filename Value="flu_uflux.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit16>
+      <Unit17>
+        <Filename Value="rea_iapp.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit17>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
