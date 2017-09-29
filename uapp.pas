@@ -11,17 +11,12 @@ uses
   iapp, rdx_ufunc, rdx_ustate, uapplogic,
 
   forms,
-  tal_uapp, tal_uguilauncher, tal_ilauncher,
-  trl_ipersist,  trl_upersist, trl_upersiststore,
+  tal_uapp, tal_ilauncher,
   trl_dicontainer,
-  trl_irttibroker, trl_urttibroker,
-  trl_upersistxml,
 
-  trl_ilog, trl_ulazlog,
+  trl_ilog,
   tal_uwindowlog,
 
-  tvl_udatabinder, tvl_udatabinders, tvl_utallybinders,
-  tvl_ibindings, tal_iedit, tvl_ubehavebinder,
   rea_iuibits, rea_uuibits,
   trl_idifactory, trl_udifactory,
   rea_ireact, rea_ureact,

@@ -4,8 +4,6 @@ unit iapp;
 
 interface
 
-uses
-  SysUtils;
 
 //const
 //  cInitFunc = 0;

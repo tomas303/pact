@@ -5,9 +5,9 @@ unit rea_uuibits;
 interface
 
 uses
-  Classes, SysUtils, rea_iuibits, Controls, trl_idifactory, forms, trl_itree,
-  StdCtrls, trl_iprops, trl_uprops, trl_iinjector, Graphics, trl_ilog, fgl,
-  rea_iuilayout, rdx_iredux, flu_iflux;
+  SysUtils, rea_iuibits, Controls, trl_idifactory, forms, trl_itree,
+  StdCtrls, trl_iprops, Graphics, trl_ilog,
+  rea_iuilayout, flu_iflux;
 
 type
 

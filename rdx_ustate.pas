@@ -5,7 +5,7 @@ unit rdx_ustate;
 interface
 
 uses
-  Classes, SysUtils, rdx_iredux, trl_iprops, iapp, trl_idifactory;
+  SysUtils, rdx_iredux, trl_iprops, iapp, trl_idifactory;
 
 type
 

@@ -5,7 +5,7 @@ unit rdx_iredux;
 interface
 
 uses
-  Classes, SysUtils, trl_iprops, flu_iflux;
+  SysUtils, trl_iprops, flu_iflux;
 
 type
 

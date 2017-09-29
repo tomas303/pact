@@ -5,7 +5,7 @@ unit rea_uuilayout;
 interface
 
 uses
-  Classes, SysUtils, rea_iuilayout, trl_itree, fgl, trl_ilog,
+  SysUtils, rea_iuilayout, trl_itree, fgl,
   rea_iuibits;
 
 type

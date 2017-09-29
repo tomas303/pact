@@ -5,7 +5,7 @@ unit rdx_ufunc;
 interface
 
 uses
-  Classes, SysUtils, rdx_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory,
+  SysUtils, rdx_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory,
   flu_iflux;
 
 type

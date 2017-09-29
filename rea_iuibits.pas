@@ -5,7 +5,7 @@ unit rea_iuibits;
 interface
 
 uses
-  Classes, SysUtils, Controls, trl_iprops, Graphics;
+  Controls, Graphics;
 
 type
   // wrapper for real control and its binder
