@@ -9,9 +9,9 @@ uses
 
 type
 
-  { TAppStore }
+  { TRdxStore }
 
-  TAppStore = class(TInterfacedObject, IAppStore, IFluxDispatcher)
+  TRdxStore = class(TInterfacedObject, IRdxStore, IFluxDispatcher)
   protected type
     TEvents = specialize TFPGList<TAppStoreEvent>;
   protected
@@ -19,18 +19,18 @@ type
   protected
     // IFluxDispatcher
     procedure Dispatch(const AAppAction: IFluxAction);
-    // IAppStore
+    // IRdxStore
     procedure Add(const AEvent: TAppStoreEvent);
     procedure Remove(const AEvent: TAppStoreEvent);
   protected
-    fAppState: IAppState;
-    fAppFunc: IAppFunc;
+    fAppState: IRdxState;
+    fAppFunc: IRdxFunc;
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
   published
-    property AppState: IAppState read fAppState write fAppState;
-    property AppFunc: IAppFunc read fAppFunc write fAppFunc;
+    property AppState: IRdxState read fAppState write fAppState;
+    property AppFunc: IRdxFunc read fAppFunc write fAppFunc;
   end;
 
   { TMapStateToProps }
@@ -62,10 +62,10 @@ type
     function Map(const AProps: IProps): IProps;
     function AddPath(const APath: string; AKeys: TStringArray): IMapStateToProps;
   protected
-    fAppState: IAppState;
+    fAppState: IRdxState;
     procedure SetAddKey(const AKey: string);
   published
-    property AppState: IAppState read fAppState write fAppState;
+    property AppState: IRdxState read fAppState write fAppState;
     property AddKey: string write SetAddKey;
   end;
 
@@ -137,9 +137,9 @@ begin
   fKeys.Add(AKey);
 end;
 
-{ TAppStore }
+{ TRdxStore }
 
-procedure TAppStore.Dispatch(const AAppAction: IFluxAction);
+procedure TRdxStore.Dispatch(const AAppAction: IFluxAction);
 var
   mEvent: TAppStoreEvent;
 begin
@@ -151,13 +151,13 @@ begin
   end;
 end;
 
-procedure TAppStore.Add(const AEvent: TAppStoreEvent);
+procedure TRdxStore.Add(const AEvent: TAppStoreEvent);
 begin
   if fEvents.IndexOf(AEvent) = -1 then
     fEvents.Add(AEvent);
 end;
 
-procedure TAppStore.Remove(const AEvent: TAppStoreEvent);
+procedure TRdxStore.Remove(const AEvent: TAppStoreEvent);
 var
   mIndex: integer;
 begin
@@ -166,13 +166,13 @@ begin
     fEvents.Delete(mIndex);
 end;
 
-procedure TAppStore.AfterConstruction;
+procedure TRdxStore.AfterConstruction;
 begin
   inherited AfterConstruction;
   fEvents := TEvents.Create;
 end;
 
-procedure TAppStore.BeforeDestruction;
+procedure TRdxStore.BeforeDestruction;
 begin
   FreeAndNil(fEvents);
   inherited BeforeDestruction;

@@ -9,24 +9,24 @@ uses
 
 type
 
-  { IAppState }
+  { IRdxState }
 
-  IAppState = interface
+  IRdxState = interface
   ['{0930F255-E3FB-423E-B8BE-81109F56FDE4}']
   end;
 
-  { IAppFunc }
+  { IRdxFunc }
 
-  IAppFunc = interface
+  IRdxFunc = interface
   ['{D5CD4D66-CC4B-4A5E-A206-3D2838BB6CC6}']
-    function Redux(const AAppState: IAppState; const AAppAction: IFluxAction): IAppState;
+    function Redux(const AAppState: IRdxState; const AAppAction: IFluxAction): IRdxState;
   end;
 
-  TAppStoreEvent = procedure(const AAppState: IAppState) of object;
+  TAppStoreEvent = procedure(const AAppState: IRdxState) of object;
 
-  { IAppStore }
+  { IRdxStore }
 
-  IAppStore = interface
+  IRdxStore = interface
   ['{3E5DDFF7-63FD-4E14-A913-0A5909A55C7C}']
     procedure Add(const AEvent: TAppStoreEvent);
     procedure Remove(const AEvent: TAppStoreEvent);

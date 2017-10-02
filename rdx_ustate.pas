@@ -9,9 +9,9 @@ uses
 
 type
 
-  { TAppState }
+  { TRdxState }
 
-  TAppState = class(TInterfacedObject, IAppState, IPropFinder)
+  TRdxState = class(TInterfacedObject, IRdxState, IPropFinder)
   protected
     // IPropFinder
     function Find(const APath: string): IProp;
@@ -27,9 +27,9 @@ type
 
 implementation
 
-{ TAppState }
+{ TRdxState }
 
-procedure TAppState.SetData(AValue: IProps);
+procedure TRdxState.SetData(AValue: IProps);
 begin
   if fData = AValue then
     Exit;
@@ -37,13 +37,13 @@ begin
   Build;
 end;
 
-procedure TAppState.Build;
+procedure TRdxState.Build;
 begin
   Data.SetIntf(cAppState.MainForm, IUnknown(Factory.Locate(IProps)));
   Data.SetInt(cAppState.Perspective, 0);
 end;
 
-function TAppState.Find(const APath: string): IProp;
+function TRdxState.Find(const APath: string): IProp;
 var
   mPath: TStringArray;
   i: integer;

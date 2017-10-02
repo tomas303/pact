@@ -156,9 +156,9 @@ var
   mReg: TDIReg;
 begin
   //redux part
-  mReg := DIC.Add(TAppStore, IAppStore, '', ckSingle);
-  mReg.InjectProp('AppState', IAppState);
-  mReg.InjectProp('AppFunc', IAppFunc);
+  mReg := DIC.Add(TRdxStore, IRdxStore, '', ckSingle);
+  mReg.InjectProp('AppState', IRdxState);
+  mReg.InjectProp('AppFunc', IRdxFunc);
   //
   mReg := DIC.Add(TFluxAction, IFluxAction);
   mReg.InjectProp('Props', IProps);
@@ -166,23 +166,23 @@ begin
   mReg := DIC.Add(TFluxNotifier, IFluxNotifier);
   // asi az pri reactu mozna    mReg.InjectProp('ActionID', cResizeFunc);
   mReg.InjectProp('Factory', IDIFactory);
-  mReg.InjectProp('Dispatcher', IAppStore);
+  mReg.InjectProp('Dispatcher', IRdxStore);
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps);
-  mReg.InjectProp('AppState', IAppState);
+  mReg.InjectProp('AppState', IRdxState);
   //redux pact part
-  mReg := DIC.Add(TAppState, IAppState, '', ckSingle);
+  mReg := DIC.Add(TRdxState, IRdxState, '', ckSingle);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Data', IProps);
   //
-  mReg := DIC.Add(TAppFunc, IAppFunc);
+  mReg := DIC.Add(TRdxFunc, IRdxFunc);
   mReg.InjectProp('Injector', IInjector);
   mReg.InjectProp('Factory', IDIFactory);
   //
   mReg := DIC.Add(TReactApp, IReactApp, '', ckSingle);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('React', IReact);
-  mReg.InjectProp('AppStore', IAppStore);
+  mReg.InjectProp('AppStore', IRdxStore);
   mReg.InjectProp('ElFactory', IMetaElementFactory);
 end;
 
@@ -221,7 +221,7 @@ begin
   mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'appcomposite');
-  mReg.InjectProp('AppState', IAppState);
+  mReg.InjectProp('AppState', IRdxState);
   mReg.InjectProp('AddKey', cAppState.Perspective);
   mReg := DIC.Add(TAppComposite, IAppComposite);
   mReg.InjectProp('Factory', IDIFactory);
@@ -235,7 +235,7 @@ begin
   mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'mainform');
-  mReg.InjectProp('AppState', IAppState);
+  mReg.InjectProp('AppState', IRdxState);
   mReg.InjectProp('AddKey', cAppState.MainFormWidth);
   mReg.InjectProp('AddKey', cAppState.MainFormHeight);
   mReg := DIC.Add(TFormComposite, IFormComposite, 'mainform');

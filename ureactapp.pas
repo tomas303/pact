@@ -20,14 +20,14 @@ type
   protected
     fFactory: IDIFactory;
     fReact: IReact;
-    fAppStore: IAppStore;
+    fAppStore: IRdxStore;
     fElFactory: IMetaElementFactory;
   protected
-    procedure AppStoreChanged(const AAppState: IAppState);
+    procedure AppStoreChanged(const AAppState: IRdxState);
   published
     property Factory: IDIFactory read fFactory write FFactory;
     property React: IReact read fReact write fReact;
-    property AppStore: IAppStore read fAppStore write fAppStore;
+    property AppStore: IRdxStore read fAppStore write fAppStore;
     property ElFactory: IMetaElementFactory read fElFactory write fElFactory;
   end;
 
@@ -50,7 +50,7 @@ begin
   AppStore.Remove(@AppStoreChanged);
 end;
 
-procedure TReactApp.AppStoreChanged(const AAppState: IAppState);
+procedure TReactApp.AppStoreChanged(const AAppState: IRdxState);
 begin
   // for now synchronous change, what all will be rendered will be decided by
   // react componenets itself

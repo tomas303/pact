@@ -10,16 +10,16 @@ uses
 
 type
 
-  { TAppFunc }
+  { TRdxFunc }
 
-  TAppFunc = class(TInterfacedObject, IAppFunc)
+  TRdxFunc = class(TInterfacedObject, IRdxFunc)
   protected
     function DoResize(const AMainForm: IProps; const AAppAction: IFluxAction): IProps;
     function DefaultMainForm: IProps;
-    function FindProps(const AAppState: IAppState; const APath: string): IProps;
+    function FindProps(const AAppState: IRdxState; const APath: string): IProps;
   protected
-    // IAppFunc
-    function Redux(const AAppState: IAppState; const AAppAction: IFluxAction): IAppState;
+    // IRdxFunc
+    function Redux(const AAppState: IRdxState; const AAppAction: IFluxAction): IRdxState;
   protected
     fInjector: IInjector;
     fFactory: IDIFactory;
@@ -30,9 +30,9 @@ type
 
 implementation
 
-{ TAppFunc }
+{ TRdxFunc }
 
-function TAppFunc.DoResize(const AMainForm: IProps;
+function TRdxFunc.DoResize(const AMainForm: IProps;
   const AAppAction: IFluxAction): IProps;
 begin
   if AAppAction = nil then begin
@@ -49,7 +49,7 @@ begin
     Result := AMainForm;
 end;
 
-function TAppFunc.DefaultMainForm: IProps;
+function TRdxFunc.DefaultMainForm: IProps;
 begin
   Result := IProps(Factory.Locate(IProps));
   Result
@@ -59,7 +59,7 @@ begin
     .SetInt('Height', 300);
 end;
 
-function TAppFunc.FindProps(const AAppState: IAppState; const APath: string
+function TRdxFunc.FindProps(const AAppState: IRdxState; const APath: string
   ): IProps;
 var
   mProp: IProp;
@@ -70,8 +70,8 @@ begin
   Result := mProp.AsInterface as IProps;
 end;
 
-function TAppFunc.Redux(const AAppState: IAppState; const AAppAction: IFluxAction
-  ): IAppState;
+function TRdxFunc.Redux(const AAppState: IRdxState; const AAppAction: IFluxAction
+  ): IRdxState;
 var
   mProp: IProp;
   mProps: IProps;
