@@ -14,12 +14,12 @@ type
 
   TRdxFunc = class(TInterfacedObject, IRdxFunc)
   protected
-    function DoResize(const AMainForm: IProps; const AAppAction: IFluxAction): IProps;
+    function DoResize(const AMainForm: IProps; const AAction: IFluxAction): IProps;
     function DefaultMainForm: IProps;
-    function FindProps(const AAppState: IRdxState; const APath: string): IProps;
+    function FindProps(const AState: IRdxState; const APath: string): IProps;
   protected
     // IRdxFunc
-    function Redux(const AAppState: IRdxState; const AAppAction: IFluxAction): IRdxState;
+    function Redux(const AState: IRdxState; const AAction: IFluxAction): IRdxState;
   protected
     fInjector: IInjector;
     fFactory: IDIFactory;
@@ -33,9 +33,9 @@ implementation
 { TRdxFunc }
 
 function TRdxFunc.DoResize(const AMainForm: IProps;
-  const AAppAction: IFluxAction): IProps;
+  const AAction: IFluxAction): IProps;
 begin
-  if AAppAction = nil then begin
+  if AAction = nil then begin
     Result := IProps(Factory.Locate(IProps));
     Result.SetInt('Left', 5);
     Result.SetInt('Top', 5);
@@ -43,8 +43,8 @@ begin
     Result.SetInt('Height', 600);
   end
   else
-  if not AMainForm.Equals(AAppAction.Props) then
-    Result := AAppAction.Props.Clone
+  if not AMainForm.Equals(AAction.Props) then
+    Result := AAction.Props.Clone
   else
     Result := AMainForm;
 end;
@@ -59,63 +59,63 @@ begin
     .SetInt('Height', 300);
 end;
 
-function TRdxFunc.FindProps(const AAppState: IRdxState; const APath: string
+function TRdxFunc.FindProps(const AState: IRdxState; const APath: string
   ): IProps;
 var
   mProp: IProp;
 begin
-  mProp := (AAppState as IPropFinder).Find(APath);
+  mProp := (AState as IPropFinder).Find(APath);
   if mProp = nil then
     raise Exception.CreateFmt('No props for %s', [APath]);
   Result := mProp.AsInterface as IProps;
 end;
 
-function TRdxFunc.Redux(const AAppState: IRdxState; const AAppAction: IFluxAction
+function TRdxFunc.Redux(const AState: IRdxState; const AAction: IFluxAction
   ): IRdxState;
 var
   mProp: IProp;
   mProps: IProps;
   mMainForm, mNewMainForm: IProps;
 begin
-  case AAppAction.ID of
+  case AAction.ID of
     cActions.InitFunc:
       begin
-        mProps := FindProps(AAppState, cAppState.MainForm);
+        mProps := FindProps(AState, cAppState.MainForm);
         mProps.SetInt(cAppState.Height, 300);
         mProps.SetInt(cAppState.Width, 600);
-        (AAppState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(1);
-        Result := AAppState;
+        (AState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(1);
+        Result := AState;
       end;
     cActions.ResizeFunc:
       begin
-        mProps := FindProps(AAppState, cAppState.MainForm);
-        //mProps.SetInt(cAppState.Left, AAppAction.Props.AsInt(cAppState.Left));
-        //mProps.SetInt(cAppState.Top, AAppAction.Props.AsInt(cAppState.Top));
-        mProps.SetInt(cAppState.Width, AAppAction.Props.AsInt(cAppState.Width));
-        mProps.SetInt(cAppState.Height, AAppAction.Props.AsInt(cAppState.Height));
-        Result := AAppState;
+        mProps := FindProps(AState, cAppState.MainForm);
+        //mProps.SetInt(cAppState.Left, AAction.Props.AsInt(cAppState.Left));
+        //mProps.SetInt(cAppState.Top, AAction.Props.AsInt(cAppState.Top));
+        mProps.SetInt(cAppState.Width, AAction.Props.AsInt(cAppState.Width));
+        mProps.SetInt(cAppState.Height, AAction.Props.AsInt(cAppState.Height));
+        Result := AState;
       end;
     cActions.HelloFunc:
       begin
-        Result := AAppState;
+        Result := AState;
       end;
     cActions.ClickOne:
       begin
-        (AAppState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(1);
-        Result := AAppState;
+        (AState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(1);
+        Result := AState;
       end;
     cActions.ClickTwo:
       begin
-        (AAppState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(2);
-        Result := AAppState;
+        (AState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(2);
+        Result := AState;
       end;
     cActions.ClickThree:
       begin
-        (AAppState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(3);
-        Result := AAppState;
+        (AState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(3);
+        Result := AState;
       end;
   else
-    Result := AAppState;
+    Result := AState;
   end;
 end;
 

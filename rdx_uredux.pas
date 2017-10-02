@@ -13,24 +13,24 @@ type
 
   TRdxStore = class(TInterfacedObject, IRdxStore, IFluxDispatcher)
   protected type
-    TEvents = specialize TFPGList<TAppStoreEvent>;
+    TEvents = specialize TFPGList<TRdxStoreEvent>;
   protected
     fEvents: TEvents;
   protected
     // IFluxDispatcher
-    procedure Dispatch(const AAppAction: IFluxAction);
+    procedure Dispatch(const AAction: IFluxAction);
     // IRdxStore
-    procedure Add(const AEvent: TAppStoreEvent);
-    procedure Remove(const AEvent: TAppStoreEvent);
+    procedure Add(const AEvent: TRdxStoreEvent);
+    procedure Remove(const AEvent: TRdxStoreEvent);
   protected
-    fAppState: IRdxState;
-    fAppFunc: IRdxFunc;
+    fRdxState: IRdxState;
+    fRdxFunc: IRdxFunc;
   public
     procedure AfterConstruction; override;
     procedure BeforeDestruction; override;
   published
-    property AppState: IRdxState read fAppState write fAppState;
-    property AppFunc: IRdxFunc read fAppFunc write fAppFunc;
+    property RdxState: IRdxState read fRdxState write fRdxState;
+    property RdxFunc: IRdxFunc read fRdxFunc write fRdxFunc;
   end;
 
   { TMapStateToProps }
@@ -62,10 +62,10 @@ type
     function Map(const AProps: IProps): IProps;
     function AddPath(const APath: string; AKeys: TStringArray): IMapStateToProps;
   protected
-    fAppState: IRdxState;
+    fRdxState: IRdxState;
     procedure SetAddKey(const AKey: string);
   published
-    property AppState: IRdxState read fAppState write fAppState;
+    property RdxState: IRdxState read fRdxState write fRdxState;
     property AddKey: string write SetAddKey;
   end;
 
@@ -117,7 +117,7 @@ begin
   Result := AProps.Clone;
   for mKey in fKeys do
   begin
-   mProp := (AppState as IPropFinder).Find(mKey);
+   mProp := (RdxState as IPropFinder).Find(mKey);
    if mProp <> nil then
      Result.SetProp(mProp.Name, mProp);
   end;
@@ -139,25 +139,25 @@ end;
 
 { TRdxStore }
 
-procedure TRdxStore.Dispatch(const AAppAction: IFluxAction);
+procedure TRdxStore.Dispatch(const AAction: IFluxAction);
 var
-  mEvent: TAppStoreEvent;
+  mEvent: TRdxStoreEvent;
 begin
-  AppState := AppFunc.Redux(AppState, AAppAction);
-  if AppState = nil then
+  RdxState := RdxFunc.Redux(RdxState, AAction);
+  if RdxState = nil then
     raise Exception.Create('Redux function returned nil instead of AppState');
   for mEvent in fEvents do begin
-    mEvent(AppState);
+    mEvent(RdxState);
   end;
 end;
 
-procedure TRdxStore.Add(const AEvent: TAppStoreEvent);
+procedure TRdxStore.Add(const AEvent: TRdxStoreEvent);
 begin
   if fEvents.IndexOf(AEvent) = -1 then
     fEvents.Add(AEvent);
 end;
 
-procedure TRdxStore.Remove(const AEvent: TAppStoreEvent);
+procedure TRdxStore.Remove(const AEvent: TRdxStoreEvent);
 var
   mIndex: integer;
 begin

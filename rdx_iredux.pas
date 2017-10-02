@@ -19,17 +19,17 @@ type
 
   IRdxFunc = interface
   ['{D5CD4D66-CC4B-4A5E-A206-3D2838BB6CC6}']
-    function Redux(const AAppState: IRdxState; const AAppAction: IFluxAction): IRdxState;
+    function Redux(const AState: IRdxState; const AAction: IFluxAction): IRdxState;
   end;
 
-  TAppStoreEvent = procedure(const AAppState: IRdxState) of object;
+  TRdxStoreEvent = procedure(const AAppState: IRdxState) of object;
 
   { IRdxStore }
 
   IRdxStore = interface
   ['{3E5DDFF7-63FD-4E14-A913-0A5909A55C7C}']
-    procedure Add(const AEvent: TAppStoreEvent);
-    procedure Remove(const AEvent: TAppStoreEvent);
+    procedure Add(const AEvent: TRdxStoreEvent);
+    procedure Remove(const AEvent: TRdxStoreEvent);
   end;
 
   { IMapStateToProps }

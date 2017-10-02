@@ -157,8 +157,8 @@ var
 begin
   //redux part
   mReg := DIC.Add(TRdxStore, IRdxStore, '', ckSingle);
-  mReg.InjectProp('AppState', IRdxState);
-  mReg.InjectProp('AppFunc', IRdxFunc);
+  mReg.InjectProp('RdxState', IRdxState);
+  mReg.InjectProp('RdxFunc', IRdxFunc);
   //
   mReg := DIC.Add(TFluxAction, IFluxAction);
   mReg.InjectProp('Props', IProps);
@@ -169,7 +169,7 @@ begin
   mReg.InjectProp('Dispatcher', IRdxStore);
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps);
-  mReg.InjectProp('AppState', IRdxState);
+  mReg.InjectProp('RdxState', IRdxState);
   //redux pact part
   mReg := DIC.Add(TRdxState, IRdxState, '', ckSingle);
   mReg.InjectProp('Factory', IDIFactory);
@@ -221,7 +221,7 @@ begin
   mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'appcomposite');
-  mReg.InjectProp('AppState', IRdxState);
+  mReg.InjectProp('RdxState', IRdxState);
   mReg.InjectProp('AddKey', cAppState.Perspective);
   mReg := DIC.Add(TAppComposite, IAppComposite);
   mReg.InjectProp('Factory', IDIFactory);
@@ -235,7 +235,7 @@ begin
   mReg.InjectProp('Log', ILog);
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'mainform');
-  mReg.InjectProp('AppState', IRdxState);
+  mReg.InjectProp('RdxState', IRdxState);
   mReg.InjectProp('AddKey', cAppState.MainFormWidth);
   mReg.InjectProp('AddKey', cAppState.MainFormHeight);
   mReg := DIC.Add(TFormComposite, IFormComposite, 'mainform');
