@@ -25,7 +25,7 @@ uses
   trl_iprops, trl_uprops,
   trl_iinjector, trl_uinjector,
   rdx_iredux, rdx_uredux,
-  rea_ulauncher, rea_iapp,
+  tal_urealauncher, rea_iapp,
   flu_iflux, flu_uflux,
   uappfunc, uappstate, uappboot;
 
