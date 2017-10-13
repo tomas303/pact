@@ -5,32 +5,45 @@ unit rdx_ufunc;
 interface
 
 uses
-  SysUtils, rdx_iredux, iapp, trl_iprops, trl_iinjector, trl_idifactory,
-  flu_iflux;
+  SysUtils, rdx_iredux, trl_iprops, trl_iinjector, trl_idifactory,
+  flu_iflux, fgl;
 
 type
 
   { TRdxFunc }
 
   TRdxFunc = class(TInterfacedObject, IRdxFunc)
+  protected type
+    TFuncs = specialize TFPGInterfacedObjectList<IRdxFunc>;
   protected
+    fFuncs: TFuncs;
     function DoResize(const AMainForm: IProps; const AAction: IFluxAction): IProps;
     function DefaultMainForm: IProps;
     function FindProps(const AState: IRdxState; const APath: string): IProps;
+    procedure SetAddFunc(AValue: IRdxFunc);
   protected
     // IRdxFunc
     function Redux(const AState: IRdxState; const AAction: IFluxAction): IRdxState;
+  public
+    procedure AfterConstruction; override;
+    procedure BeforeDestruction; override;
   protected
     fInjector: IInjector;
     fFactory: IDIFactory;
   published
     property Injector: IInjector read fInjector write fInjector;
     property Factory: IDIFactory read fFactory write fFactory;
+    property AddFunc: IRdxFunc write SetAddFunc;
   end;
 
 implementation
 
 { TRdxFunc }
+
+procedure TRdxFunc.SetAddFunc(AValue: IRdxFunc);
+begin
+  fFuncs.Add(AValue);
+end;
 
 function TRdxFunc.DoResize(const AMainForm: IProps;
   const AAction: IFluxAction): IProps;
@@ -73,50 +86,27 @@ end;
 function TRdxFunc.Redux(const AState: IRdxState; const AAction: IFluxAction
   ): IRdxState;
 var
-  mProp: IProp;
-  mProps: IProps;
-  mMainForm, mNewMainForm: IProps;
+  mFunc: IRdxFunc;
+  mState: IRdxState;
 begin
-  case AAction.ID of
-    cActions.InitFunc:
-      begin
-        mProps := FindProps(AState, cAppState.MainForm);
-        mProps.SetInt(cAppState.Height, 300);
-        mProps.SetInt(cAppState.Width, 600);
-        (AState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(1);
-        Result := AState;
-      end;
-    cActions.ResizeFunc:
-      begin
-        mProps := FindProps(AState, cAppState.MainForm);
-        //mProps.SetInt(cAppState.Left, AAction.Props.AsInt(cAppState.Left));
-        //mProps.SetInt(cAppState.Top, AAction.Props.AsInt(cAppState.Top));
-        mProps.SetInt(cAppState.Width, AAction.Props.AsInt(cAppState.Width));
-        mProps.SetInt(cAppState.Height, AAction.Props.AsInt(cAppState.Height));
-        Result := AState;
-      end;
-    cActions.HelloFunc:
-      begin
-        Result := AState;
-      end;
-    cActions.ClickOne:
-      begin
-        (AState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(1);
-        Result := AState;
-      end;
-    cActions.ClickTwo:
-      begin
-        (AState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(2);
-        Result := AState;
-      end;
-    cActions.ClickThree:
-      begin
-        (AState as IPropFinder).Find(cAppState.Perspective).SetAsInteger(3);
-        Result := AState;
-      end;
-  else
-    Result := AState;
+  Result := AState;
+  for mFunc in fFuncs do begin
+    mState := mFunc.Redux(Result, AAction);
+    if mState <> nil then
+      Result := mState;
   end;
+end;
+
+procedure TRdxFunc.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  fFuncs := TFuncs.Create;
+end;
+
+procedure TRdxFunc.BeforeDestruction;
+begin
+  FreeAndNil(fFuncs);
+  inherited BeforeDestruction;
 end;
 
 end.

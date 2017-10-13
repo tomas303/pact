@@ -4,39 +4,28 @@ unit iapp;
 
 interface
 
-
-//const
-//  cInitFunc = 0;
-//  cResizeFunc = 1;
-//  cHelloFunc = 2;
-//
-//const
-//  cASMainForm = 'MainForm';
-//  cASMainFormLeft = 'Left';
-//  cASMainFormTop = 'Top';
-//  cASMainFormWidth = 'Width';
-//  cASMainFormHeight = 'Height';
-//  cASMainFormLeftPath = cASMainForm + '/' + cASMainFormLeft;
-//  cASMainFormTopPath = cASMainForm + '/' + cASMainFormTop;
-//  cASMainFormWidthPath = cASMainForm + '/' + cASMainFormWidth;
-//  cASMainFormHeightPath = cASMainForm + '/' + cASMainFormHeight;
+uses
+  typinfo;
 
 type
 
-  cAppState = class
-  public const
-    Left = 'Left';
-    Top = 'Top';
-    Width = 'Width';
-    Height = 'Height';
-  public const
-    MainForm = 'MainForm';
-    Perspective = 'Perspective';
-  public const
-    MainFormLeft = MainForm + '.' + Left;
-    MainFormTop = MainForm + '.' + Top;
-    MainFormWidth = MainForm + '.' + Width;
-    MainFormHeight = MainForm + '.' + Height;
+  { TC }
+
+  TC = class(TObject)
+  public
+    class function Path: string;
+    class function Name: string;
+  end;
+
+  MainForm = class(TC)
+  public type
+    Width = class(TC);
+    Height = class(TC);
+  end;
+
+  Layout = class(TC)
+  public type
+    Perspective = class(TC);
   end;
 
   cActions = class
@@ -50,6 +39,21 @@ type
   end;
 
 implementation
+
+{ TC }
+
+class function TC.Path: string;
+begin
+  Result := ClassName;
+end;
+
+class function TC.Name: string;
+var
+  mInfo: PTypeInfo;
+begin
+  mInfo := ClassInfo;
+  Result := mInfo^.Name;
+end;
 
 initialization
 

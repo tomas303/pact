@@ -16,32 +16,19 @@ type
     // IPropFinder
     function Find(const APath: string): IProp;
   protected
+    // IRdxState
+    function Props(const AID: string): IProps;
+  protected
     fFactory: IDIFactory;
     fData: IProps;
-    procedure SetData(AValue: IProps);
-    procedure Build;
   published
     property Factory: IDIFactory read fFactory write fFactory;
-    property Data: IProps read fData write SetData;
+    property Data: IProps read fData write fData;
   end;
 
 implementation
 
 { TRdxState }
-
-procedure TRdxState.SetData(AValue: IProps);
-begin
-  if fData = AValue then
-    Exit;
-  fData := AValue;
-  Build;
-end;
-
-procedure TRdxState.Build;
-begin
-  Data.SetIntf(cAppState.MainForm, IUnknown(Factory.Locate(IProps)));
-  Data.SetInt(cAppState.Perspective, 0);
-end;
 
 function TRdxState.Find(const APath: string): IProp;
 var
@@ -62,6 +49,22 @@ begin
     if not Supports(Result.AsInterface, IPropFinder, mFinder) then
       raise Exception.CreateFmt('Property %s identified by key %s does not support find', [mPath[i], APath]);
     mFinder := Result.AsInterface as IPropFinder;
+  end;
+end;
+
+function TRdxState.Props(const AID: string): IProps;
+var
+  mProp: IProp;
+begin
+  mProp := Data.PropByName[AID];
+  if mProp = nil then
+  begin
+    Result := IProps(Factory.Locate(IProps));
+    Data.SetIntf(AID, Result);
+  end
+  else
+  begin
+    Result := mProp.AsInterface as IProps;
   end;
 end;
 

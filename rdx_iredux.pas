@@ -13,6 +13,7 @@ type
 
   IRdxState = interface
   ['{0930F255-E3FB-423E-B8BE-81109F56FDE4}']
+    function Props(const AID: string): IProps;
   end;
 
   { IRdxFunc }

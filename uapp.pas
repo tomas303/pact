@@ -26,7 +26,8 @@ uses
   trl_iinjector, trl_uinjector,
   rdx_iredux, rdx_uredux,
   rea_ulauncher, rea_iapp,
-  flu_iflux, flu_uflux;
+  flu_iflux, flu_uflux,
+  uappfunc, uappstate, uappboot;
 
 type
 
@@ -158,7 +159,7 @@ begin
   //redux part
   mReg := DIC.Add(TRdxStore, IRdxStore, '', ckSingle);
   mReg.InjectProp('RdxState', IRdxState);
-  mReg.InjectProp('RdxFunc', IRdxFunc);
+  mReg.InjectProp('RdxFunc', IRdxFunc, 'main');
   //
   mReg := DIC.Add(TFluxAction, IFluxAction);
   mReg.InjectProp('Props', IProps);
@@ -170,14 +171,20 @@ begin
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps);
   mReg.InjectProp('RdxState', IRdxState);
-  //redux pact part
+  //redux states
   mReg := DIC.Add(TRdxState, IRdxState, '', ckSingle);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('Data', IProps);
   //
-  mReg := DIC.Add(TRdxFunc, IRdxFunc);
+  // redux functions
+  mReg := DIC.Add(TRdxFunc, IRdxFunc, 'main');
   mReg.InjectProp('Injector', IInjector);
   mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('AddFunc', IRdxFunc, 'ResizeFunc');
+  mReg.InjectProp('AddFunc', IRdxFunc, 'TestLayoutFunc');
+  //
+  mReg := DIC.Add(TRdxResizeFunc, IRdxFunc, 'ResizeFunc');
+  mReg := DIC.Add(TRdxTestLayoutFunc, IRdxFunc, 'TestLayoutFunc');
   //
   mReg := DIC.Add(TReactApp, IReactApp, '', ckSingle);
   mReg.InjectProp('Factory', IDIFactory);
@@ -222,7 +229,7 @@ begin
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'appcomposite');
   mReg.InjectProp('RdxState', IRdxState);
-  mReg.InjectProp('AddKey', cAppState.Perspective);
+  mReg.InjectProp('AddKey', Layout.Perspective.Path);
   mReg := DIC.Add(TAppComposite, IAppComposite);
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('ElementFactory', IMetaElementFactory);
@@ -236,15 +243,14 @@ begin
   //
   mReg := DIC.Add(TMapStateToProps, IMapStateToProps, 'mainform');
   mReg.InjectProp('RdxState', IRdxState);
-  mReg.InjectProp('AddKey', cAppState.MainFormWidth);
-  mReg.InjectProp('AddKey', cAppState.MainFormHeight);
+  mReg.InjectProp('AddKey', MainForm.Width.Path);
+  mReg.InjectProp('AddKey', MainForm.Height.Path);
   mReg := DIC.Add(TFormComposite, IFormComposite, 'mainform');
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('ElementFactory', IMetaElementFactory);
   mReg.InjectProp('MapStateToProps', IMapStateToProps, 'mainform');
   mReg.InjectProp('Log', ILog);
   mReg.InjectProp('ActionResize', cActions.ResizeFunc);
-
   //
   mReg := DIC.Add(TEditComposite, IEditComposite);
   mReg.InjectProp('Factory', IDIFactory);
