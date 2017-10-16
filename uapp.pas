@@ -8,7 +8,7 @@ uses
   Classes, SysUtils,
   StdCtrls,
 
-  iapp, rdx_ufunc, rdx_ustate, ureactapp,
+  iapp, rdx_ufunc, rdx_ustate, tal_ureaapp,
 
   forms,
   tal_uapp, tal_ilauncher,
