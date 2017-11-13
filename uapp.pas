@@ -6,7 +6,7 @@ interface
 
 uses
   iapp, uappfunc, uappboot, tal_uapp, trl_dicontainer,
-  rea_ireact, rea_ureact, rdx_iredux;
+  rea_ireact, rea_ureact, flu_iflux;
 
 type
 
@@ -45,7 +45,7 @@ begin
   RegApps.RegisterWindowLog;
   // react
   RegReact.RegisterCommon;
-  RegFlux.RegisterCommon(IRdxStore);
+  RegFlux.RegisterCommon(IFluxStore);
   RegRedux.RegisterCommon([TRdxResizeFunc, TRdxTestLayoutFunc]);
   RegApps.RegisterReactApp;
   // react components

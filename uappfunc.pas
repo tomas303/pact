@@ -5,32 +5,32 @@ unit uappfunc;
 interface
 
 uses
-  iapp, rdx_iredux, flu_iflux, trl_iprops, uappstate;
+  iapp, flu_iflux, trl_iprops, uappstate;
 
 type
 
   { TRdxTestLayoutFunc }
 
-  TRdxTestLayoutFunc = class(TInterfacedObject, IRdxFunc)
+  TRdxTestLayoutFunc = class(TInterfacedObject, IFluxFunc)
   protected
-    // IRdxFunc
-    function Redux(const AState: IRdxState; const AAction: IFluxAction): IRdxState;
+    // IFluxFunc
+    function Redux(const AState: IFluxState; const AAction: IFluxAction): IFluxState;
   end;
 
   { TRdxResizeFunc }
 
-  TRdxResizeFunc = class(TInterfacedObject, IRdxFunc)
+  TRdxResizeFunc = class(TInterfacedObject, IFluxFunc)
   protected
-    // IRdxFunc
-    function Redux(const AState: IRdxState; const AAction: IFluxAction): IRdxState;
+    // IFluxFunc
+    function Redux(const AState: IFluxState; const AAction: IFluxAction): IFluxState;
   end;
 
 implementation
 
 { TRdxResizeFunc }
 
-function TRdxResizeFunc.Redux(const AState: IRdxState;
-  const AAction: IFluxAction): IRdxState;
+function TRdxResizeFunc.Redux(const AState: IFluxState;
+  const AAction: IFluxAction): IFluxState;
 var
   mProps: IProps;
 begin
@@ -51,8 +51,8 @@ end;
 
 { TRdxTestLayoutFunc }
 
-function TRdxTestLayoutFunc.Redux(const AState: IRdxState;
-  const AAction: IFluxAction): IRdxState;
+function TRdxTestLayoutFunc.Redux(const AState: IFluxState;
+  const AAction: IFluxAction): IFluxState;
 var
   mProps: IProps;
 begin
