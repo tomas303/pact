@@ -33,15 +33,15 @@ begin
   RegRedux.RegisterCommon([TRdxResizeFunc, TRdxTestLayoutFunc]);
   RegApps.RegisterReactApp;
   // react components
-  RegReact.RegisterComposite(TAppComposite, IAppComposite, [Layout.Perspective.Path]);
-  RegReact.RegisterComposite(TFormComposite, IFormComposite, []);
-  mReg := RegReact.RegisterComposite(TMainFormComposite, IMainFormComposite, [MainForm.Width.Path, MainForm.Height.Path]);
+  RegReact.RegisterComposite(TReactComponentApp, IReactComponentApp, [Layout.Perspective.Path]);
+  RegReact.RegisterComposite(TReactComponentForm, IReactComponentForm, []);
+  mReg := RegReact.RegisterComposite(TReactComponentMainForm, IReactComponentMainForm, [MainForm.Width.Path, MainForm.Height.Path]);
   //mReg.InjectProp('ActionResize', cActions.ResizeFunc);
-  RegReact.RegisterComposite(TEditComposite, IEditComposite, []);
-  RegReact.RegisterComposite(TEditsComposite, IEditsComposite, []);
-  RegReact.RegisterComposite(TButtonComposite, IButtonComposite, []);
-  RegReact.RegisterComposite(TButtonsComposite, IButtonsComposite, []);
-  RegReact.RegisterComposite(THeaderComposite, IHeaderComposite, []);
+  RegReact.RegisterComposite(TReactComponentEdit, IReactComponentEdit, []);
+  RegReact.RegisterComposite(TReactComponentEdits, IReactComponentEdits, []);
+  RegReact.RegisterComposite(TReactComponentButton, IReactComponentButton, []);
+  RegReact.RegisterComposite(TReactComponentButtons, IReactComponentButtons, []);
+  RegReact.RegisterComposite(TReactComponentHeader, IReactComponentHeader, []);
 end;
 
 end.

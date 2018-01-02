@@ -9,19 +9,19 @@ uses
 
 type
 
-  { TAppComposite }
+  { TReactComponentApp }
 
-  TAppComposite = class(TComposite, IAppComposite)
+  TReactComponentApp = class(TReactComponent, IReactComponentApp)
   protected
-    function ComposeElement(const AProps: IProps; const AChildren: array of IMetaElement): IMetaElement; override;
+    function ComposeElement(const AProps: IProps; const AParentElement: IMetaElement): IMetaElement; override;
   end;
 
 implementation
 
-{ TAppComposite }
+{ TReactComponentApp }
 
-function TAppComposite.ComposeElement(const AProps: IProps;
-  const AChildren: array of IMetaElement): IMetaElement;
+function TReactComponentApp.ComposeElement(const AProps: IProps;
+  const AParentElement: IMetaElement): IMetaElement;
 var
   mProps: IProps;
   mButtons: IProps;
@@ -29,69 +29,87 @@ var
   mFrames: TMetaElementArray;
   i: integer;
 begin
-  mButtons := NewProps;
+  //mButtons := NewProps;
+  //
+  //mButton := NewProps;
+  //mButton.SetStr('Caption', 'One').SetInt('ActionClick', cActions.ClickOne);
+  //mButtons.SetIntf('1', mButton);
+  //
+  //mButton := NewProps;
+  //mButton.SetStr('Caption', 'Two').SetInt('ActionClick', cActions.ClickTwo);
+  //mButtons.SetIntf('2', mButton);
+  //
+  //mButton := NewProps;
+  //mButton.SetStr('Caption', 'Three').SetInt('ActionClick', cActions.ClickThree);
+  //mButtons.SetIntf('3', mButton);
+  //
+  //mProps := NewProps;
+  //
+  //SetLength(mFrames, AProps.AsInt(Layout.Perspective.Name));
+  //for i := 0 to AProps.AsInt(Layout.Perspective.Name) - 1 do
+  //begin
+  //  mFrames[i] := ElementFactory.CreateElement(IReactComponentHeader,
+  //        mProps.Clone.SetBool('Transparent', False)
+  //        .SetInt('Color', clRed)
+  //        .SetStr('Title', i.ToString)
+  //        .SetInt('FontColor', clYellow)
+  //        .SetInt('Border', 5)
+  //        .SetInt('BorderColor', clPurple)
+  //        );
+  //end;
+  //
+  //Result := ElementFactory.CreateElement(
+  //  //IFormComposite, 'mainform',  mProps.Clone.SetStr('Title', 'Hello world').SetInt('Layout', cLayout.Horizontal){.SetInt('Color', clYellow)},
+  //  IReactComponentMainForm, mProps.Clone.SetStr('Title', 'Hello world').SetInt('Layout', cLayout.Horizontal).SetInt('Color', clYellow),
+  //  [
+  //
+  //    ElementFactory.CreateElement(IReactComponentButtons,
+  //    NewProps.SetIntf('Buttons', mButtons).SetInt('Layout', cLayout.Vertical)),
+  //
+  //    ElementFactory.CreateElement(IReactComponentHeader,
+  //    NewProps,
+  //    [
+  //      ElementFactory.CreateElement(IReactComponentHeader,
+  //      mProps.Clone.SetInt('Layout', cLayout.Horizontal),
+  //       mFrames
+  //      {[
+  //        ElementFactory.CreateElement(IHeaderComposite,
+  //        mProps.Clone.SetBool('Transparent', False)
+  //        .SetInt('Color', clRed)
+  //        .SetStr('Title', 'One')
+  //        .SetInt('FontColor', clYellow)
+  //        .SetInt('Border', 5)
+  //        .SetInt('BorderColor', clPurple)
+  //        ),
+  //        ElementFactory.CreateElement(IHeaderComposite,
+  //        mProps.Clone.SetBool('Transparent', False)
+  //        .SetInt('Color', clBlack)
+  //        .SetStr('Title', 'Two')
+  //        .SetInt('FontColor', clLime)
+  //        .SetInt('Border', 5)
+  //        .SetInt('BorderColor', clAqua)
+  //        )
+  //      ]})
+  //    ])
+  //  ]);
 
-  mButton := NewProps;
-  mButton.SetStr('Caption', 'One').SetInt('ActionClick', cActions.ClickOne);
-  mButtons.SetIntf('1', mButton);
 
-  mButton := NewProps;
-  mButton.SetStr('Caption', 'Two').SetInt('ActionClick', cActions.ClickTwo);
-  mButtons.SetIntf('2', mButton);
-
-  mButton := NewProps;
-  mButton.SetStr('Caption', 'Three').SetInt('ActionClick', cActions.ClickThree);
-  mButtons.SetIntf('3', mButton);
-
-  mProps := NewProps;
-
-  SetLength(mFrames, AProps.AsInt(Layout.Perspective.Name));
-  for i := 0 to AProps.AsInt(Layout.Perspective.Name) - 1 do
-  begin
-    mFrames[i] := ElementFactory.CreateElement(IHeaderComposite,
-          mProps.Clone.SetBool('Transparent', False)
-          .SetInt('Color', clRed)
-          .SetStr('Title', i.ToString)
-          .SetInt('FontColor', clYellow)
-          .SetInt('Border', 5)
-          .SetInt('BorderColor', clPurple)
-          );
-  end;
 
   Result := ElementFactory.CreateElement(
-    //IFormComposite, 'mainform',  mProps.Clone.SetStr('Title', 'Hello world').SetInt('Layout', cLayout.Horizontal){.SetInt('Color', clYellow)},
-    IMainFormComposite, mProps.Clone.SetStr('Title', 'Hello world').SetInt('Layout', cLayout.Horizontal){.SetInt('Color', clYellow)},
+    IReactComponentMainForm,
+      AProps.Clone
+        .SetStr('Title', 'Hello world')
+        .SetInt('Layout', cLayout.Vertical)
+        .SetInt('Color', clYellow)
+        //MMWidth a MMHeight bude treba jeste dopracovat
+        .SetInt('Width', 400)
+        .SetInt('Height', 300),
     [
-
-      ElementFactory.CreateElement(IButtonsComposite,
-      NewProps.SetIntf('Buttons', mButtons).SetInt('Layout', cLayout.Vertical)),
-
-      ElementFactory.CreateElement(IHeaderComposite,
-      NewProps,
-      [
-        ElementFactory.CreateElement(IHeaderComposite,
-        mProps.Clone.SetInt('Layout', cLayout.Horizontal),
-         mFrames
-        {[
-          ElementFactory.CreateElement(IHeaderComposite,
-          mProps.Clone.SetBool('Transparent', False)
-          .SetInt('Color', clRed)
-          .SetStr('Title', 'One')
-          .SetInt('FontColor', clYellow)
-          .SetInt('Border', 5)
-          .SetInt('BorderColor', clPurple)
-          ),
-          ElementFactory.CreateElement(IHeaderComposite,
-          mProps.Clone.SetBool('Transparent', False)
-          .SetInt('Color', clBlack)
-          .SetStr('Title', 'Two')
-          .SetInt('FontColor', clLime)
-          .SetInt('Border', 5)
-          .SetInt('BorderColor', clAqua)
-          )
-        ]})
-      ])
+      ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'One')),
+      ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'Two'))
     ]);
+
+
 end;
 
 end.
