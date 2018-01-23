@@ -106,7 +106,8 @@ begin
         .SetInt('Height', 300),
     [
       ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'One')),
-      ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'Two'))
+      ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'Two').SetBool('ParentColor', True))
+
     ]);
 
 
