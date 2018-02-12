@@ -93,7 +93,7 @@ begin
   //    ])
   //  ]);
 
-
+{
 
   Result := ElementFactory.CreateElement(
     IReactComponentMainForm,
@@ -106,10 +106,85 @@ begin
         .SetInt('Height', 300),
     [
       ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'One')),
-      ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'Two').SetBool('ParentColor', True))
+
+      //ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'Two').SetBool('ParentColor', True))
+
+
+      ElementFactory.CreateElement(IReactComponentHeader, NewProps.SetInt('Layout', cLayout.Vertical),
+      [
+        ElementFactory.CreateElement(IReactComponentHeader,
+        NewProps
+        .SetStr('Title', 'HLAVA')
+        .SetInt('Border', 10)
+        .SetInt('BorderColor', clRed)
+        .SetInt('FontColor', clBlue)
+        .SetInt('Color', clLime)
+        .SetBool('Transparent', False)
+        .SetInt('MMHeight', 50)
+        .SetInt('Place', cPlace.FixFront)
+        ),
+
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Caption', 'Two')
+        .SetBool('ParentColor', True)
+        //.SetInt('MMHeight', 50)
+        //.SetInt('Place', cPlace.FixBack)
+        .SetInt('Place', cPlace.Elastic)
+        ),
+
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Caption', 'Two')
+        .SetBool('ParentColor', True)
+        .SetInt('MMHeight', 8)
+        //.SetInt('Place', cPlace.FixBack)
+        .SetInt('Place', cPlace.Elastic)
+        ),
+
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Caption', 'Two')
+        .SetBool('ParentColor', True)
+        .SetInt('MMHeight', 30)
+        .SetInt('Place', cPlace.FixBack)
+        )
+      ])
 
     ]);
 
+ }
+
+  Result := ElementFactory.CreateElement(
+    IReactComponentMainForm,
+      AProps.Clone
+        .SetStr('Title', 'Hello world')
+        .SetInt('Layout', cLayout.Vertical)
+        .SetInt('Color', clYellow)
+        //MMWidth a MMHeight bude treba jeste dopracovat
+        .SetInt('MMWidth', 400)
+        .SetInt('MMHeight', 300),
+    [
+      ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Caption', 'One')
+        .SetInt('MMHeight', 50)
+        .SetInt('Place', cPlace.FixFront)),
+      ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Caption', 'Two')
+        .SetInt('Place', cPlace.Elastic)),
+      ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Caption', 'Three')
+        .SetInt('MMHeight', 10)
+        .SetInt('Place', cPlace.Elastic)),
+      ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Caption', 'Four')
+        .SetInt('MMHeight', 30)
+        .SetInt('Place', cPlace.FixBack))
+      ]);
 
 end;
 
