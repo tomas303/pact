@@ -5,58 +5,32 @@ unit uappstate;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, rdx_urttistate;
 
-//type
-  //IFormState = interface
-  //['{012CA672-9DB8-4CFD-8B4F-A1F37683EF3B}']
-  //  function GetWidth: integer;
-  //  function GetHeight: integer;
-  //  procedure SetWidth(AValue: integer);
-  //  procedure SetHeight(AValue: integer);
-  //end;
-  //
-  //IMainFormState = interface(IFormState)
-  //['{B38A8863-8EA2-4538-9946-7C33989DACB2}']
-  //end;
+type
 
-  //{ TFormState }
-  //
-  //TFormState = class(TInterfacedObject, IFormState, IMainFormState)
-  //protected
-  //  fWidth: integer;
-  //  fHeight: integer;
-  //protected
-  //  // IFormState = interface
-  //  function GetWidth: integer;
-  //  function GetHeight: integer;
-  //  procedure SetWidth(AValue: integer);
-  //  procedure SetHeight(AValue: integer);
-  //end;
+  { TLayout }
+
+  TLayout = class(TRttiState)
+  protected
+    fPerspective: integer;
+  published
+    property Perspective: integer read fPerspective write fPerspective;
+  end;
+
+  { TMainForm }
+
+  TMainForm = class(TRttiState)
+  protected
+    fWidth: integer;
+    fHeight: integer;
+  published
+    property Width: integer read fWidth write fWidth;
+    property Height: integer read fHeight write fHeight;
+  end;
+
 
 implementation
-
-//{ TFormState }
-//
-//function TFormState.GetWidth: integer;
-//begin
-//  Result := fWidth;
-//end;
-//
-//function TFormState.GetHeight: integer;
-//begin
-//  Result := fHeight;
-//end;
-//
-//procedure TFormState.SetWidth(AValue: integer);
-//begin
-//  fWidth := AValue;
-//end;
-//
-//procedure TFormState.SetHeight(AValue: integer);
-//begin
-//  fHeight := AValue;
-//end;
 
 end.
 

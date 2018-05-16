@@ -5,8 +5,8 @@ unit uapp;
 interface
 
 uses
-  iapp, uappfunc, uappboot, tal_uapp, trl_dicontainer,
-  rea_ireact, rea_ureact, flu_iflux;
+  iapp, uappfunc, uappstate, uappboot,
+  tal_uapp, rea_ireact, rea_ureact, flu_iflux;
 
 type
 
@@ -22,25 +22,28 @@ implementation
 { TApp }
 
 procedure TApp.RegisterAppServices;
-var
-  mReg: TDIReg;
 begin
   inherited;
   RegApps.RegisterWindowLog;
   // react
   RegReact.RegisterCommon;
   RegFlux.RegisterCommon(IFluxStore);
-  RegRedux.RegisterCommon([TRdxResizeFunc, TRdxTestLayoutFunc]);
+  // states
+  RegRedux.RegisterState(TLayout, Layout.Name);
+  RegRedux.RegisterState(TMainForm, MainForm.Name);
+  RegRedux.RegisterCommon(
+    [Layout.Name, MainForm.Name],
+    [TRdxResizeFunc, TRdxTestLayoutFunc]
+  );
   RegApps.RegisterReactApp;
   // react components
-  RegReact.RegisterReactComponent(TReactComponentApp, IReactComponentApp, [Layout.Perspective.Path]);
+  RegReact.RegisterReactComponent(TReactComponentApp, IReactComponentApp,
+    [Layout.Perspective.Path]);
+  RegReact.RegisterReactComponent(TReactComponentMainForm, IReactComponentMainForm,
+    [MainForm.Width.Path, MainForm.Height.Path]);
   RegReact.RegisterReactComponent(TReactComponentForm, IReactComponentForm, []);
-  mReg := RegReact.RegisterReactComponent(TReactComponentMainForm, IReactComponentMainForm, [MainForm.Width.Path, MainForm.Height.Path]);
-  //mReg.InjectProp('ActionResize', cActions.ResizeFunc);
   RegReact.RegisterReactComponent(TReactComponentEdit, IReactComponentEdit, []);
-  RegReact.RegisterReactComponent(TReactComponentEdits, IReactComponentEdits, []);
   RegReact.RegisterReactComponent(TReactComponentButton, IReactComponentButton, []);
-  RegReact.RegisterReactComponent(TReactComponentButtons, IReactComponentButtons, []);
   RegReact.RegisterReactComponent(TReactComponentHeader, IReactComponentHeader, []);
 end;
 

@@ -13,15 +13,14 @@ type
 
   TReactComponentApp = class(TReactComponent, IReactComponentApp)
   protected
-    function ComposeElement(const AProps: IProps; const AParentElement: IMetaElement): IMetaElement; override;
+    function ComposeElement(const AParentElement: IMetaElement): IMetaElement; override;
   end;
 
 implementation
 
 { TReactComponentApp }
 
-function TReactComponentApp.ComposeElement(const AProps: IProps;
-  const AParentElement: IMetaElement): IMetaElement;
+function TReactComponentApp.ComposeElement(const AParentElement: IMetaElement): IMetaElement;
 var
   mProps: IProps;
   mButtons: IProps;
@@ -93,23 +92,17 @@ begin
   //    ])
   //  ]);
 
-{
+
 
   Result := ElementFactory.CreateElement(
     IReactComponentMainForm,
-      AProps.Clone
-        .SetStr('Title', 'Hello world')
-        .SetInt('Layout', cLayout.Vertical)
-        .SetInt('Color', clYellow)
-        //MMWidth a MMHeight bude treba jeste dopracovat
-        .SetInt('Width', 400)
-        .SetInt('Height', 300),
+      NewProps
+        .SetStr(cProps.Title, 'Hello world')
+        .SetInt(cProps.Layout, cLayout.Vertical)
+        .SetInt(cProps.Color, clYellow),
     [
-      ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'One')),
-
-      //ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Caption', 'Two').SetBool('ParentColor', True))
-
-
+      ElementFactory.CreateElement(IReactComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')),
+      ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'One')),
       ElementFactory.CreateElement(IReactComponentHeader, NewProps.SetInt('Layout', cLayout.Vertical),
       [
         ElementFactory.CreateElement(IReactComponentHeader,
@@ -126,7 +119,7 @@ begin
 
         ElementFactory.CreateElement(IReactComponentButton,
         NewProps
-        .SetStr('Caption', 'Two')
+        .SetStr('Text', 'Three')
         .SetBool('ParentColor', True)
         //.SetInt('MMHeight', 50)
         //.SetInt('Place', cPlace.FixBack)
@@ -135,26 +128,26 @@ begin
 
         ElementFactory.CreateElement(IReactComponentButton,
         NewProps
-        .SetStr('Caption', 'Two')
+        .SetStr('Text', 'Four')
         .SetBool('ParentColor', True)
-        .SetInt('MMHeight', 8)
+        .SetInt('MMHeight', 20)
         //.SetInt('Place', cPlace.FixBack)
         .SetInt('Place', cPlace.Elastic)
         ),
 
         ElementFactory.CreateElement(IReactComponentButton,
         NewProps
-        .SetStr('Caption', 'Two')
+        .SetStr('Text', 'Five')
         .SetBool('ParentColor', True)
-        .SetInt('MMHeight', 30)
+        .SetInt('MMHeight', 50)
         .SetInt('Place', cPlace.FixBack)
         )
       ])
 
     ]);
 
- }
 
+{
   Result := ElementFactory.CreateElement(
     IReactComponentMainForm,
       AProps.Clone
@@ -185,7 +178,7 @@ begin
         .SetInt('MMHeight', 30)
         .SetInt('Place', cPlace.FixBack))
       ]);
-
+ }
 end;
 
 end.

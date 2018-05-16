@@ -5,7 +5,8 @@ unit iapp;
 interface
 
 uses
-  typinfo;
+  typinfo, flu_iflux, trl_iprops, trl_uprops, trl_irttibroker, trl_urttibroker,
+  sysutils, trl_igenericaccess, rdx_urttistate;
 
 type
 

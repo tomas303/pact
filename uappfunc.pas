@@ -5,7 +5,7 @@ unit uappfunc;
 interface
 
 uses
-  iapp, flu_iflux, trl_iprops, uappstate;
+  iapp, flu_iflux, trl_iprops, uappstate, trl_igenericaccess;
 
 type
 
@@ -32,19 +32,19 @@ implementation
 function TRdxResizeFunc.Redux(const AState: IFluxState;
   const AAction: IFluxAction): IFluxState;
 var
-  mProps: IProps;
+  mState: IGenericAccess;
 begin
-  mProps := AState.Props(MainForm.Path);
+  mState := (AState as IPropFinder).Find(MainForm.Path).AsInterface as IGenericAccess;
   case AAction.ID of
     cActions.InitFunc:
       begin
-        mProps.SetInt(MainForm.Width.Name, 400);
-        mProps.SetInt(MainForm.Height.Name, 200);
+        mState.SetInt(MainForm.Width.Name, 400);
+        mState.SetInt(MainForm.Height.Name, 200);
       end;
     cActions.ResizeFunc:
       begin
-        mProps.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
-        mProps.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
+        mState.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
+        mState.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
       end;
   end;
 end;
@@ -54,27 +54,28 @@ end;
 function TRdxTestLayoutFunc.Redux(const AState: IFluxState;
   const AAction: IFluxAction): IFluxState;
 var
-  mProps: IProps;
+  mState: IGenericAccess;
 begin
-  mProps := AState.Props(Layout.Name);
+  mState := (AState as IPropFinder).Find(Layout.Path).AsInterface as IGenericAccess;
   case AAction.ID of
     cActions.InitFunc:
       begin
-        mProps.SetInt(Layout.Perspective.Name, 0);
+        mState.SetInt(Layout.Perspective.Name, 0);
       end;
     cActions.ClickOne:
       begin
-        mProps.SetInt(Layout.Perspective.Name, 1);
+        mState.SetInt(Layout.Perspective.Name, 1);
       end;
     cActions.ClickTwo:
       begin
-        mProps.SetInt(Layout.Perspective.Name, 2);
+        mState.SetInt(Layout.Perspective.Name, 2);
       end;
     cActions.ClickThree:
       begin
-        mProps.SetInt(Layout.Perspective.Name, 3);
+        mState.SetInt(Layout.Perspective.Name, 3);
       end;
   end;
+
 end;
 
 end.
