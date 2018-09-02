@@ -5,7 +5,8 @@ unit uappboot;
 interface
 
 uses
-  Classes, SysUtils, rea_ireact, rea_ureact, trl_iprops, iapp, graphics, rea_ilayout;
+  Classes, SysUtils, rea_ireact, rea_ureact, trl_iprops, iapp, graphics, rea_ilayout,
+  trl_imetaelement;
 
 type
 
