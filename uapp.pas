@@ -44,7 +44,7 @@ begin
   RegReact.RegisterReactComponent(TReactComponentForm, IReactComponentForm, []);
   RegReact.RegisterReactComponent(TReactComponentEdit, IReactComponentEdit, []);
   RegReact.RegisterReactComponent(TReactComponentButton, IReactComponentButton, []);
-  RegReact.RegisterReactComponent(TReactComponentHeader, IReactComponentHeader, []);
+  RegReact.RegisterReactComponent(TReactComponentHeader, IReactComponentHeader, [Layout.Perspective.Path]);
 end;
 
 end.

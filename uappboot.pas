@@ -27,7 +27,12 @@ var
   mButton: IProps;
   mFrames: TMetaElementArray;
   i: integer;
+  minfo: string;
+  m: string;
 begin
+  m := SelfProps.AsStr(Layout.Perspective.Name);
+  minfo := SelfProps.Info;
+
   //mButtons := NewProps;
   //
   //mButton := NewProps;
@@ -103,11 +108,22 @@ begin
     [
       ElementFactory.CreateElement(IReactComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')),
       ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'One')),
+
+      ElementFactory.CreateElement(IReactComponentHeader, NewProps.SetInt('Layout', cLayout.Horizontal),
+      [
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps.SetStr('Text', 'Layout 1').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickOne)),
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps.SetStr('Text', 'Layout 2').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickTwo)),
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps.SetStr('Text', 'Layout 3').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickThree))
+      ]),
+
       ElementFactory.CreateElement(IReactComponentHeader, NewProps.SetInt('Layout', cLayout.Vertical),
       [
         ElementFactory.CreateElement(IReactComponentHeader,
         NewProps
-        .SetStr('Title', 'HLAVA')
+        .SetStr('Title', SelfProps.AsStr(Layout.Perspective.Name))
         .SetInt('Border', 10)
         .SetInt('BorderColor', clRed)
         .SetInt('FontColor', clBlue)

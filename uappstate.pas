@@ -12,10 +12,13 @@ type
   { TLayout }
 
   TLayout = class(TRttiState)
+  private
+    function GetPerspective: integer;
+    procedure SetPerspective(AValue: integer);
   protected
     fPerspective: integer;
   published
-    property Perspective: integer read fPerspective write fPerspective;
+    property Perspective: integer read GetPerspective write SetPerspective;
   end;
 
   { TMainForm }
@@ -31,6 +34,19 @@ type
 
 
 implementation
+
+{ TLayout }
+
+function TLayout.GetPerspective: integer;
+begin
+  Result := fPerspective;
+end;
+
+procedure TLayout.SetPerspective(AValue: integer);
+begin
+  if fPerspective = AValue then Exit;
+  fPerspective := AValue;
+end;
 
 end.
 
