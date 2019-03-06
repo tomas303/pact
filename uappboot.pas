@@ -127,24 +127,24 @@ begin
         .SetInt(cProps.Color, clYellow)
         .SetIntf(cProps.Children,
           NewProps
-          .SetIntf(0, ElementFactory.CreateElement(IReactComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')))
-          .SetIntf(1, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'One')))
-          .SetIntf(2, ElementFactory.CreateElement(IReactComponentHeader,
+          .SetIntf('', ElementFactory.CreateElement(IReactComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')))
+          .SetIntf('', ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'One')))
+          .SetIntf('', ElementFactory.CreateElement(IReactComponentHeader,
                       NewProps
                       .SetInt('Layout', cLayout.Horizontal)
                       .SetIntf(cProps.Children,
                         NewProps
-                        .SetIntf(0, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 1').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickOne)))
-                        .SetIntf(1, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 2').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickTwo)))
-                        .SetIntf(2, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 3').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickThree)))
+                        .SetIntf('', ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 1').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickOne)))
+                        .SetIntf('', ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 2').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickTwo)))
+                        .SetIntf('', ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 3').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickThree)))
                       )
                       ))
-          .SetIntf(3, ElementFactory.CreateElement(IReactComponentHeader,
+          .SetIntf('', ElementFactory.CreateElement(IReactComponentHeader,
                       NewProps
                       .SetInt('Layout', cLayout.Vertical)
                       .SetIntf(cProps.Children,
                         NewProps
-                        .SetIntf(0, ElementFactory.CreateElement(IReactComponentHeader,
+                        .SetIntf('', ElementFactory.CreateElement(IReactComponentHeader,
                                     NewProps.SetStr('Title', 'Haj')
                                     .SetInt('Border', 10)
                                     .SetInt('BorderColor', clRed)
@@ -154,9 +154,9 @@ begin
                                     .SetInt('MMHeight', 50).SetInt('Place', cPlace.FixFront)
                                     .SetIntf(cProps.Children,
                                                              NewProps
-                                                             .SetIntf(0, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Three').SetBool('ParentColor', True).SetInt('Place', cPlace.Elastic)))
-                                                             .SetIntf(1, ElementFactory.CreateElement(IReactComponentButton,NewProps.SetStr('Text', 'Four').SetBool('ParentColor', True).SetInt('MMHeight', 20).SetInt('Place', cPlace.Elastic)))
-                                                             .SetIntf(2, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Five').SetBool('ParentColor', True).SetInt('MMHeight', 50).SetInt('Place', cPlace.FixBack)))
+                                                             .SetIntf('', ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Three').SetBool('ParentColor', True).SetInt('Place', cPlace.Elastic)))
+                                                             .SetIntf('', ElementFactory.CreateElement(IReactComponentButton,NewProps.SetStr('Text', 'Four').SetBool('ParentColor', True).SetInt('MMHeight', 20).SetInt('Place', cPlace.Elastic)))
+                                                             .SetIntf('', ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Five').SetBool('ParentColor', True).SetInt('MMHeight', 50).SetInt('Place', cPlace.FixBack)))
 
                                     )
                                     ))
