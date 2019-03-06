@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, rea_ireact, rea_ureact, trl_iprops, iapp, graphics, rea_ilayout,
-  trl_imetaelement;
+  trl_imetaelement, trl_imetaelementfactory, trl_idifactory;
 
 type
 
@@ -17,7 +17,153 @@ type
     function ComposeElement(const AParentElement: IMetaElement): IMetaElement; override;
   end;
 
+  { TBootElementProvider }
+
+  TBootElementProvider = class(TInterfacedObject, IMetaElementProvider)
+  protected
+    function NewProps: IProps;
+  protected
+    // IMetaElementProvider
+    function ProvideMetaElement: IMetaElement;
+    function ProvideMetaElementOriginal: IMetaElement;
+  protected
+    fFactory: IDIFactory;
+    fElementFactory: IMetaElementFactory;
+  published
+    property Factory: IDIFactory read fFactory write fFactory;
+    property ElementFactory: IMetaElementFactory read fElementFactory write fElementFactory;
+  end;
+
 implementation
+
+{ TBootElementProvider }
+
+function TBootElementProvider.NewProps: IProps;
+begin
+  Result := IProps(Factory.Locate(IProps));
+end;
+
+function TBootElementProvider.ProvideMetaElementOriginal: IMetaElement;
+var
+  mProps: IProps;
+  mButtons: IProps;
+  mButton: IProps;
+  mFrames: TMetaElementArray;
+  i: integer;
+begin
+  Result := ElementFactory.CreateElement(
+    IReactComponentMainForm,
+      NewProps
+        .SetStr(cProps.Title, 'Hello world')
+        .SetInt(cProps.Layout, cLayout.Vertical)
+        .SetInt(cProps.Color, clYellow),
+    [
+      ElementFactory.CreateElement(IReactComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')),
+      ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'One')),
+
+      ElementFactory.CreateElement(IReactComponentHeader, NewProps.SetInt('Layout', cLayout.Horizontal),
+      [
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps.SetStr('Text', 'Layout 1').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickOne)),
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps.SetStr('Text', 'Layout 2').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickTwo)),
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps.SetStr('Text', 'Layout 3').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickThree))
+      ]),
+
+      ElementFactory.CreateElement(IReactComponentHeader, NewProps.SetInt('Layout', cLayout.Vertical),
+      [
+        ElementFactory.CreateElement(IReactComponentHeader,
+        NewProps
+        //.SetStr('Title', SelfProps.AsStr(Layout.Perspective.Name))
+        .SetStr('Title', 'Haj')
+        .SetInt('Border', 10)
+        .SetInt('BorderColor', clRed)
+        .SetInt('FontColor', clBlue)
+        .SetInt('Color', clLime)
+        .SetBool('Transparent', False)
+        .SetInt('MMHeight', 50)
+        .SetInt('Place', cPlace.FixFront)
+        ),
+
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Text', 'Three')
+        .SetBool('ParentColor', True)
+        //.SetInt('MMHeight', 50)
+        //.SetInt('Place', cPlace.FixBack)
+        .SetInt('Place', cPlace.Elastic)
+        ),
+
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Text', 'Four')
+        .SetBool('ParentColor', True)
+        .SetInt('MMHeight', 20)
+        //.SetInt('Place', cPlace.FixBack)
+        .SetInt('Place', cPlace.Elastic)
+        ),
+
+        ElementFactory.CreateElement(IReactComponentButton,
+        NewProps
+        .SetStr('Text', 'Five')
+        .SetBool('ParentColor', True)
+        .SetInt('MMHeight', 50)
+        .SetInt('Place', cPlace.FixBack)
+        )
+      ])
+
+    ]);
+
+end;
+
+function TBootElementProvider.ProvideMetaElement: IMetaElement;
+begin
+  Result := ElementFactory.CreateElement(
+    IReactComponentMainForm,
+      NewProps
+        .SetStr(cProps.Title, 'Hello world')
+        .SetInt(cProps.Layout, cLayout.Vertical)
+        .SetInt(cProps.Color, clYellow)
+        .SetIntf(cProps.Children,
+          NewProps
+          .SetIntf(0, ElementFactory.CreateElement(IReactComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')))
+          .SetIntf(1, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'One')))
+          .SetIntf(2, ElementFactory.CreateElement(IReactComponentHeader,
+                      NewProps
+                      .SetInt('Layout', cLayout.Horizontal)
+                      .SetIntf(cProps.Children,
+                        NewProps
+                        .SetIntf(0, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 1').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickOne)))
+                        .SetIntf(1, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 2').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickTwo)))
+                        .SetIntf(2, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Layout 3').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickThree)))
+                      )
+                      ))
+          .SetIntf(3, ElementFactory.CreateElement(IReactComponentHeader,
+                      NewProps
+                      .SetInt('Layout', cLayout.Vertical)
+                      .SetIntf(cProps.Children,
+                        NewProps
+                        .SetIntf(0, ElementFactory.CreateElement(IReactComponentHeader,
+                                    NewProps.SetStr('Title', 'Haj')
+                                    .SetInt('Border', 10)
+                                    .SetInt('BorderColor', clRed)
+                                    .SetInt('FontColor', clBlue)
+                                    .SetInt('Color', clLime)
+                                    .SetBool('Transparent', False)
+                                    .SetInt('MMHeight', 50).SetInt('Place', cPlace.FixFront)
+                                    .SetIntf(cProps.Children,
+                                                             NewProps
+                                                             .SetIntf(0, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Three').SetBool('ParentColor', True).SetInt('Place', cPlace.Elastic)))
+                                                             .SetIntf(1, ElementFactory.CreateElement(IReactComponentButton,NewProps.SetStr('Text', 'Four').SetBool('ParentColor', True).SetInt('MMHeight', 20).SetInt('Place', cPlace.Elastic)))
+                                                             .SetIntf(2, ElementFactory.CreateElement(IReactComponentButton, NewProps.SetStr('Text', 'Five').SetBool('ParentColor', True).SetInt('MMHeight', 50).SetInt('Place', cPlace.FixBack)))
+
+                                    )
+                                    ))
+                      )
+                      ))
+        ))
+end;
 
 { TReactComponentApp }
 

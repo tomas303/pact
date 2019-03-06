@@ -6,7 +6,9 @@ interface
 
 uses
   iapp, uappfunc, uappstate, uappboot,
-  tal_uapp, rea_ireact, rea_ureact, flu_iflux;
+  tal_uapp, rea_ireact, rea_ureact, flu_iflux,
+  trl_imetaelement,
+  trl_dicontainer, trl_idifactory, trl_imetaelementfactory;
 
 type
 
@@ -22,6 +24,8 @@ implementation
 { TApp }
 
 procedure TApp.RegisterAppServices;
+var
+  mReg: TDIReg;
 begin
   inherited;
   RegApps.RegisterWindowLog;
@@ -37,14 +41,21 @@ begin
   );
   RegApps.RegisterReactApp;
   // react components
+
   RegReact.RegisterReactComponent(TReactComponentApp, IReactComponentApp,
     [Layout.Perspective.Path]);
+
+
   RegReact.RegisterReactComponent(TReactComponentMainForm, IReactComponentMainForm,
     [MainForm.Width.Path, MainForm.Height.Path]);
   RegReact.RegisterReactComponent(TReactComponentForm, IReactComponentForm, []);
   RegReact.RegisterReactComponent(TReactComponentEdit, IReactComponentEdit, []);
   RegReact.RegisterReactComponent(TReactComponentButton, IReactComponentButton, []);
   RegReact.RegisterReactComponent(TReactComponentHeader, IReactComponentHeader, [Layout.Perspective.Path]);
+
+  mReg := DIC.Add(TBootElementProvider, IMetaElementProvider, 'boot');
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('ElementFactory', IMetaElementFactory);
 end;
 
 end.
