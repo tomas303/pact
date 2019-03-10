@@ -7,9 +7,10 @@
 *.compiled
 *.*~
 lib/
+backup/
 *.obj
 *.lps
 *.xml
 *.bak
 *.dbg
-past
+pact
