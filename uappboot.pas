@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, rea_ireact, rea_ureact, trl_iprops, iapp, graphics, rea_ilayout,
-  trl_imetaelement, trl_imetaelementfactory, trl_idifactory;
+  trl_imetaelement, trl_imetaelementfactory, trl_idifactory,
+  rea_udesigncomponent, rea_idesigncomponent;
 
 type
 
@@ -34,7 +35,92 @@ type
     property ElementFactory: IMetaElementFactory read fElementFactory write fElementFactory;
   end;
 
+  { TDesignComponentApp }
+
+  TDesignComponentApp = class(TDesignComponent, IDesignComponentApp)
+  protected
+    function DoCompose(const AProps: IProps): IMetaElement; override;
+  end;
+
 implementation
+
+{ TDesignComponentApp }
+
+function TDesignComponentApp.DoCompose(const AProps: IProps): IMetaElement;
+var
+  mProps: IProps;
+  mButtons: IProps;
+  mButton: IProps;
+  mFrames: TMetaElementArray;
+  i: integer;
+  minfo: string;
+  m: string;
+begin
+  m := SelfProps.AsStr(Layout.Perspective.Name);
+  minfo := SelfProps.Info;
+  Result := ElementFactory.CreateElement(
+    IDesignComponentForm,
+      NewProps
+        .SetStr(cProps.Title, 'Hello world')
+        .SetInt(cProps.Layout, cLayout.Vertical)
+        .SetInt(cProps.Color, clYellow),
+    [
+      ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')),
+      ElementFactory.CreateElement(IDesignComponentButton, NewProps.SetStr('Text', 'One')),
+
+      ElementFactory.CreateElement(IDesignComponentHeader, NewProps.SetInt('Layout', cLayout.Horizontal),
+      [
+        ElementFactory.CreateElement(IDesignComponentButton,
+        NewProps.SetStr('Text', 'Layout 1').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickOne)),
+        ElementFactory.CreateElement(IDesignComponentButton,
+        NewProps.SetStr('Text', 'Layout 2').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickTwo)),
+        ElementFactory.CreateElement(IDesignComponentButton,
+        NewProps.SetStr('Text', 'Layout 3').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickThree))
+      ]),
+
+      ElementFactory.CreateElement(IDesignComponentHeader, NewProps.SetInt('Layout', cLayout.Vertical),
+      [
+        ElementFactory.CreateElement(IDesignComponentHeader,
+        NewProps
+        .SetStr('Title', SelfProps.AsStr(Layout.Perspective.Name))
+        .SetInt('Border', 10)
+        .SetInt('BorderColor', clRed)
+        .SetInt('FontColor', clBlue)
+        .SetInt('Color', clLime)
+        .SetBool('Transparent', False)
+        .SetInt('MMHeight', 50)
+        .SetInt('Place', cPlace.FixFront)
+        ),
+
+        ElementFactory.CreateElement(IDesignComponentButton,
+        NewProps
+        .SetStr('Text', 'Three')
+        .SetBool('ParentColor', True)
+        //.SetInt('MMHeight', 50)
+        //.SetInt('Place', cPlace.FixBack)
+        .SetInt('Place', cPlace.Elastic)
+        ),
+
+        ElementFactory.CreateElement(IDesignComponentButton,
+        NewProps
+        .SetStr('Text', 'Four')
+        .SetBool('ParentColor', True)
+        .SetInt('MMHeight', 20)
+        //.SetInt('Place', cPlace.FixBack)
+        .SetInt('Place', cPlace.Elastic)
+        ),
+
+        ElementFactory.CreateElement(IDesignComponentButton,
+        NewProps
+        .SetStr('Text', 'Five')
+        .SetBool('ParentColor', True)
+        .SetInt('MMHeight', 50)
+        .SetInt('Place', cPlace.FixBack)
+        )
+      ])
+
+    ]);
+end;
 
 { TBootElementProvider }
 

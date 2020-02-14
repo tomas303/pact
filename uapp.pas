@@ -8,7 +8,8 @@ uses
   iapp, uappfunc, uappstate, uappboot,
   tal_uapp, rea_ireact, rea_ureact, flu_iflux,
   trl_imetaelement,
-  trl_dicontainer, trl_idifactory, trl_imetaelementfactory;
+  trl_dicontainer, trl_idifactory, trl_imetaelementfactory,
+  rea_idesigncomponent, rea_udesigncomponent;
 
 type
 
@@ -40,12 +41,12 @@ begin
     [TRdxResizeFunc, TRdxTestLayoutFunc]
   );
   RegApps.RegisterReactApp;
-  // react components
 
+
+  // react components
+  {
   RegReact.RegisterReactComponent(TReactComponentApp, IReactComponentApp,
     [Layout.Perspective.Path]);
-
-
   RegReact.RegisterReactComponent(TReactComponentMainForm, IReactComponentMainForm,
     [MainForm.Width.Path, MainForm.Height.Path]);
   RegReact.RegisterReactComponent(TReactComponentForm, IReactComponentForm, []);
@@ -56,6 +57,13 @@ begin
   mReg := DIC.Add(TBootElementProvider, IMetaElementProvider, 'boot');
   mReg.InjectProp('Factory', IDIFactory);
   mReg.InjectProp('ElementFactory', IMetaElementFactory);
+  }
+  RegReact.RegisterDesignComponent(TDesignComponentApp, IDesignComponentApp);
+  RegReact.RegisterDesignComponent(TDesignComponentForm, IDesignComponentForm);
+  RegReact.RegisterDesignComponent(TDesignComponentEdit, IDesignComponentEdit);
+  RegReact.RegisterDesignComponent(TDesignComponentButton, IDesignComponentButton);
+  RegReact.RegisterDesignComponent(TDesignComponentHeader, IDesignComponentHeader);
+
 end;
 
 end.
