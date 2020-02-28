@@ -58,12 +58,21 @@ var
 begin
   m := SelfProps.AsStr(Layout.Perspective.Name);
   minfo := SelfProps.Info;
+
+  {
+   tady by se mel state injektovat .... problem s func, protoze 2 ruzne elementy
+   muzou mit 2 ruzne state ...jak to promitnout do func?
+   to by musel byt skutecne parametr poslany pres notifier ... ?????
+
+  }
+
   Result := ElementFactory.CreateElement(
     IDesignComponentForm,
       NewProps
+        .SetIntf(cProps.SizeNotifier, NewNotifier(cActions.ResizeFunc))
         .SetStr(cProps.Title, 'Hello world')
         .SetInt(cProps.Layout, cLayout.Vertical)
-        .SetInt(cProps.Color, clYellow),
+        .SetIntf('State', NewState(MainForm.Name)),
     [
       ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')),
       ElementFactory.CreateElement(IDesignComponentButton, NewProps.SetStr('Text', 'One')),

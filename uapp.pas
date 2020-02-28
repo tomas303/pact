@@ -33,12 +33,32 @@ begin
   // react
   RegReact.RegisterCommon;
   RegFlux.RegisterCommon(IFluxStore);
+
+  {
+  RegRedux.RegisterState(TLayout, Layout.Name); // prida i do hlavniho
+  RegRedux.RegisterFunc(TRdxResizeFunc, Layout.Name); // prida i do state dispatcheru, nasetuje state
+  from state  -- funkci, ktera nasetuje podcestu ze statu, prazdna zn. state
+
+  Error when injecting property "TReactLauncher.ReactApp":
+Error when injecting property "TReactApp.AppStore":
+Error when injecting property "TRdxStore.Dispatcher":
+Error when injecting property "TRdxFuncDispatcher.AddFunc":
+Error when injecting property "TRdxResizeFunc.State":
+Registration for interface: {00000000-0000-0000-0000-000000000000} ID: not found.
+
+Press OK to ignore and risk data corruption.
+Press Abort to kill the program.
+
+   }
   // states
   RegRedux.RegisterState(TLayout, Layout.Name);
   RegRedux.RegisterState(TMainForm, MainForm.Name);
+
+  RegRedux.RegisterFunc(TRdxResizeFunc, MainForm.Name);
+
   RegRedux.RegisterCommon(
     [Layout.Name, MainForm.Name],
-    [TRdxResizeFunc, TRdxTestLayoutFunc]
+    [TRdxResizeFunc.ClassName]
   );
   RegApps.RegisterReactApp;
 

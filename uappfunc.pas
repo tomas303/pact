@@ -5,74 +5,85 @@ unit uappfunc;
 interface
 
 uses
-  iapp, flu_iflux, trl_iprops, uappstate, trl_igenericaccess;
+  iapp, flu_iflux, trl_iprops, uappstate, trl_igenericaccess, rdx_ufunc;
 
 type
 
   { TRdxTestLayoutFunc }
 
-  TRdxTestLayoutFunc = class(TInterfacedObject, IFluxFunc)
+  TRdxTestLayoutFunc = class(TRdxFunc)
   protected
-    // IFluxFunc
-    function Redux(const AState: IFluxState; const AAction: IFluxAction): IFluxState;
+    procedure DoExecute(const AAction: IFluxAction); override;
   end;
 
   { TRdxResizeFunc }
 
-  TRdxResizeFunc = class(TInterfacedObject, IFluxFunc)
+  TRdxResizeFunc = class(TRdxFunc)
   protected
-    // IFluxFunc
-    function Redux(const AState: IFluxState; const AAction: IFluxAction): IFluxState;
+    procedure DoExecute(const AAction: IFluxAction); override;
   end;
+
+{
+  function TRdxFunc.DefaultMainForm: IProps;
+  begin
+    Result := IProps(Factory.Locate(IProps));
+    Result
+      .SetInt('Left', 500)
+      .SetInt('Top', 30)
+      .SetInt('Width', 500)
+      .SetInt('Height', 300);
+  end;
+}
 
 implementation
 
 { TRdxResizeFunc }
 
-function TRdxResizeFunc.Redux(const AState: IFluxState;
-  const AAction: IFluxAction): IFluxState;
+procedure TRdxResizeFunc.DoExecute(const AAction: IFluxAction);
 var
-  mState: IGenericAccess;
+  mw,mh: integer;
 begin
-  mState := (AState as IPropFinder).Find(MainForm.Path).AsInterface as IGenericAccess;
   case AAction.ID of
     cActions.InitFunc:
       begin
-        mState.SetInt(MainForm.Width.Name, 400);
-        mState.SetInt(MainForm.Height.Name, 200);
+        State.SetInt(MainForm.Width.Name, 400);
+        State.SetInt(MainForm.Height.Name, 200);
       end;
     cActions.ResizeFunc:
       begin
-        mState.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
-        mState.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
+        //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
+        //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
+
+        // 'MMWidth' na state neexistue
+        mw:=AAction.Props.AsInt('MMWidth');
+        mh:=AAction.Props.AsInt('MMHeight');
+        State.SetInt(MainForm.Width.Name, AAction.Props.AsInt('MMWidth'));
+        State.SetInt(MainForm.Height.Name, AAction.Props.AsInt('MMHeight'));
       end;
   end;
 end;
 
+
 { TRdxTestLayoutFunc }
 
-function TRdxTestLayoutFunc.Redux(const AState: IFluxState;
-  const AAction: IFluxAction): IFluxState;
-var
-  mState: IGenericAccess;
+procedure TRdxTestLayoutFunc.DoExecute(const AAction: IFluxAction);
 begin
-  mState := (AState as IPropFinder).Find(Layout.Path).AsInterface as IGenericAccess;
   case AAction.ID of
     cActions.InitFunc:
       begin
-        mState.SetInt(Layout.Perspective.Name, 0);
+        State.SetInt(Layout.Perspective.Name, 0);
       end;
     cActions.ClickOne:
       begin
-        mState.SetInt(Layout.Perspective.Name, 1);
+        State.SetInt(Layout.Perspective.Name, 1);
       end;
     cActions.ClickTwo:
       begin
-        mState.SetInt(Layout.Perspective.Name, 2);
+        State.SetInt(Layout.Perspective.Name, 2);
       end;
     cActions.ClickThree:
       begin
-        mState.SetInt(Layout.Perspective.Name, 3);
+        State.SetInt(Layout.Perspective.Name, 3);
       end;
   end;
 
