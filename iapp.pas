@@ -20,6 +20,8 @@ type
 
   MainForm = class(TC)
   public type
+    Left = class(TC);
+    Top = class(TC);
     Width = class(TC);
     Height = class(TC);
   end;

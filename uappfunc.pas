@@ -40,8 +40,6 @@ implementation
 { TRdxResizeFunc }
 
 procedure TRdxResizeFunc.DoExecute(const AAction: IFluxAction);
-var
-  mw,mh: integer;
 begin
   case AAction.ID of
     cActions.InitFunc:
@@ -53,10 +51,8 @@ begin
       begin
         //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
         //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
-
-        // 'MMWidth' na state neexistue
-        mw:=AAction.Props.AsInt('MMWidth');
-        mh:=AAction.Props.AsInt('MMHeight');
+        State.SetInt(MainForm.Left.Name, AAction.Props.AsInt('MMLeft'));
+        State.SetInt(MainForm.Top.Name, AAction.Props.AsInt('MMTop'));
         State.SetInt(MainForm.Width.Name, AAction.Props.AsInt('MMWidth'));
         State.SetInt(MainForm.Height.Name, AAction.Props.AsInt('MMHeight'));
       end;

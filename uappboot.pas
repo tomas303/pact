@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, rea_ireact, rea_ureact, trl_iprops, iapp, graphics, rea_ilayout,
   trl_imetaelement, trl_imetaelementfactory, trl_idifactory,
-  rea_udesigncomponent, rea_idesigncomponent;
+  rea_udesigncomponent, rea_idesigncomponent, flu_iflux;
 
 type
 
@@ -55,6 +55,7 @@ var
   i: integer;
   minfo: string;
   m: string;
+  mSMNotifier: IFluxNotifier;
 begin
   m := SelfProps.AsStr(Layout.Perspective.Name);
   minfo := SelfProps.Info;
@@ -66,10 +67,12 @@ begin
 
   }
 
+  mSMNotifier := NewNotifier(cActions.ResizeFunc);
   Result := ElementFactory.CreateElement(
     IDesignComponentForm,
       NewProps
-        .SetIntf(cProps.SizeNotifier, NewNotifier(cActions.ResizeFunc))
+        .SetIntf(cProps.SizeNotifier, mSMNotifier)
+        .SetIntf(cProps.MoveNotifier, mSMNotifier)
         .SetStr(cProps.Title, 'Hello world')
         .SetInt(cProps.Layout, cLayout.Vertical)
         .SetIntf('State', NewState(MainForm.Name)),
