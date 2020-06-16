@@ -74,7 +74,7 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="pact"/>
+      <Filename Value="/tmp/pact"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>

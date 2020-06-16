@@ -56,6 +56,7 @@ var
   minfo: string;
   m: string;
   mSMNotifier: IFluxNotifier;
+  mOneClickNotifier: IFluxNotifier;
 begin
   m := SelfProps.AsStr(Layout.Perspective.Name);
   minfo := SelfProps.Info;
@@ -67,6 +68,8 @@ begin
 
   }
 
+  mOneClickNotifier := NewNotifier(cActions.ClickOne);
+
   mSMNotifier := NewNotifier(cActions.ResizeFunc);
   Result := ElementFactory.CreateElement(
     IDesignComponentForm,
@@ -77,9 +80,15 @@ begin
         .SetInt(cProps.Layout, cLayout.Vertical)
         .SetIntf('State', NewState(MainForm.Name)),
     [
-      ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Title, 'First name').SetStr(cProps.Value, 'Kuliferda')),
-      ElementFactory.CreateElement(IDesignComponentButton, NewProps.SetStr('Text', 'One')),
-
+      ElementFactory.CreateElement(IDesignComponentEdit,
+        NewProps
+          .SetStr(cProps.Title, 'First name')
+          .SetStr(cProps.Value, 'Kuliferda')
+          .SetIntf(cProps.OnTextNotifier, mOneClickNotifier)),
+      ElementFactory.CreateElement(IDesignComponentButton,
+        NewProps
+          .SetStr('Text', 'One')
+          .SetIntf(cProps.ClickNotifier, mOneClickNotifier)),
       ElementFactory.CreateElement(IDesignComponentHeader, NewProps.SetInt('Layout', cLayout.Horizontal),
       [
         ElementFactory.CreateElement(IDesignComponentButton,
