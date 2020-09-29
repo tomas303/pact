@@ -44,40 +44,40 @@ var
   m: string;
   mp: pointer;
 begin
-  case AAction.ID of
-    cActions.InitFunc:
-      begin
-        if AAction.State <> nil then begin
-        AAction.State.SetInt(MainForm.Width.Name, 400);
-        AAction.State.SetInt(MainForm.Height.Name, 200);
-        end;
-        {
-        mp := pointer(tobject(AAction.Data));
-        AAction.Data.SetInt(MainForm.Width.Name, 400);
-        AAction.Data.SetInt(MainForm.Height.Name, 200);
-        }
-      end;
-    cActions.ResizeFunc:
-      begin
-        //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
-        //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
-        {
-        State.SetInt(MainForm.Left.Name, AAction.Props.AsInt('MMLeft'));
-        State.SetInt(MainForm.Top.Name, AAction.Props.AsInt('MMTop'));
-        State.SetInt(MainForm.Width.Name, AAction.Props.AsInt('MMWidth'));
-        State.SetInt(MainForm.Height.Name, AAction.Props.AsInt('MMHeight'));
-        }
-
-        AAction.State.SetInt(MainForm.Left.Name, AAction.Props.AsInt('MMLeft'));
-        AAction.State.SetInt(MainForm.Top.Name, AAction.Props.AsInt('MMTop'));
-        AAction.State.SetInt(MainForm.Width.Name, AAction.Props.AsInt('MMWidth'));
-        AAction.State.SetInt(MainForm.Height.Name, AAction.Props.AsInt('MMHeight'));
-      end;
-    cActions.ClickOne:
-      begin
-        m:=AAction.Props.AsStr('xxx');
-      end;
-  end;
+  //case AAction.ID of
+  //  cActions.InitFunc:
+  //    begin
+  //      if AAction.State <> nil then begin
+  //      AAction.State.SetInt(MainForm.Width.Name, 400);
+  //      AAction.State.SetInt(MainForm.Height.Name, 200);
+  //      end;
+  //      {
+  //      mp := pointer(tobject(AAction.Data));
+  //      AAction.Data.SetInt(MainForm.Width.Name, 400);
+  //      AAction.Data.SetInt(MainForm.Height.Name, 200);
+  //      }
+  //    end;
+  //  cActions.ResizeFunc:
+  //    begin
+  //      //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
+  //      //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
+  //      {
+  //      State.SetInt(MainForm.Left.Name, AAction.Props.AsInt('MMLeft'));
+  //      State.SetInt(MainForm.Top.Name, AAction.Props.AsInt('MMTop'));
+  //      State.SetInt(MainForm.Width.Name, AAction.Props.AsInt('MMWidth'));
+  //      State.SetInt(MainForm.Height.Name, AAction.Props.AsInt('MMHeight'));
+  //      }
+  //
+  //      AAction.State.SetInt(MainForm.Left.Name, AAction.Props.AsInt('MMLeft'));
+  //      AAction.State.SetInt(MainForm.Top.Name, AAction.Props.AsInt('MMTop'));
+  //      AAction.State.SetInt(MainForm.Width.Name, AAction.Props.AsInt('MMWidth'));
+  //      AAction.State.SetInt(MainForm.Height.Name, AAction.Props.AsInt('MMHeight'));
+  //    end;
+  //  cActions.ClickOne:
+  //    begin
+  //      m:=AAction.Props.AsStr('xxx');
+  //    end;
+  //end;
 end;
 
 

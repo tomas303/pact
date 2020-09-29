@@ -14,6 +14,9 @@ type
   { TDesignComponentApp }
 
   TDesignComponentApp = class(TDesignComponent, IDesignComponentApp)
+  private
+    function ComposeTest(const AProps: IProps): IMetaElement;
+    function ComposeEmpty(const AProps: IProps): IMetaElement;
   protected
     procedure InitValues; override;
     function FormData: IGenericAccess;
@@ -25,25 +28,7 @@ implementation
 
 { TDesignComponentApp }
 
-procedure TDesignComponentApp.InitValues;
-begin
-  inherited InitValues;
-  State := StoreConnector.Data['application'] as IGenericAccessRO;
-  FormData.SetInt(MainForm.Width.Name, 400);
-  FormData.SetInt(MainForm.Height.Name, 200);
-end;
-
-function TDesignComponentApp.FormData: IGenericAccess;
-begin
-  Result := StoreConnector.Data['mainform'];
-end;
-
-function TDesignComponentApp.FormDataRO: IGenericAccessRO;
-begin
-  Result := FormData as IGenericAccessRO;
-end;
-
-function TDesignComponentApp.DoCompose(const AProps: IProps): IMetaElement;
+function TDesignComponentApp.ComposeTest(const AProps: IProps): IMetaElement;
 var
   mProps: IProps;
   mButtons: IProps;
@@ -66,9 +51,9 @@ begin
 
   }
 
-  mOneClickNotifier := NewNotifier(cActions.ClickOne, FormData);
+  //mOneClickNotifier := NewNotifier(cActions.ClickOne, FormData);
 
-  mSMNotifier := NewNotifier(cActions.ResizeFunc, FormData);
+  //mSMNotifier := NewNotifier(cActions.ResizeFunc, FormData);
 
   Result := ElementFactory.CreateElement(
     IDesignComponentForm,
@@ -192,6 +177,38 @@ begin
       ])
 
     ]);
+end;
+
+function TDesignComponentApp.ComposeEmpty(const AProps: IProps): IMetaElement;
+begin
+  Result := ElementFactory.CreateElement(
+      IDesignComponentForm,
+        NewProps
+          .SetStr(cProps.Title, 'Hello world')
+  );
+end;
+
+procedure TDesignComponentApp.InitValues;
+begin
+  inherited InitValues;
+  State := StoreConnector.Data['application'] as IGenericAccessRO;
+  FormData.SetInt(MainForm.Width.Name, 400);
+  FormData.SetInt(MainForm.Height.Name, 200);
+end;
+
+function TDesignComponentApp.FormData: IGenericAccess;
+begin
+  Result := StoreConnector.Data['mainform'];
+end;
+
+function TDesignComponentApp.FormDataRO: IGenericAccessRO;
+begin
+  Result := FormData as IGenericAccessRO;
+end;
+
+function TDesignComponentApp.DoCompose(const AProps: IProps): IMetaElement;
+begin
+  Result := ComposeEmpty(AProps);
 end;
 
 end.
