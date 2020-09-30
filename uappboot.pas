@@ -7,9 +7,17 @@ interface
 uses
   Classes, SysUtils, trl_iprops, iapp, graphics, rea_ilayout,
   trl_imetaelement, trl_imetaelementfactory, trl_idifactory,
-  rea_udesigncomponent, rea_idesigncomponent, flu_iflux, trl_igenericaccess;
+  rea_udesigncomponent, rea_idesigncomponent, flu_iflux, trl_igenericaccess,
+  forms;
 
 type
+
+  { TCloseQueryFunc }
+
+  TCloseQueryFunc = class(TInterfacedObject, IFluxFunc)
+  protected
+    procedure Execute(const AAction: IFluxAction);
+  end;
 
   { TDesignComponentApp }
 
@@ -25,6 +33,15 @@ type
   end;
 
 implementation
+
+{ TCloseQueryFunc }
+
+procedure TCloseQueryFunc.Execute(const AAction: IFluxAction);
+begin
+  if AAction.ID = -303 then begin
+    Application.Terminate;
+  end;
+end;
 
 { TDesignComponentApp }
 
@@ -180,11 +197,16 @@ begin
 end;
 
 function TDesignComponentApp.ComposeEmpty(const AProps: IProps): IMetaElement;
+var
+  mCQ: IFluxNotifier;
 begin
+  mCQ := NewNotifier(-303);
+  FluxFuncReg.RegisterFunc(TCloseQueryFunc.Create);
   Result := ElementFactory.CreateElement(
       IDesignComponentForm,
         NewProps
           .SetStr(cProps.Title, 'Hello world')
+          .SetIntf(cProps.CloseQueryNotifier, mCQ)
   );
 end;
 
