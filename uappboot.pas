@@ -206,7 +206,23 @@ begin
       IDesignComponentForm,
         NewProps
           .SetStr(cProps.Title, 'Hello world')
-          .SetIntf(cProps.CloseQueryNotifier, mCQ)
+          .SetIntf(cProps.CloseQueryNotifier, mCQ),
+        [
+          ElementFactory.CreateElement(IDesignComponentGrid,
+          NewProps
+            .SetInt('HorizontalCount', 3)
+            .SetInt('VerticalCount', 8)
+            .SetInt('MMHeight', 1000)
+            .SetInt('MMWidth', 1000)
+            .SetInt(cProps.RowMMHeight, 25)
+            .SetInt(cProps.ColMMWidth, 25)
+            //.SetInt(cProps.ColOddColor, clLime)
+            //.SetInt(cProps.ColEvenColor, clAqua)
+            //.SetInt(cProps.RowOddColor, clRed)
+            //.SetInt(cProps.RowEvenColor, clYellow)
+            //.SetInt(cProps.Color, clGreen)
+          )
+        ]
   );
 end;
 
