@@ -210,6 +210,7 @@ begin
         [
           ElementFactory.CreateElement(IDesignComponentGrid,
           NewProps
+            .SetStr('DataPath', 'maingrid')
             .SetInt('HorizontalCount', 3)
             .SetInt('VerticalCount', 8)
             .SetInt('MMHeight', 1000)
