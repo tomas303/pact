@@ -28,7 +28,6 @@ begin
   RegApps.RegisterWindowLog;
   RegReact.RegisterCommon;
   RegFlux.RegisterCommon(IFluxStore);
-  RegRedux.RegisterFunc(TRdxResizeFunc);
   RegRedux.RegisterCommon(
     []
     //[TRdxResizeFunc.ClassName]

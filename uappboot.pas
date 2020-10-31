@@ -15,8 +15,14 @@ type
   { TCloseQueryFunc }
 
   TCloseQueryFunc = class(TInterfacedObject, IFluxFunc)
+  private
+    fID: integer;
   protected
     procedure Execute(const AAction: IFluxAction);
+    function RunAsync: Boolean;
+    function GetID: integer;
+  public
+    constructor Create(AID: integer);
   end;
 
   { TDesignComponentApp }
@@ -38,9 +44,23 @@ implementation
 
 procedure TCloseQueryFunc.Execute(const AAction: IFluxAction);
 begin
-  if AAction.ID = -303 then begin
-    Application.Terminate;
-  end;
+  Application.Terminate;
+end;
+
+function TCloseQueryFunc.RunAsync: Boolean;
+begin
+  Result := False;
+end;
+
+function TCloseQueryFunc.GetID: integer;
+begin
+  Result := fID;
+end;
+
+constructor TCloseQueryFunc.Create(AID: integer);
+begin
+  inherited Create;
+  fID := AID;
 end;
 
 { TDesignComponentApp }
@@ -201,7 +221,7 @@ var
   mCQ: IFluxNotifier;
 begin
   mCQ := NewNotifier(-303);
-  FluxFuncReg.RegisterFunc(TCloseQueryFunc.Create);
+  FluxFuncReg.RegisterFunc(TCloseQueryFunc.Create(-303));
   Result := ElementFactory.CreateElement(
       IDesignComponentForm,
         NewProps
@@ -221,7 +241,12 @@ begin
             //.SetInt(cProps.ColEvenColor, clAqua)
             //.SetInt(cProps.RowOddColor, clRed)
             //.SetInt(cProps.RowEvenColor, clYellow)
-            //.SetInt(cProps.Color, clGreen)
+            .SetInt(cProps.Color, clMaroon)
+            .SetInt('LaticeColColor', clRed)
+            .SetInt('LaticeColSize', 10)
+            .SetInt('LaticeRowColor', clGreen)
+            .SetInt('LaticeRowSize', 2)
+            //
           )
         ]
   );
