@@ -34,12 +34,6 @@ begin
   );
   RegApps.RegisterReactApp;
   RegReact.RegisterDesignComponent(TDesignComponentApp, IDesignComponentApp);
-  RegReact.RegisterDesignComponent(TDesignComponentForm, IDesignComponentForm);
-  RegReact.RegisterDesignComponent(TDesignComponentEdit, IDesignComponentEdit);
-  RegReact.RegisterDesignComponent(TDesignComponentButton, IDesignComponentButton);
-  RegReact.RegisterDesignComponent(TDesignComponentHeader, IDesignComponentHeader);
-  RegReact.RegisterDesignComponent(TDesignComponentGrid, IDesignComponentGrid);
-  RegReact.RegisterDesignComponent(TDesignComponentPager, IDesignComponentPager);
 end;
 
 end.

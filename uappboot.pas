@@ -269,8 +269,8 @@ begin
             IDesignComponentPager,
             NewProps
               .SetStr('DataPath', 'pagertest')
-              .SetInt(IDesignComponentPager.SwitchEdge, IDesignComponentPager.SwitchEdgeBottom)
-              .SetInt(IDesignComponentPager.SwitchSize, 50)
+              .SetInt(IDesignComponentPager.SwitchEdge, IDesignComponentPager.SwitchEdgeRight)
+              .SetInt(IDesignComponentPager.SwitchSize, 40)
             ,
             [
                ElementFactory.CreateElement(IStripBit, NewProps.SetStr(cProps.Caption, 'red').SetInt('color', clRed).SetBool('Transparent', False)),
