@@ -39,6 +39,7 @@ begin
   RegReact.RegisterDesignComponent(TDesignComponentButton, IDesignComponentButton);
   RegReact.RegisterDesignComponent(TDesignComponentHeader, IDesignComponentHeader);
   RegReact.RegisterDesignComponent(TDesignComponentGrid, IDesignComponentGrid);
+  RegReact.RegisterDesignComponent(TDesignComponentPager, IDesignComponentPager);
 end;
 
 end.

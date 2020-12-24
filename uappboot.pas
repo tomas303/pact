@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, trl_iprops, iapp, graphics, rea_ilayout,
   trl_imetaelement, trl_imetaelementfactory, trl_idifactory,
   rea_udesigncomponent, rea_idesigncomponent, flu_iflux, trl_igenericaccess,
-  forms;
+  forms, rea_ibits;
 
 type
 
@@ -31,11 +31,12 @@ type
   private
     function ComposeTest(const AProps: IProps): IMetaElement;
     function ComposeEmpty(const AProps: IProps): IMetaElement;
+    function ComposePager(const AProps: IProps): IMetaElement;
   protected
     procedure InitValues; override;
     function FormData: IGenericAccess;
     function FormDataRO: IGenericAccessRO;
-    function DoCompose(const AProps: IProps): IMetaElement; override;
+    function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
   end;
 
 implementation
@@ -252,6 +253,35 @@ begin
   );
 end;
 
+function TDesignComponentApp.ComposePager(const AProps: IProps): IMetaElement;
+var
+  mCQ: IFluxNotifier;
+begin
+  mCQ := NewNotifier(-303);
+  FluxFuncReg.RegisterFunc(TCloseQueryFunc.Create(-303));
+  Result := ElementFactory.CreateElement(
+      IDesignComponentForm,
+        NewProps
+          .SetStr(cProps.Title, 'Hello world')
+          .SetIntf(cProps.CloseQueryNotifier, mCQ),
+        [
+          ElementFactory.CreateElement(
+            IDesignComponentPager,
+            NewProps
+              .SetStr('DataPath', 'pagertest')
+              .SetInt(IDesignComponentPager.SwitchEdge, IDesignComponentPager.SwitchEdgeBottom)
+              .SetInt(IDesignComponentPager.SwitchSize, 50)
+            ,
+            [
+               ElementFactory.CreateElement(IStripBit, NewProps.SetStr(cProps.Caption, 'red').SetInt('color', clRed).SetBool('Transparent', False)),
+               ElementFactory.CreateElement(IStripBit, NewProps.SetStr(cProps.Caption, 'blue').SetInt('color', clBlue).SetBool('Transparent', False)),
+               ElementFactory.CreateElement(IStripBit, NewProps.SetStr(cProps.Caption, 'green').SetInt('color', clGreen).SetBool('Transparent', False))
+            ]
+          )
+        ]
+  );
+end;
+
 procedure TDesignComponentApp.InitValues;
 begin
   inherited InitValues;
@@ -270,9 +300,10 @@ begin
   Result := FormData as IGenericAccessRO;
 end;
 
-function TDesignComponentApp.DoCompose(const AProps: IProps): IMetaElement;
+function TDesignComponentApp.DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement;
 begin
-  Result := ComposeEmpty(AProps);
+  //Result := ComposeEmpty(AProps);
+  Result := ComposePager(AProps);
 end;
 
 end.
