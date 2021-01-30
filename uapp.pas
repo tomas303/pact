@@ -29,7 +29,6 @@ begin
   RegReact.RegisterCommon;
   RegFlux.RegisterCommon(IFluxStore);
   RegRedux.RegisterCommon(
-    []
     //[TRdxResizeFunc.ClassName]
   );
   RegApps.RegisterReactApp;

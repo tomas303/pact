@@ -262,6 +262,7 @@ begin
   Result := ElementFactory.CreateElement(
       IDesignComponentForm,
         NewProps
+          .SetStr('DataPath', 'mainform')
           .SetStr(cProps.Title, 'Hello world')
           .SetIntf(cProps.CloseQueryNotifier, mCQ),
         [
