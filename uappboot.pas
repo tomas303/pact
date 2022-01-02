@@ -8,9 +8,17 @@ uses
   Classes, SysUtils, trl_iprops, iapp, graphics, rea_ilayout,
   trl_imetaelement, trl_imetaelementfactory, trl_idifactory,
   rea_udesigncomponent, rea_idesigncomponent, flu_iflux, trl_igenericaccess,
-  forms, rea_ibits;
+  forms, rea_ibits, uappdata,
+  trl_ilauncher, trl_ilog, trl_iexecutor, trl_ireconciler, rea_irenderer;
 
 type
+  IDMainForm = interface
+  ['{8B2411AB-A2D0-4C17-929F-38B4C752DD99}']
+  end;
+
+  IDNames = interface
+  ['{488880BA-591C-4A01-80A0-56A6AD1EDB6F}']
+  end;
 
   { TCloseQueryFunc }
 
@@ -32,14 +40,157 @@ type
     function ComposeTest(const AProps: IProps): IMetaElement;
     function ComposeEmpty(const AProps: IProps): IMetaElement;
     function ComposePager(const AProps: IProps): IMetaElement;
+    function ComposeLabelEdit(const AProps: IProps): IMetaElement;
   protected
     procedure InitValues; override;
     function FormData: IGenericAccess;
     function FormDataRO: IGenericAccessRO;
     function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
+  public
+    procedure AfterConstruction; override;
+  end;
+
+  { TDesignComponentForm2 }
+
+  TDesignComponentForm2 = class(TDesignComponent, IDesignComponentForm)
+  protected
+    function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
+  protected
+    fData: TFormData;
+    fSizeNotifier: IFluxNotifier;
+    fMoveNotifier: IFluxNotifier;
+    fCloseQueryNotifier: IFluxNotifier;
+  published
+    property Data: TFormData read fData write fData;
+    property SizeNotifier: IFluxNotifier read fSizeNotifier write fSizeNotifier;
+    property MoveNotifier: IFluxNotifier read fMoveNotifier write fMoveNotifier;
+    property CloseQueryNotifier: IFluxNotifier read fCloseQueryNotifier write fCloseQueryNotifier;
+  end;
+
+  { TDNames }
+
+  TDNames = class(TDesignComponent, IDNames)
+  private
+    //fdata : igriddata .... link data here from App
+  protected
+    function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
+  end;
+
+
+  { TLauncher }
+
+  TLauncher = class(TInterfacedObject, ILauncher)
+  {
+
+
+   ???? mozna misto application.run
+
+
+  }
+
+
+  protected
+    procedure Launch;
+  protected
+    fLog: ILog;
+    fFactory: IDIFactory;
+    fFluxFuncReg: IFluxFuncReg;
+    fExecutor: IExecutor;
+    fReconciler: IReconciler;
+    fRenderer: IRenderer;
+    fAppComponent: IDesignComponentApp;
+  published
+    property Log: ILog read fLog write fLog;
+    property Factory: IDIFactory read fFactory write FFactory;
+    property FluxFuncReg: IFluxFuncReg read fFluxFuncReg write fFluxFuncReg;
+    property Executor: IExecutor read fExecutor write fExecutor;
+    property Reconciler: IReconciler read fReconciler write fReconciler;
+    property Renderer: IRenderer read fRenderer write fRenderer;
+    property AppComponent: IDesignComponentApp read fAppComponent write fAppComponent;
   end;
 
 implementation
+
+{ TDesignComponentForm2 }
+
+function TDesignComponentForm2.DoCompose(const AProps: IProps;
+  const AChildren: TMetaElementArray): IMetaElement;
+var
+  mProps: IProps;
+begin
+  mProps := SelfProps.Clone([cProps.Title, cProps.Layout, cProps.Color, cProps.ActivateNotifier]);
+  mProps
+    .SetIntf(cProps.SizeNotifier, SizeNotifier)
+    .SetIntf(cProps.MoveNotifier, MoveNotifier)
+    .SetIntf(cProps.CloseQueryNotifier, CloseQueryNotifier)
+    .SetInt(cProps.MMLeft, Data.Left)
+    .SetInt(cProps.MMTop, Data.Top)
+    .SetInt(cProps.MMWidth, Data.Width)
+    .SetInt(cProps.MMHeight, Data.Height);
+  Result := ElementFactory.CreateElement(IFormBit, mProps);
+  AddChildren(Result, AChildren);
+end;
+
+{ TLauncher }
+
+procedure TLauncher.Launch;
+begin
+  //Application.Run;
+  // run own solution and call inside it ProcessMessages;
+  {
+  why .... user signal, message will arrive at FluxFuncReg, from here callback directly or to executor
+  callback will do ... and mostly signal renderer to refresh gui
+
+  refresh gui ..... to je to hlavni
+
+    AppComponent ... slozena ze subkomponent, ktere kazde ComposeElement IMetaElement
+       wanted to refreshe each subcomponent extra
+
+    callback .... take subcompononet.ComposeElement ... and sent it somewhere where
+    is physical components, last layout.
+
+    somewhere .... table of ID x node x parentnode
+                   bit head
+                   elsement head ..... only tree of bits
+
+    when element is composed, it must be tree of bits ... or better say only concrete elements
+
+    somewhere ... so it could be like Renderer instead of old one, logically belongs to rea
+       elementa arrives
+       is flattened(only physical nodes)
+       based on ID  subtree is find and recondiled (so depends how granular it will be)
+       (patche applied on elements will be applied on bits )
+
+      ? how do it better
+
+
+  }
+
+
+
+end;
+
+{ TDNames }
+
+function TDNames.DoCompose(const AProps: IProps;
+  const AChildren: TMetaElementArray): IMetaElement;
+begin
+  ElementFactory.CreateElement(IDesignComponentGrid,
+    NewProps
+      .SetInt('HorizontalCount', 2)
+      .SetInt('VerticalCount', 8)
+      .SetInt('MMHeight', 1000)
+      .SetInt('MMWidth', 1000)
+      .SetInt(cProps.RowMMHeight, 25)
+      .SetInt(cProps.ColMMWidth, 25)
+      .SetInt(cProps.Color, clMaroon)
+      .SetInt('LaticeColColor', clRed)
+      .SetInt('LaticeColSize', 10)
+      .SetInt('LaticeRowColor', clGreen)
+      .SetInt('LaticeRowSize', 2)
+      //
+    );
+end;
 
 { TCloseQueryFunc }
 
@@ -226,6 +377,7 @@ begin
   Result := ElementFactory.CreateElement(
       IDesignComponentForm,
         NewProps
+          .SetStr('DataPath', 'mainform')
           .SetStr(cProps.Title, 'Hello world')
           .SetIntf(cProps.CloseQueryNotifier, mCQ),
         [
@@ -283,6 +435,50 @@ begin
   );
 end;
 
+function TDesignComponentApp.ComposeLabelEdit(const AProps: IProps
+  ): IMetaElement;
+var
+  mCQ: IFluxNotifier;
+begin
+  mCQ := NewNotifier(-303);
+  FluxFuncReg.RegisterFunc(TCloseQueryFunc.Create(-303));
+  Result := ElementFactory.CreateElement(
+      IDesignComponentForm,
+        NewProps
+          .SetStr('DataPath', 'mainform')
+          .SetStr(cProps.Title, 'Hello world')
+          .SetIntf(cProps.CloseQueryNotifier, mCQ)
+          .SetInt(cProps.Layout, cLayout.Vertical)
+          ,
+        [
+          ElementFactory.CreateElement(
+            IDesignComponentLabelEdit,
+            NewProps
+              .SetStr(cProps.DataPath, 'labedit_1')
+              .SetInt(cProps.Color, clAqua).SetBool(cProps.Transparent, False)
+              .SetInt(cProps.Place, cPlace.FixFront)
+              .SetInt(cProps.Height, 1000)
+              .SetInt(cProps.Width, 1000)
+              .SetInt(cProps.Layout, cLayout.Vertical)
+              .SetInt(cProps.CaptionEdge, IDesignComponentLabelEdit.CaptionEdgeLeft)
+              .SetInt(cProps.CaptionWidth, 40)
+              .SetInt(cProps.PairWidth, 120)
+            ,
+            [
+              ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Caption, 'user').SetInt(cProps.Color, clGreen)),
+              ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Caption, 'password').SetInt(cProps.Color, clRed)),
+              ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Caption, 'user').SetInt(cProps.Color, clGreen)),
+              ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Caption, 'password').SetInt(cProps.Color, clRed)),
+              ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Caption, 'user').SetInt(cProps.Color, clGreen)),
+              ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Caption, 'password').SetInt(cProps.Color, clRed)),
+              ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Caption, 'user').SetInt(cProps.Color, clGreen)),
+              ElementFactory.CreateElement(IDesignComponentEdit, NewProps.SetStr(cProps.Caption, 'password').SetInt(cProps.Color, clRed))
+            ]
+          )
+        ]
+  );
+end;
+
 procedure TDesignComponentApp.InitValues;
 begin
   inherited InitValues;
@@ -293,7 +489,7 @@ end;
 
 function TDesignComponentApp.FormData: IGenericAccess;
 begin
-  Result := StoreConnector.Data['mainform'];
+  Result := StoreConnector.Data['appdata'];
 end;
 
 function TDesignComponentApp.FormDataRO: IGenericAccessRO;
@@ -303,8 +499,14 @@ end;
 
 function TDesignComponentApp.DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement;
 begin
-  //Result := ComposeEmpty(AProps);
-  Result := ComposePager(AProps);
+  Result := ComposeEmpty(AProps);
+  //Result := ComposePager(AProps);
+  //Result := ComposeLabelEdit(AProps);
+end;
+
+procedure TDesignComponentApp.AfterConstruction;
+begin
+  inherited AfterConstruction;
 end;
 
 end.
