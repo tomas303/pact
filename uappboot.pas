@@ -27,7 +27,6 @@ type
     fID: integer;
   protected
     procedure Execute(const AAction: IFluxAction);
-    function RunAsync: Boolean;
     function GetID: integer;
   public
     constructor Create(AID: integer);
@@ -196,12 +195,7 @@ end;
 
 procedure TCloseQueryFunc.Execute(const AAction: IFluxAction);
 begin
-  Application.Terminate;
-end;
-
-function TCloseQueryFunc.RunAsync: Boolean;
-begin
-  Result := False;
+  raise EExecutorStop.Create('');
 end;
 
 function TCloseQueryFunc.GetID: integer;

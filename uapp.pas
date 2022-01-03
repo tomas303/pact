@@ -9,7 +9,8 @@ uses
   tal_uapp, flu_iflux,
   rea_idesigncomponent, rea_udesigncomponent,
   trl_ilog, trl_idifactory, trl_iExecutor, trl_dicontainer, trl_ilauncher,
-  trl_iprops, trl_imetaelement, rea_irenderer;
+  trl_iprops, trl_imetaelement, rea_irenderer,
+  Forms;
 
 type
 
@@ -27,7 +28,6 @@ type
       fNotifier: IFluxNotifier;
     protected
       procedure Execute(const AAction: IFluxAction);
-      function RunAsync: Boolean;
       function GetID: integer;
     public
       constructor Create(AID: integer; AData: TFormData; ANotifier: IFluxNotifier);
@@ -41,7 +41,6 @@ type
       fData: TFormData;
     protected
       procedure Execute(const AAction: IFluxAction);
-      function RunAsync: Boolean;
       function GetID: integer;
     public
       constructor Create(AID: integer; AData: TFormData);
@@ -56,13 +55,26 @@ type
       fRenderer: IRenderer;
     protected
       procedure Execute(const AAction: IFluxAction);
-      function RunAsync: Boolean;
       function GetID: integer;
     public
       constructor Create(AID: integer; AGUI: IDesignComponentApp; ARenderer: IRenderer);
     end;
 
+    { TProcessMessagesFunc }
+
+    TProcessMessagesFunc = class(TInterfacedObject, IFluxFunc)
+    private
+      fID: integer;
+      fProcessMessages: IFluxNotifier;
+    protected
+      procedure Execute(const AAction: IFluxAction);
+      function GetID: integer;
+    public
+      constructor Create(AID: integer; AProcessMessages: IFluxNotifier);
+    end;
+
   private
+    fExecutor: IExecutor;
     fFluxFuncReg: IFluxFuncReg;
     fRenderer: IRenderer;
   private
@@ -80,6 +92,26 @@ type
 
 implementation
 
+{ TApp.TProcessMessagesFunc }
+
+procedure TApp.TProcessMessagesFunc.Execute(const AAction: IFluxAction);
+begin
+  Application.ProcessMessages;
+  fProcessMessages.Notify;
+end;
+
+function TApp.TProcessMessagesFunc.GetID: integer;
+begin
+  Result := fID;
+end;
+
+constructor TApp.TProcessMessagesFunc.Create(AID: integer; AProcessMessages: IFluxNotifier);
+begin
+  inherited Create;
+  fID := AID;
+  fProcessMessages := AProcessMessages;
+end;
+
 { TApp.TRenderGUIFunc }
 
 procedure TApp.TRenderGUIFunc.Execute(const AAction: IFluxAction);
@@ -88,11 +120,6 @@ var
 begin
   mEl := fGUI.Compose(nil, []);
   fRenderer.Render(mEl);
-end;
-
-function TApp.TRenderGUIFunc.RunAsync: Boolean;
-begin
-  Result := True;
 end;
 
 function TApp.TRenderGUIFunc.GetID: integer;
@@ -114,11 +141,6 @@ procedure TApp.TMoveFunc.Execute(const AAction: IFluxAction);
 begin
   fData.Left := AAction.Props.AsInt(cProps.MMLeft);
   fData.Top := AAction.Props.AsInt(cProps.MMTop);
-end;
-
-function TApp.TMoveFunc.RunAsync: Boolean;
-begin
-  Result := False;
 end;
 
 function TApp.TMoveFunc.GetID: integer;
@@ -150,11 +172,6 @@ begin
   end;
   if mChange then
      fNotifier.Notify;
-end;
-
-function TApp.TSizeFunc.RunAsync: Boolean;
-begin
-  Result := False;
 end;
 
 function TApp.TSizeFunc.GetID: integer;
@@ -208,16 +225,6 @@ begin
   fFluxFuncReg.RegisterFunc(TCloseQueryFunc.Create(-303));
   fFluxFuncReg.RegisterFunc(TSizeFunc.Create(-101, fMainFormData, NewNotifier(-400)));
   fFluxFuncReg.RegisterFunc(TMoveFunc.Create(-102, fMainFormData));
-
-  {
-  just run compose and fetch Renderer
-
-  so new renderfunc will be just intermediate between specific component and renderer
-  render take it, expand it and reconciled it to actual model
-
-  fFluxFuncReg.RegisterFunc(TRenderFunc.Create(-103, fGUI));
-   }
-
 end;
 
 procedure TApp.RegisterAppServices;
@@ -231,16 +238,22 @@ begin
   RegRedux.RegisterCommon(
     //[TRdxResizeFunc.ClassName]
   );
-  RegApps.RegisterReactApp;
+  RegApps.RegisterReactLauncher;
   //RegReact.RegisterDesignComponent(TDesignComponentApp, IDesignComponentApp);
 
   RegReact.RegisterDesignComponent(TDesignComponentForm2, IDesignComponentForm);
 end;
 
 procedure TApp.BeforeLaunch;
+var
+  mDisp: IFluxDispatcher;
 begin
   inherited BeforeLaunch;
-  fFluxFuncReg := IFluxDispatcher(DIC.Locate(IFluxDispatcher)) as fFluxFuncReg;
+  fExecutor := IExecutor(DIC.Locate(IExecutor));
+  mDisp := IFluxDispatcher(DIC.Locate(IFluxDispatcher, '',
+    NewProps
+    .SetIntf('Executor', fExecutor)));
+  fFluxFuncReg := mDisp as fFluxFuncReg;
   fRenderer := IRenderer(DIC.Locate(IRenderer));
 
   fMainFormData := TFormData.Create;
@@ -249,6 +262,9 @@ begin
 
   fFluxFuncReg.RegisterFunc(TRenderGUIFunc.Create(-400, fGUI, fRenderer));
   NewNotifier(-400).Notify;
+
+  fFluxFuncReg.RegisterFunc(TProcessMessagesFunc.Create(-401, NewNotifier(-401)));
+  NewNotifier(-401).Notify;
 
 end;
 
