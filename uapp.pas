@@ -5,7 +5,7 @@ unit uapp;
 interface
 
 uses
-  iapp, uappfunc, uappboot, uappdata, uappgui,
+  iapp, uappfunc, uappdata, uappgui,
   tal_uapp, flu_iflux,
   rea_idesigncomponent, rea_udesigncomponent,
   trl_ilog, trl_idifactory, trl_iExecutor, trl_dicontainer, trl_ilauncher,
@@ -17,62 +17,6 @@ type
   { TApp }
 
   TApp = class(TALApp)
-  private type
-
-    { TSizeFunc }
-
-    TSizeFunc = class(TInterfacedObject, IFluxFunc)
-    private
-      fID: integer;
-      fData: TFormData;
-      fNotifier: IFluxNotifier;
-    protected
-      procedure Execute(const AAction: IFluxAction);
-      function GetID: integer;
-    public
-      constructor Create(AID: integer; AData: TFormData; ANotifier: IFluxNotifier);
-    end;
-
-    { TMoveFunc }
-
-    TMoveFunc = class(TInterfacedObject, IFluxFunc)
-    private
-      fID: integer;
-      fData: TFormData;
-    protected
-      procedure Execute(const AAction: IFluxAction);
-      function GetID: integer;
-    public
-      constructor Create(AID: integer; AData: TFormData);
-    end;
-
-    { TRenderGUIFunc }
-
-    TRenderGUIFunc = class(TInterfacedObject, IFluxFunc)
-    private
-      fID: integer;
-      fGUI: IDesignComponentApp;
-      fRenderer: IRenderer;
-    protected
-      procedure Execute(const AAction: IFluxAction);
-      function GetID: integer;
-    public
-      constructor Create(AID: integer; AGUI: IDesignComponentApp; ARenderer: IRenderer);
-    end;
-
-    { TProcessMessagesFunc }
-
-    TProcessMessagesFunc = class(TInterfacedObject, IFluxFunc)
-    private
-      fID: integer;
-      fProcessMessages: IFluxNotifier;
-    protected
-      procedure Execute(const AAction: IFluxAction);
-      function GetID: integer;
-    public
-      constructor Create(AID: integer; AProcessMessages: IFluxNotifier);
-    end;
-
   private
     fExecutor: IExecutor;
     fFluxFuncReg: IFluxFuncReg;
@@ -91,101 +35,6 @@ type
   end;
 
 implementation
-
-{ TApp.TProcessMessagesFunc }
-
-procedure TApp.TProcessMessagesFunc.Execute(const AAction: IFluxAction);
-begin
-  Application.ProcessMessages;
-  fProcessMessages.Notify;
-end;
-
-function TApp.TProcessMessagesFunc.GetID: integer;
-begin
-  Result := fID;
-end;
-
-constructor TApp.TProcessMessagesFunc.Create(AID: integer; AProcessMessages: IFluxNotifier);
-begin
-  inherited Create;
-  fID := AID;
-  fProcessMessages := AProcessMessages;
-end;
-
-{ TApp.TRenderGUIFunc }
-
-procedure TApp.TRenderGUIFunc.Execute(const AAction: IFluxAction);
-var
-  mEl: IMetaElement;
-begin
-  mEl := fGUI.Compose(nil, []);
-  fRenderer.Render(mEl);
-end;
-
-function TApp.TRenderGUIFunc.GetID: integer;
-begin
-  Result := fID;
-end;
-
-constructor TApp.TRenderGUIFunc.Create(AID: integer; AGUI: IDesignComponentApp; ARenderer: IRenderer);
-begin
-  inherited Create;
-  fID := AID;
-  fGUI := AGUI;
-  fRenderer := ARenderer;
-end;
-
-{ TApp.TMoveFunc }
-
-procedure TApp.TMoveFunc.Execute(const AAction: IFluxAction);
-begin
-  fData.Left := AAction.Props.AsInt(cProps.MMLeft);
-  fData.Top := AAction.Props.AsInt(cProps.MMTop);
-end;
-
-function TApp.TMoveFunc.GetID: integer;
-begin
-  Result := fID;
-end;
-
-constructor TApp.TMoveFunc.Create(AID: integer; AData: TFormData);
-begin
-  inherited Create;
-  fID := AID;
-  fData := AData;
-end;
-
-{ TApp.TSizeFunc }
-
-procedure TApp.TSizeFunc.Execute(const AAction: IFluxAction);
-var
-  mChange: Boolean;
-begin
-  mChange := False;
-  if fData.Width <> AAction.Props.AsInt(cProps.MMWidth) then begin
-    fData.Width := AAction.Props.AsInt(cProps.MMWidth);
-    mChange := True;
-  end;
-  if fData.Height <> AAction.Props.AsInt(cProps.MMHeight) then begin
-    fData.Height := AAction.Props.AsInt(cProps.MMHeight);
-    mChange := True;
-  end;
-  if mChange then
-     fNotifier.Notify;
-end;
-
-function TApp.TSizeFunc.GetID: integer;
-begin
-  Result := fID;
-end;
-
-constructor TApp.TSizeFunc.Create(AID: integer; AData: TFormData; ANotifier: IFluxNotifier);
-begin
-  inherited Create;
-  fID := AID;
-  fData := AData;
-  fNotifier := ANotifier;
-end;
 
 { TApp }
 
@@ -222,9 +71,9 @@ begin
     .SetIntf('MoveNotifier', NewNotifier(-102))
   ));
 
-  fFluxFuncReg.RegisterFunc(TCloseQueryFunc.Create(-303));
-  fFluxFuncReg.RegisterFunc(TSizeFunc.Create(-101, fMainFormData, NewNotifier(-400)));
-  fFluxFuncReg.RegisterFunc(TMoveFunc.Create(-102, fMainFormData));
+  fFluxFuncReg.RegisterFunc(uappfunc.TCloseQueryFunc.Create(-303));
+  fFluxFuncReg.RegisterFunc(uappfunc.TSizeFunc.Create(-101, fMainFormData, NewNotifier(-400)));
+  fFluxFuncReg.RegisterFunc(uappfunc.TMoveFunc.Create(-102, fMainFormData));
 end;
 
 procedure TApp.RegisterAppServices;
@@ -260,10 +109,10 @@ begin
 
   fGUI := TGUI.Create(NewMainForm);
 
-  fFluxFuncReg.RegisterFunc(TRenderGUIFunc.Create(-400, fGUI, fRenderer));
+  fFluxFuncReg.RegisterFunc(uappfunc.TRenderGUIFunc.Create(-400, fGUI, fRenderer));
   NewNotifier(-400).Notify;
 
-  fFluxFuncReg.RegisterFunc(TProcessMessagesFunc.Create(-401, NewNotifier(-401)));
+  fFluxFuncReg.RegisterFunc(uappfunc.TProcessMessagesFunc.Create(-401, NewNotifier(-401)));
   NewNotifier(-401).Notify;
 
 end;

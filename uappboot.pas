@@ -20,18 +20,6 @@ type
   ['{488880BA-591C-4A01-80A0-56A6AD1EDB6F}']
   end;
 
-  { TCloseQueryFunc }
-
-  TCloseQueryFunc = class(TInterfacedObject, IFluxFunc)
-  private
-    fID: integer;
-  protected
-    procedure Execute(const AAction: IFluxAction);
-    function GetID: integer;
-  public
-    constructor Create(AID: integer);
-  end;
-
   { TDesignComponentApp }
 
   TDesignComponentApp = class(TDesignComponent, IDesignComponentApp)
@@ -47,23 +35,6 @@ type
     function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
   public
     procedure AfterConstruction; override;
-  end;
-
-  { TDesignComponentForm2 }
-
-  TDesignComponentForm2 = class(TDesignComponent, IDesignComponentForm)
-  protected
-    function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
-  protected
-    fData: TFormData;
-    fSizeNotifier: IFluxNotifier;
-    fMoveNotifier: IFluxNotifier;
-    fCloseQueryNotifier: IFluxNotifier;
-  published
-    property Data: TFormData read fData write fData;
-    property SizeNotifier: IFluxNotifier read fSizeNotifier write fSizeNotifier;
-    property MoveNotifier: IFluxNotifier read fMoveNotifier write fMoveNotifier;
-    property CloseQueryNotifier: IFluxNotifier read fCloseQueryNotifier write fCloseQueryNotifier;
   end;
 
   { TDNames }
@@ -109,26 +80,6 @@ type
   end;
 
 implementation
-
-{ TDesignComponentForm2 }
-
-function TDesignComponentForm2.DoCompose(const AProps: IProps;
-  const AChildren: TMetaElementArray): IMetaElement;
-var
-  mProps: IProps;
-begin
-  mProps := SelfProps.Clone([cProps.Title, cProps.Layout, cProps.Color, cProps.ActivateNotifier]);
-  mProps
-    .SetIntf(cProps.SizeNotifier, SizeNotifier)
-    .SetIntf(cProps.MoveNotifier, MoveNotifier)
-    .SetIntf(cProps.CloseQueryNotifier, CloseQueryNotifier)
-    .SetInt(cProps.MMLeft, Data.Left)
-    .SetInt(cProps.MMTop, Data.Top)
-    .SetInt(cProps.MMWidth, Data.Width)
-    .SetInt(cProps.MMHeight, Data.Height);
-  Result := ElementFactory.CreateElement(IFormBit, mProps);
-  AddChildren(Result, AChildren);
-end;
 
 { TLauncher }
 
@@ -189,24 +140,6 @@ begin
       .SetInt('LaticeRowSize', 2)
       //
     );
-end;
-
-{ TCloseQueryFunc }
-
-procedure TCloseQueryFunc.Execute(const AAction: IFluxAction);
-begin
-  raise EExecutorStop.Create('');
-end;
-
-function TCloseQueryFunc.GetID: integer;
-begin
-  Result := fID;
-end;
-
-constructor TCloseQueryFunc.Create(AID: integer);
-begin
-  inherited Create;
-  fID := AID;
 end;
 
 { TDesignComponentApp }

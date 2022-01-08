@@ -5,104 +5,190 @@ unit uappfunc;
 interface
 
 uses
-  iapp, flu_iflux, trl_iprops, trl_igenericaccess, rdx_ufunc;
+  uappdata, flu_iflux, rea_idesigncomponent, rea_irenderer,
+  forms, trl_imetaelement, trl_iExecutor;
 
 type
 
-  { TRdxTestLayoutFunc }
+  { TSizeFunc }
 
-  TRdxTestLayoutFunc = class(TRdxFunc)
+  TSizeFunc = class(TInterfacedObject, IFluxFunc)
+  private
+    fID: integer;
+    fData: TFormData;
+    fNotifier: IFluxNotifier;
   protected
-    procedure DoExecute(const AAction: IFluxAction); override;
+    procedure Execute(const AAction: IFluxAction);
+    function GetID: integer;
+  public
+    constructor Create(AID: integer; AData: TFormData; ANotifier: IFluxNotifier);
   end;
 
-  { TRdxResizeFunc }
+  { TMoveFunc }
 
-  TRdxResizeFunc = class(TRdxFunc)
+  TMoveFunc = class(TInterfacedObject, IFluxFunc)
+  private
+    fID: integer;
+    fData: TFormData;
   protected
-    procedure DoExecute(const AAction: IFluxAction); override;
+    procedure Execute(const AAction: IFluxAction);
+    function GetID: integer;
+  public
+    constructor Create(AID: integer; AData: TFormData);
   end;
 
-{
-  function TRdxFunc.DefaultMainForm: IProps;
-  begin
-    Result := IProps(Factory.Locate(IProps));
-    Result
-      .SetInt('Left', 500)
-      .SetInt('Top', 30)
-      .SetInt('Width', 500)
-      .SetInt('Height', 300);
+  { TRenderGUIFunc }
+
+  TRenderGUIFunc = class(TInterfacedObject, IFluxFunc)
+  private
+    fID: integer;
+    fGUI: IDesignComponentApp;
+    fRenderer: IRenderer;
+  protected
+    procedure Execute(const AAction: IFluxAction);
+    function GetID: integer;
+  public
+    constructor Create(AID: integer; AGUI: IDesignComponentApp; ARenderer: IRenderer);
   end;
-}
+
+  { TProcessMessagesFunc }
+
+  TProcessMessagesFunc = class(TInterfacedObject, IFluxFunc)
+  private
+    fID: integer;
+    fProcessMessages: IFluxNotifier;
+  protected
+    procedure Execute(const AAction: IFluxAction);
+    function GetID: integer;
+  public
+    constructor Create(AID: integer; AProcessMessages: IFluxNotifier);
+  end;
+
+  { TCloseQueryFunc }
+
+  TCloseQueryFunc = class(TInterfacedObject, IFluxFunc)
+  private
+    fID: integer;
+  protected
+    procedure Execute(const AAction: IFluxAction);
+    function GetID: integer;
+  public
+    constructor Create(AID: integer);
+  end;
 
 implementation
 
-{ TRdxResizeFunc }
+{ TCloseQueryFunc }
 
-procedure TRdxResizeFunc.DoExecute(const AAction: IFluxAction);
-var
-  m: string;
-  mp: pointer;
+procedure TCloseQueryFunc.Execute(const AAction: IFluxAction);
 begin
-  //case AAction.ID of
-  //  cActions.InitFunc:
-  //    begin
-  //      if AAction.State <> nil then begin
-  //      AAction.State.SetInt(MainForm.Width.Name, 400);
-  //      AAction.State.SetInt(MainForm.Height.Name, 200);
-  //      end;
-  //      {
-  //      mp := pointer(tobject(AAction.Data));
-  //      AAction.Data.SetInt(MainForm.Width.Name, 400);
-  //      AAction.Data.SetInt(MainForm.Height.Name, 200);
-  //      }
-  //    end;
-  //  cActions.ResizeFunc:
-  //    begin
-  //      //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
-  //      //State.SetInt(MainForm.Width.Name, AAction.Props.AsInt(MainForm.Width.Name));
-  //      {
-  //      State.SetInt(MainForm.Left.Name, AAction.Props.AsInt('MMLeft'));
-  //      State.SetInt(MainForm.Top.Name, AAction.Props.AsInt('MMTop'));
-  //      State.SetInt(MainForm.Width.Name, AAction.Props.AsInt('MMWidth'));
-  //      State.SetInt(MainForm.Height.Name, AAction.Props.AsInt('MMHeight'));
-  //      }
-  //
-  //      AAction.State.SetInt(MainForm.Left.Name, AAction.Props.AsInt('MMLeft'));
-  //      AAction.State.SetInt(MainForm.Top.Name, AAction.Props.AsInt('MMTop'));
-  //      AAction.State.SetInt(MainForm.Width.Name, AAction.Props.AsInt('MMWidth'));
-  //      AAction.State.SetInt(MainForm.Height.Name, AAction.Props.AsInt('MMHeight'));
-  //    end;
-  //  cActions.ClickOne:
-  //    begin
-  //      m:=AAction.Props.AsStr('xxx');
-  //    end;
-  //end;
+  raise EExecutorStop.Create('');
 end;
 
-
-{ TRdxTestLayoutFunc }
-
-procedure TRdxTestLayoutFunc.DoExecute(const AAction: IFluxAction);
+function TCloseQueryFunc.GetID: integer;
 begin
-  case AAction.ID of
-    cActions.InitFunc:
-      begin
-        State.SetInt(Layout.Perspective.Name, 0);
-      end;
-    cActions.ClickOne:
-      begin
-        State.SetInt(Layout.Perspective.Name, 1);
-      end;
-    cActions.ClickTwo:
-      begin
-        State.SetInt(Layout.Perspective.Name, 2);
-      end;
-    cActions.ClickThree:
-      begin
-        State.SetInt(Layout.Perspective.Name, 3);
-      end;
+  Result := fID;
+end;
+
+constructor TCloseQueryFunc.Create(AID: integer);
+begin
+  inherited Create;
+  fID := AID;
+end;
+
+{ TProcessMessagesFunc }
+
+procedure TProcessMessagesFunc.Execute(const AAction: IFluxAction);
+begin
+  Application.ProcessMessages;
+  fProcessMessages.Notify;
+end;
+
+function TProcessMessagesFunc.GetID: integer;
+begin
+  Result := fID;
+end;
+
+constructor TProcessMessagesFunc.Create(AID: integer; AProcessMessages: IFluxNotifier);
+begin
+  inherited Create;
+  fID := AID;
+  fProcessMessages := AProcessMessages;
+end;
+
+{ TRenderGUIFunc }
+
+procedure TRenderGUIFunc.Execute(const AAction: IFluxAction);
+var
+  mEl: IMetaElement;
+begin
+  mEl := fGUI.Compose(nil, []);
+  fRenderer.Render(mEl);
+end;
+
+function TRenderGUIFunc.GetID: integer;
+begin
+  Result := fID;
+end;
+
+constructor TRenderGUIFunc.Create(AID: integer; AGUI: IDesignComponentApp; ARenderer: IRenderer);
+begin
+  inherited Create;
+  fID := AID;
+  fGUI := AGUI;
+  fRenderer := ARenderer;
+end;
+
+{ TMoveFunc }
+
+procedure TMoveFunc.Execute(const AAction: IFluxAction);
+begin
+  fData.Left := AAction.Props.AsInt(cProps.MMLeft);
+  fData.Top := AAction.Props.AsInt(cProps.MMTop);
+end;
+
+function TMoveFunc.GetID: integer;
+begin
+  Result := fID;
+end;
+
+constructor TMoveFunc.Create(AID: integer; AData: TFormData);
+begin
+  inherited Create;
+  fID := AID;
+  fData := AData;
+end;
+
+{ TSizeFunc }
+
+procedure TSizeFunc.Execute(const AAction: IFluxAction);
+var
+  mChange: Boolean;
+begin
+  mChange := False;
+  if fData.Width <> AAction.Props.AsInt(cProps.MMWidth) then begin
+    fData.Width := AAction.Props.AsInt(cProps.MMWidth);
+    mChange := True;
   end;
+  if fData.Height <> AAction.Props.AsInt(cProps.MMHeight) then begin
+    fData.Height := AAction.Props.AsInt(cProps.MMHeight);
+    mChange := True;
+  end;
+  if mChange then
+     fNotifier.Notify;
+end;
+
+function TSizeFunc.GetID: integer;
+begin
+  Result := fID;
+end;
+
+constructor TSizeFunc.Create(AID: integer; AData: TFormData; ANotifier: IFluxNotifier);
+begin
+  inherited Create;
+  fID := AID;
+  fData := AData;
+  fNotifier := ANotifier;
 end;
 
 end.
