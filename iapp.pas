@@ -6,7 +6,7 @@ interface
 
 uses
   typinfo, flu_iflux, trl_iprops, trl_uprops, trl_irttibroker, trl_urttibroker,
-  sysutils, trl_igenericaccess, rdx_urttistate;
+  sysutils;
 
 type
 

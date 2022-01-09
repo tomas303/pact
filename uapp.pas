@@ -125,7 +125,7 @@ begin
   inherited;
   RegApps.RegisterWindowLog;
   RegReact.RegisterCommon;
-  RegFlux.RegisterCommon(IFluxStore);
+  RegFlux.RegisterCommon;
   RegRedux.RegisterCommon(
     //[TRdxResizeFunc.ClassName]
   );
