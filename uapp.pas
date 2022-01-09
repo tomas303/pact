@@ -7,10 +7,10 @@ interface
 uses
   iapp, uappfunc, uappdata, uappgui,
   tal_uapp, flu_iflux,
-  rea_idesigncomponent, rea_udesigncomponent,
+  rea_idesigncomponent, rea_udesigncomponent, rea_udesigncomponentdata, rea_udesigncomponentfunc,
   trl_ilog, trl_idifactory, trl_iExecutor, trl_dicontainer, trl_ilauncher,
   trl_iprops, trl_imetaelement, rea_irenderer,
-  Forms, Graphics;
+  Forms, Graphics, tal_uwinfunc, rea_urenderer;
 
 type
 
@@ -75,9 +75,9 @@ begin
     .SetIntf('MoveNotifier', NewNotifier(-102))
   ));
 
-  fFluxFuncReg.RegisterFunc(uappfunc.TCloseQueryFunc.Create(-303));
-  fFluxFuncReg.RegisterFunc(uappfunc.TSizeFunc.Create(-101, fMainFormData, NewNotifier(-400)));
-  fFluxFuncReg.RegisterFunc(uappfunc.TMoveFunc.Create(-102, fMainFormData));
+  fFluxFuncReg.RegisterFunc(TCloseQueryFunc.Create(-303));
+  fFluxFuncReg.RegisterFunc(TSizeFunc.Create(-101, fMainFormData, NewNotifier(-400)));
+  fFluxFuncReg.RegisterFunc(TMoveFunc.Create(-102, fMainFormData));
 end;
 
 function TApp.NewNamesGrid: IDesignComponentGrid;
@@ -102,8 +102,8 @@ begin
       .SetInt('LaticeRowColor', clGreen)
       .SetInt('LaticeRowSize', 2)
   ));
-  fFluxFuncReg.RegisterFunc(uappfunc.TGridEdTextChangedFunc.Create(-150, fNamesGridData, NewNotifier(-400)));
-  fFluxFuncReg.RegisterFunc(uappfunc.TGridEdKeyDownFunc.Create(-151, fNamesGridData, NewNotifier(-400)));
+  fFluxFuncReg.RegisterFunc(TGridEdTextChangedFunc.Create(-150, fNamesGridData, NewNotifier(-400)));
+  fFluxFuncReg.RegisterFunc(TGridEdKeyDownFunc.Create(-151, fNamesGridData, NewNotifier(-400)));
 end;
 
 function TApp.NewTestEdit: IDesignComponentEdit;
@@ -115,7 +115,7 @@ begin
       .SetBool('Flat', True)
       .SetIntf('TextChangedNotifier', NewNotifier(-160))
    ));
-  fFluxFuncReg.RegisterFunc(uappfunc.TextChangedFunc.Create(-160, fTestEditData));
+  fFluxFuncReg.RegisterFunc(TextChangedFunc.Create(-160, fTestEditData));
 end;
 
 procedure TApp.RegisterAppServices;
@@ -162,10 +162,10 @@ begin
 
   fGUI := TGUI.Create(NewMainForm, NewNamesGrid);
 
-  fFluxFuncReg.RegisterFunc(uappfunc.TRenderGUIFunc.Create(-400, fGUI, fRenderer));
+  fFluxFuncReg.RegisterFunc(TRenderFunc.Create(-400, fGUI, fRenderer));
   NewNotifier(-400).Notify;
 
-  fFluxFuncReg.RegisterFunc(uappfunc.TProcessMessagesFunc.Create(-401, NewNotifier(-401)));
+  fFluxFuncReg.RegisterFunc(TProcessMessagesFunc.Create(-401, NewNotifier(-401)));
   NewNotifier(-401).Notify;
 
 end;

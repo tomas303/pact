@@ -47,7 +47,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="8">
+    <Units Count="7">
       <Unit0>
         <Filename Value="pact.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -69,17 +69,13 @@
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="text.txt"/>
+        <Filename Value="uappdata.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="uappdata.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit6>
-      <Unit7>
         <Filename Value="uappgui.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit7>
+      </Unit6>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
