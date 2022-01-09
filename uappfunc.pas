@@ -5,7 +5,8 @@ unit uappfunc;
 interface
 
 uses
-  uappdata, flu_iflux, rea_idesigncomponent, rea_irenderer,
+  uappdata, flu_iflux, rea_idesigncomponent, rea_udesigncomponent,
+  rea_irenderer,
   forms, trl_imetaelement, trl_iExecutor, LCLType;
 
 type
@@ -87,9 +88,9 @@ type
     procedure DoExecute(const AAction: IFluxAction); virtual; abstract;
     function GetID: integer;
   protected
-    fData: TGridData2;
+    fData: TGridData;
   public
-    constructor Create(AID: integer; const AData: TGridData2; const ARenderNotifier: IFluxNotifier);
+    constructor Create(AID: integer; const AData: TGridData; const ARenderNotifier: IFluxNotifier);
   end;
 
   { TGridEdTextChangedFunc }
@@ -193,7 +194,7 @@ begin
   Result := fID;
 end;
 
-constructor TGridFunc.Create(AID: integer; const AData: TGridData2; const ARenderNotifier: IFluxNotifier);
+constructor TGridFunc.Create(AID: integer; const AData: TGridData; const ARenderNotifier: IFluxNotifier);
 begin
   fID := AID;
   fData := AData;

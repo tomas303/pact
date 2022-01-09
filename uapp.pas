@@ -23,7 +23,7 @@ type
     fRenderer: IRenderer;
   private
     fMainFormData: TFormData;
-    fNamesGridData: TGridData2;
+    fNamesGridData: TGridData;
     fTestEditData: TEditData;
     fGUI: IDesignComponentApp;
   private
@@ -131,10 +131,6 @@ begin
   );
   RegApps.RegisterReactLauncher;
   //RegReact.RegisterDesignComponent(TDesignComponentApp, IDesignComponentApp);
-
-  RegReact.RegisterDesignComponent(TDesignComponentForm2, IDesignComponentForm);
-  RegReact.RegisterDesignComponent(TDesignComponentGrid2, IDesignComponentGrid);
-  RegReact.RegisterDesignComponent(TDesignComponentEdit2, IDesignComponentEdit);
 end;
 
 procedure TApp.BeforeLaunch;
@@ -155,7 +151,7 @@ begin
   fMainFormData.Width := 800;
   fMainFormData.Height := 400;
 
-  fNamesGridData := TGridData2.Create(TDummyGridDataProvider.Create);
+  fNamesGridData := TGridData.Create(TDummyGridDataProvider.Create);
   fNamesGridData.RowCount := 10;
   fNamesGridData.ColCount := 2;
   fNamesGridData.ReadData;
