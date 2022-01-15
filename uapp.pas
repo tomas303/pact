@@ -23,7 +23,6 @@ type
     fFluxDispatcher: IFluxDispatcher;
     fRenderer: IRenderer;
   private
-    fMainFormData: TFormData;
     fNamesGridData: TGridData;
     fTestEditData: TEditData;
     fGUI: IDesignComponentApp;
@@ -32,7 +31,6 @@ type
     function NewProps: IProps;
     function NewAction(AActionID: integer): IFluxAction;
     function NewNotifier(const AActionID: integer): IFluxNotifier;
-    function NewMainForm: IDesignComponentForm;
     function NewNamesGrid:  IDesignComponentGrid;
     function NewTestEdit:  IDesignComponentEdit;
     function NewPager: IDesignComponentPager;
@@ -65,22 +63,6 @@ begin
     .SetInt('ActionID', AActionID)
     .SetIntf('Dispatcher', fFluxDispatcher)
   ));
-end;
-
-function TApp.NewMainForm: IDesignComponentForm;
-begin
-  Result :=
-   IDesignComponentForm(DIC.Locate(IDesignComponentForm, '',
-    NewProps
-    .SetObject('Data', fMainFormData)
-    .SetIntf('CloseQueryNotifier', NewNotifier(-303))
-    .SetIntf('SizeNotifier', NewNotifier(-101))
-    .SetIntf('MoveNotifier', NewNotifier(-102))
-  ));
-
-  fFluxDispatcher.RegisterFunc(TCloseQueryFunc.Create(-303));
-  fFluxDispatcher.RegisterFunc(TSizeFunc.Create(-101, fMainFormData, NewNotifier(-400)));
-  fFluxDispatcher.RegisterFunc(TMoveFunc.Create(-102, fMainFormData));
 end;
 
 function TApp.NewNamesGrid: IDesignComponentGrid;
@@ -153,16 +135,8 @@ begin
     //[TRdxResizeFunc.ClassName]
   );
   RegApps.RegisterReactLauncher;
-
   RegRuntime.RegisterSequence('ActionID');
-
-
-  //mReg := DIC.Add(TDesignComponentPagerPageFactory, IDesignComponentFactory);
-  //mReg.InjectProp('Factory', IDIFactory);
-  //mReg.InjectProp('FluxFuncReg', IFluxFuncReg);
-  //mReg.InjectProp('ActionIDSequence', ISequence, 'ActionID');
-
-  //RegReact.RegisterDesignComponent(TDesignComponentApp, IDesignComponentApp);
+  RegReact.RegisterDesignComponent(TGUI, IDesignComponentApp);
 end;
 
 procedure TApp.BeforeLaunch;
@@ -176,12 +150,6 @@ begin
     .SetIntf('Executor', fExecutor)));
   fRenderer := IRenderer(DIC.Locate(IRenderer));
 
-  fMainFormData := TFormData.Create;
-  fMainFormData.Left := 0;
-  fMainFormData.Top := 0;
-  fMainFormData.Width := 800;
-  fMainFormData.Height := 400;
-
   fNamesGridData := TGridData.Create(TDummyGridDataProvider.Create);
   fNamesGridData.RowCount := 10;
   fNamesGridData.ColCount := 2;
@@ -193,7 +161,8 @@ begin
 
   fPagerData := TPagerData.Create;
 
-  fGUI := TGUI.Create(NewMainForm, NewNamesGrid, NewPager);
+  //fGUI := TGUI.Create(NewMainForm, NewNamesGrid, NewPager);
+  fGUI :=  IDesignComponentApp(DIC.Locate(IDesignComponentApp));
 
   fFluxDispatcher.RegisterFunc(TRenderFunc.Create(-400, fGUI, fRenderer));
   NewNotifier(-400).Notify;
