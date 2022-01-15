@@ -124,43 +124,7 @@ end;
 function TApp.NewPager: IDesignComponentPager;
 var
   mPage: IDesignComponent;
-
-  //function MakeSwitch(const ACaptions: array of String): TDesignComponentArray;
-  //var
-  //  i: integer;
-  //  mProps: IProps;
-  //begin
-  //  SetLength(Result, Length(ACaptions));
-  //  for i := 0 to High(ACaptions) do
-  //  begin
-  //    Result[i] := IDesignComponentButton(DIC.Locate(IDesignComponentButton, '',
-  //      NewProps
-  //        .SetStr(cProps.Text, ACaptions[i])
-  //        .SetInt(cProps.Place, cPlace.Elastic)
-  //        .SetIntf(cProps.ClickNotifier, NewNotifier(1000+i))));
-  //    fFluxFuncReg.RegisterFunc(TTabChangedFunc.Create(1000+i, fPagerData, NewNotifier(-400),i));
-  //  end;
-  //end;
-  //
-  //function MakePage(const AIndex: Integer): IDesignComponent;
-  //begin
-  //  Result := IDesignComponentForm(DIC.Locate(IDesignComponentForm, '',
-  //    NewProps.SetInt('Index', AIndex)));
-  //end;
-
-
 begin
-  //// better as form or just add some substitute component for IStrip ... much better
-  //MakeSwitch(['red', 'blue', 'green']);
-  //// better as form, just add as children
-  //// render just will render only page on ActiveIndex
-  //MakePage(0);
-  //MakePage(1);
-  //MakePage(2);
-  //// so pager receives 2 containers ... tabs and body and based on actual settings will
-  //// rearangge them to final result
-  //// looks like special component will be more like factory, what setup designe ... connect
-  //// data, register callbackas etc...
   Result :=
    IDesignComponentPager(DIC.Locate(IDesignComponentPager, '',
    NewProps

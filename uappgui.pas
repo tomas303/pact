@@ -53,22 +53,7 @@ type
     function DoNew(const AProps: IProps): IDesignComponent; override;
   end;
 
-  { TDesignComponentPagerPageFactory }
-
-  TDesignComponentPagerPageFactory = class(TDesignComponentFactory, IDesignComponentFactory)
-  protected
-    function DoNew(const AProps: IProps): IDesignComponent; override;
-  end;
-
 implementation
-
-{ TDesignComponentPagerPageFactory }
-
-function TDesignComponentPagerPageFactory.DoNew(const AProps: IProps): IDesignComponent;
-begin
-  //Result := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '',
-  //  NewProps.SetInt('PageIndex', PageIndex)));
-end;
 
 { TDesignComponentFactory }
 
@@ -96,27 +81,9 @@ end;
 
 function TDesignComponentPagerSwitchFactory.DoNew(const AProps: IProps): IDesignComponent;
 var
-  i: integer;
   mProps: IProps;
-  mCaptions: TStringArray;
-  mTab: IDesignComponentButton;
   mActionID: Integer;
 begin
-  {
-  Result := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader));
-  mCaptions := AProps.AsStr('Captions').Split(',');
-  for i := Low(mCaptions) to High(mCaptions) do begin
-    mActionID := ActionIDSequence.Next;
-    mProps := AProps.Clone
-      .SetStr(cProps.Text, mCaptions[i])
-      .SetInt(cProps.Place, cPlace.Elastic)
-      .SetIntf(cProps.ClickNotifier, NewNotifier(mActionID));
-    mTab := IDesignComponentButton(Factory.Locate(IDesignComponentButton, '', mProps));
-    (Result as INode).AddChild(mTab as INode);
-    FluxFuncReg.RegisterFunc(TTabChangedFunc.Create(mActionID, PagerData, NewNotifier(-400), i));
-  end;
-  }
-
   mActionID := ActionIDSequence.Next;
   mProps := AProps.Clone
     .SetInt(cProps.Place, cPlace.Elastic)
