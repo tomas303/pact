@@ -129,7 +129,7 @@ begin
    IDesignComponentPager(DIC.Locate(IDesignComponentPager, '',
    NewProps
    .SetObject('Data', fPagerData)
-   .SetIntf('SwitchFactory', IUnknown(DIC.Locate(IDesignComponentFactory, 'TDesignComponentPagerSwitchFactory')))
+   .SetIntf('SwitchFactory', IUnknown(DIC.Locate(IDesignComponentPagerSwitchFactory)))
    .SetInt(IDesignComponentPager.SwitchEdge, IDesignComponentPager.SwitchEdgeRight)
    .SetInt(IDesignComponentPager.SwitchSize, 40)
   ));
@@ -156,11 +156,6 @@ begin
 
   RegRuntime.RegisterSequence('ActionID');
 
-
-  mReg := DIC.Add(TDesignComponentPagerSwitchFactory, IDesignComponentFactory, 'TDesignComponentPagerSwitchFactory');
-  mReg.InjectProp('Factory', IDIFactory);
-  mReg.InjectProp('FluxDispatcher', IFluxDispatcher);
-  mReg.InjectProp('ActionIDSequence', ISequence, 'ActionID');
 
   //mReg := DIC.Add(TDesignComponentPagerPageFactory, IDesignComponentFactory);
   //mReg.InjectProp('Factory', IDIFactory);
