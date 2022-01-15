@@ -10,7 +10,8 @@ uses
   rea_idesigncomponent, rea_udesigncomponent, rea_udesigncomponentdata, rea_udesigncomponentfunc,
   trl_ilog, trl_idifactory, trl_iExecutor, trl_dicontainer, trl_ilauncher,
   trl_iprops, trl_imetaelement, rea_irenderer,
-  Forms, Graphics, tal_uwinfunc, rea_urenderer;
+  Forms, Graphics, tal_uwinfunc, rea_urenderer, trl_itree, rea_ibits, rea_ilayout,
+  trl_isequence;
 
 type
 
@@ -19,13 +20,14 @@ type
   TApp = class(TALApp)
   private
     fExecutor: IExecutor;
-    fFluxFuncReg: IFluxFuncReg;
+    fFluxDispatcher: IFluxDispatcher;
     fRenderer: IRenderer;
   private
     fMainFormData: TFormData;
     fNamesGridData: TGridData;
     fTestEditData: TEditData;
     fGUI: IDesignComponentApp;
+    fPagerData: TPagerData;
   private
     function NewProps: IProps;
     function NewAction(AActionID: integer): IFluxAction;
@@ -33,6 +35,7 @@ type
     function NewMainForm: IDesignComponentForm;
     function NewNamesGrid:  IDesignComponentGrid;
     function NewTestEdit:  IDesignComponentEdit;
+    function NewPager: IDesignComponentPager;
   protected
     procedure RegisterAppServices; override;
     procedure BeforeLaunch; override;
@@ -60,7 +63,7 @@ begin
   Result := IFluxNotifier(DIC.Locate(IFluxNotifier, '',
     NewProps
     .SetInt('ActionID', AActionID)
-    .SetIntf('Dispatcher', fFluxFuncReg as IFluxDispatcher)
+    .SetIntf('Dispatcher', fFluxDispatcher)
   ));
 end;
 
@@ -75,9 +78,9 @@ begin
     .SetIntf('MoveNotifier', NewNotifier(-102))
   ));
 
-  fFluxFuncReg.RegisterFunc(TCloseQueryFunc.Create(-303));
-  fFluxFuncReg.RegisterFunc(TSizeFunc.Create(-101, fMainFormData, NewNotifier(-400)));
-  fFluxFuncReg.RegisterFunc(TMoveFunc.Create(-102, fMainFormData));
+  fFluxDispatcher.RegisterFunc(TCloseQueryFunc.Create(-303));
+  fFluxDispatcher.RegisterFunc(TSizeFunc.Create(-101, fMainFormData, NewNotifier(-400)));
+  fFluxDispatcher.RegisterFunc(TMoveFunc.Create(-102, fMainFormData));
 end;
 
 function TApp.NewNamesGrid: IDesignComponentGrid;
@@ -102,8 +105,8 @@ begin
       .SetInt('LaticeRowColor', clGreen)
       .SetInt('LaticeRowSize', 2)
   ));
-  fFluxFuncReg.RegisterFunc(TGridEdTextChangedFunc.Create(-150, fNamesGridData, NewNotifier(-400)));
-  fFluxFuncReg.RegisterFunc(TGridEdKeyDownFunc.Create(-151, fNamesGridData, NewNotifier(-400)));
+  fFluxDispatcher.RegisterFunc(TGridEdTextChangedFunc.Create(-150, fNamesGridData, NewNotifier(-400)));
+  fFluxDispatcher.RegisterFunc(TGridEdKeyDownFunc.Create(-151, fNamesGridData, NewNotifier(-400)));
 end;
 
 function TApp.NewTestEdit: IDesignComponentEdit;
@@ -115,7 +118,63 @@ begin
       .SetBool('Flat', True)
       .SetIntf('TextChangedNotifier', NewNotifier(-160))
    ));
-  fFluxFuncReg.RegisterFunc(TextChangedFunc.Create(-160, fTestEditData));
+  fFluxDispatcher.RegisterFunc(TextChangedFunc.Create(-160, fTestEditData));
+end;
+
+function TApp.NewPager: IDesignComponentPager;
+var
+  mPage: IDesignComponent;
+
+  //function MakeSwitch(const ACaptions: array of String): TDesignComponentArray;
+  //var
+  //  i: integer;
+  //  mProps: IProps;
+  //begin
+  //  SetLength(Result, Length(ACaptions));
+  //  for i := 0 to High(ACaptions) do
+  //  begin
+  //    Result[i] := IDesignComponentButton(DIC.Locate(IDesignComponentButton, '',
+  //      NewProps
+  //        .SetStr(cProps.Text, ACaptions[i])
+  //        .SetInt(cProps.Place, cPlace.Elastic)
+  //        .SetIntf(cProps.ClickNotifier, NewNotifier(1000+i))));
+  //    fFluxFuncReg.RegisterFunc(TTabChangedFunc.Create(1000+i, fPagerData, NewNotifier(-400),i));
+  //  end;
+  //end;
+  //
+  //function MakePage(const AIndex: Integer): IDesignComponent;
+  //begin
+  //  Result := IDesignComponentForm(DIC.Locate(IDesignComponentForm, '',
+  //    NewProps.SetInt('Index', AIndex)));
+  //end;
+
+
+begin
+  //// better as form or just add some substitute component for IStrip ... much better
+  //MakeSwitch(['red', 'blue', 'green']);
+  //// better as form, just add as children
+  //// render just will render only page on ActiveIndex
+  //MakePage(0);
+  //MakePage(1);
+  //MakePage(2);
+  //// so pager receives 2 containers ... tabs and body and based on actual settings will
+  //// rearangge them to final result
+  //// looks like special component will be more like factory, what setup designe ... connect
+  //// data, register callbackas etc...
+  Result :=
+   IDesignComponentPager(DIC.Locate(IDesignComponentPager, '',
+   NewProps
+   .SetObject('Data', fPagerData)
+   .SetIntf('SwitchFactory', IUnknown(DIC.Locate(IDesignComponentFactory, 'TDesignComponentPagerSwitchFactory')))
+   .SetInt(IDesignComponentPager.SwitchEdge, IDesignComponentPager.SwitchEdgeRight)
+   .SetInt(IDesignComponentPager.SwitchSize, 40)
+  ));
+  mPage := IDesignComponentHeader(DIC.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'red').SetInt(cProps.Color, clRed).SetBool(cProps.Transparent, False)));
+  (Result as INode).AddChild(mPage as INode);
+  mPage := IDesignComponentHeader(DIC.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'blue').SetInt(cProps.Color, clblue).SetBool(cProps.Transparent, False)));
+  (Result as INode).AddChild(mPage as INode);
+  mPage := IDesignComponentHeader(DIC.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'green').SetInt(cProps.Color, clgreen).SetBool(cProps.Transparent, False)));
+  (Result as INode).AddChild(mPage as INode);
 end;
 
 procedure TApp.RegisterAppServices;
@@ -130,6 +189,20 @@ begin
     //[TRdxResizeFunc.ClassName]
   );
   RegApps.RegisterReactLauncher;
+
+  RegRuntime.RegisterSequence('ActionID');
+
+
+  mReg := DIC.Add(TDesignComponentPagerSwitchFactory, IDesignComponentFactory, 'TDesignComponentPagerSwitchFactory');
+  mReg.InjectProp('Factory', IDIFactory);
+  mReg.InjectProp('FluxDispatcher', IFluxDispatcher);
+  mReg.InjectProp('ActionIDSequence', ISequence, 'ActionID');
+
+  //mReg := DIC.Add(TDesignComponentPagerPageFactory, IDesignComponentFactory);
+  //mReg.InjectProp('Factory', IDIFactory);
+  //mReg.InjectProp('FluxFuncReg', IFluxFuncReg);
+  //mReg.InjectProp('ActionIDSequence', ISequence, 'ActionID');
+
   //RegReact.RegisterDesignComponent(TDesignComponentApp, IDesignComponentApp);
 end;
 
@@ -139,10 +212,9 @@ var
 begin
   inherited BeforeLaunch;
   fExecutor := IExecutor(DIC.Locate(IExecutor));
-  mDisp := IFluxDispatcher(DIC.Locate(IFluxDispatcher, '',
+  fFluxDispatcher := IFluxDispatcher(DIC.Locate(IFluxDispatcher, '',
     NewProps
     .SetIntf('Executor', fExecutor)));
-  fFluxFuncReg := mDisp as fFluxFuncReg;
   fRenderer := IRenderer(DIC.Locate(IRenderer));
 
   fMainFormData := TFormData.Create;
@@ -160,12 +232,14 @@ begin
   fTestEditData.Focused := True;
   fTestEditData.Text := 'testovaci edit';
 
-  fGUI := TGUI.Create(NewMainForm, NewNamesGrid);
+  fPagerData := TPagerData.Create;
 
-  fFluxFuncReg.RegisterFunc(TRenderFunc.Create(-400, fGUI, fRenderer));
+  fGUI := TGUI.Create(NewMainForm, NewNamesGrid, NewPager);
+
+  fFluxDispatcher.RegisterFunc(TRenderFunc.Create(-400, fGUI, fRenderer));
   NewNotifier(-400).Notify;
 
-  fFluxFuncReg.RegisterFunc(TProcessMessagesFunc.Create(-401, NewNotifier(-401)));
+  fFluxDispatcher.RegisterFunc(TProcessMessagesFunc.Create(-401, NewNotifier(-401)));
   NewNotifier(-401).Notify;
 
 end;
