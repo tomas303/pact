@@ -108,16 +108,16 @@ begin
     .SetInt(cProps.SwitchEdge, cEdge.Right)
     .SetInt(cProps.SwitchSize, 40)
   );
-  mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'red').SetInt(cProps.Color, clRed).SetBool(cProps.Transparent, False)));
+  mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps.SetStr(cProps.Caption, 'red').SetInt(cProps.Color, clRed).SetBool(cProps.Transparent, False)));
   (mPage as INode).AddChild(fHelloButton as INode);
   (mPage as INode).AddChild(fTestEdit as INode);
   (fPager as INode).AddChild(mPage as INode);
   //
-  mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'blue').SetInt(cProps.Color, clblue).SetBool(cProps.Transparent, False)));
+  mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps.SetStr(cProps.Caption, 'blue').SetInt(cProps.Color, clblue).SetBool(cProps.Transparent, False)));
   (mPage as INode).AddChild(fNamesGrid as INode);
   (fPager as INode).AddChild(mPage as INode);
   //
-  mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'green').SetInt(cProps.Color, clgreen).SetBool(cProps.Transparent, False)));
+  mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps.SetStr(cProps.Caption, 'green').SetInt(cProps.Color, clgreen).SetBool(cProps.Transparent, False)));
   (fPager as INode).AddChild(mPage as INode);
 end;
 

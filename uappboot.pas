@@ -241,7 +241,7 @@ begin
         NewProps
           .SetStr('Text', 'One')
           .SetIntf(cProps.ClickNotifier, mOneClickNotifier)),
-      ElementFactory.CreateElement(IDesignComponentHeader, NewProps.SetInt('Layout', cLayout.Horizontal),
+      ElementFactory.CreateElement(IDesignComponentStrip, NewProps.SetInt('Layout', cLayout.Horizontal),
       [
         ElementFactory.CreateElement(IDesignComponentButton,
         NewProps.SetStr('Text', 'Layout 1').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickOne)),
@@ -251,9 +251,9 @@ begin
         NewProps.SetStr('Text', 'Layout 3').SetInt('Place', cPlace.Elastic).SetInt('ActionClick', cActions.ClickThree))
       ]),
 
-      ElementFactory.CreateElement(IDesignComponentHeader, NewProps.SetInt('Layout', cLayout.Vertical),
+      ElementFactory.CreateElement(IDesignComponentStrip, NewProps.SetInt('Layout', cLayout.Vertical),
       [
-        ElementFactory.CreateElement(IDesignComponentHeader,
+        ElementFactory.CreateElement(IDesignComponentStrip,
         NewProps
         .SetStr('Title', SelfProps.AsStr(Layout.Perspective.Name))
         .SetInt('Border', 10)
