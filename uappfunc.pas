@@ -9,28 +9,48 @@ uses
 
 type
 
- { THelloButtonClickFunc }
+  { THelloButtonClickFunc }
 
- THelloButtonClickFunc = class(TDesignComponentFunc)
-  private
+  THelloButtonClickFunc = class(TDesignComponentFunc)
   protected
     procedure DoExecute(const AAction: IFluxAction); override;
-  public
-    constructor Create(AID: integer);
+  end;
+
+  { TTestKeyDownFunc }
+
+  TTestKeyDownFunc = class(TDesignComponentFunc)
+  protected
+    procedure DoExecute(const AAction: IFluxAction); override;
+  end;
+
+  { TTestTextChangedFunc }
+
+  TTestTextChangedFunc = class(TDesignComponentFunc)
+  protected
+    procedure DoExecute(const AAction: IFluxAction); override;
   end;
 
 implementation
+
+{ TTestTextChangedFunc }
+
+procedure TTestTextChangedFunc.DoExecute(const AAction: IFluxAction);
+begin
+  ShowMessage('text changed');
+end;
+
+{ TTestKeyDownFunc }
+
+procedure TTestKeyDownFunc.DoExecute(const AAction: IFluxAction);
+begin
+  ShowMessage('key down');
+end;
 
 { THelloButtonClickFunc }
 
 procedure THelloButtonClickFunc.DoExecute(const AAction: IFluxAction);
 begin
   ShowMessage('Hello');
-end;
-
-constructor THelloButtonClickFunc.Create(AID: integer);
-begin
-  inherited Create(AID);
 end;
 
 end.
