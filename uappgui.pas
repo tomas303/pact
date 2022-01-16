@@ -91,12 +91,10 @@ end;
 function TGUI.DoCompose(const AProps: IProps;
   const AChildren: TMetaElementArray): IMetaElement;
 var
-  mGrid: IMetaElement;
   mPager: IMetaElement;
 begin
-  Result := fMainForm.Compose(AProps, AChildren);
   mPager := fPager.Compose(AProps, nil);
-  (Result as INode).AddChild(mPager as INode);
+  Result := fMainForm.Compose(AProps, [mPager as IMetaElement]);
 end;
 
 end.
