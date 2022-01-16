@@ -7,7 +7,7 @@ unit uappgui;
 interface
 
 uses
-  uappdata, sysutils,
+  uappdata, uappfunc, sysutils,
   rea_udesigncomponent, rea_idesigncomponent, trl_iprops, trl_imetaelement,
   flu_iflux, rea_ibits, rea_ilayout, trl_itree, trl_idifactory, rea_udesigncomponentfunc,
   rea_udesigncomponentdata, trl_isequence, Graphics;
@@ -18,6 +18,8 @@ type
 
   TGUI = class(TDesignComponent, IDesignComponentApp)
   private
+    fActionIDSequence: ISequence;
+  private
     fMainFormData: TFormData;
     fPagerData: TPagerData;
     fNamesGridData: TGridData;
@@ -25,6 +27,7 @@ type
     fMainForm: IDesignComponent;
     fNamesGrid: IDesignComponent;
     fPager: IDesignComponent;
+    fHelloButton: IDesignComponent;
   protected
     procedure InitValues; override;
     function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
@@ -40,8 +43,12 @@ var
   mPF: IDesignComponentPagerFactory;
   mPage: IDesignComponent;
   mGF: IDesignComponentGridFactory;
+  mBF: IDesignComponentButtonFactory;
+  mBClickFunc: IFluxFunc;
 begin
   inherited InitValues;
+  fActionIDSequence := ISequence(Factory.Locate(ISequence, 'ActionID'));
+  //
   fMainFormData := TFormData.Create;
   fMainFormData.Left := 0;
   fMainFormData.Top := 0;
@@ -49,6 +56,13 @@ begin
   fMainFormData.Height := 400;
   mFF := IDesignComponentFormFactory(Factory.Locate(IDesignComponentFormFactory));
   fMainForm := mFF.New(NewProps.SetObject('Data', fMainFormData));
+  //
+  mBF := IDesignComponentButtonFactory(Factory.Locate(IDesignComponentButtonFactory));
+  mBClickFunc := THelloButtonClickFunc.Create(fActionIDSequence.Next);
+  fHelloButton := mBF.New(NewProps
+    .SetIntf(cProps.ClickFunc, mBClickFunc)
+    .SetStr(cProps.Text, 'Hello')
+  );
   //
   fNamesGridData := TGridData.Create(TDummyGridDataProvider.Create);
   fNamesGridData.RowCount := 10;
@@ -80,10 +94,13 @@ begin
     .SetInt(cProps.SwitchSize, 40)
   );
   mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'red').SetInt(cProps.Color, clRed).SetBool(cProps.Transparent, False)));
+  (mPage as INode).AddChild(fHelloButton as INode);
   (fPager as INode).AddChild(mPage as INode);
+  //
   mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'blue').SetInt(cProps.Color, clblue).SetBool(cProps.Transparent, False)));
   (mPage as INode).AddChild(fNamesGrid as INode);
   (fPager as INode).AddChild(mPage as INode);
+  //
   mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'green').SetInt(cProps.Color, clgreen).SetBool(cProps.Transparent, False)));
   (fPager as INode).AddChild(mPage as INode);
 end;
