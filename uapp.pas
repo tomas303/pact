@@ -26,14 +26,12 @@ type
     fNamesGridData: TGridData;
     fTestEditData: TEditData;
     fGUI: IDesignComponentApp;
-    fPagerData: TPagerData;
   private
     function NewProps: IProps;
     function NewAction(AActionID: integer): IFluxAction;
     function NewNotifier(const AActionID: integer): IFluxNotifier;
     function NewNamesGrid:  IDesignComponentGrid;
     function NewTestEdit:  IDesignComponentEdit;
-    function NewPager: IDesignComponentPager;
   protected
     procedure RegisterAppServices; override;
     procedure BeforeLaunch; override;
@@ -103,26 +101,6 @@ begin
   fFluxDispatcher.RegisterFunc(TextChangedFunc.Create(-160, fTestEditData));
 end;
 
-function TApp.NewPager: IDesignComponentPager;
-var
-  mPage: IDesignComponent;
-begin
-  Result :=
-   IDesignComponentPager(DIC.Locate(IDesignComponentPager, '',
-   NewProps
-   .SetObject('Data', fPagerData)
-   .SetIntf('SwitchFactory', IUnknown(DIC.Locate(IDesignComponentPagerSwitchFactory)))
-   .SetInt(IDesignComponentPager.SwitchEdge, IDesignComponentPager.SwitchEdgeRight)
-   .SetInt(IDesignComponentPager.SwitchSize, 40)
-  ));
-  mPage := IDesignComponentHeader(DIC.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'red').SetInt(cProps.Color, clRed).SetBool(cProps.Transparent, False)));
-  (Result as INode).AddChild(mPage as INode);
-  mPage := IDesignComponentHeader(DIC.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'blue').SetInt(cProps.Color, clblue).SetBool(cProps.Transparent, False)));
-  (Result as INode).AddChild(mPage as INode);
-  mPage := IDesignComponentHeader(DIC.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'green').SetInt(cProps.Color, clgreen).SetBool(cProps.Transparent, False)));
-  (Result as INode).AddChild(mPage as INode);
-end;
-
 procedure TApp.RegisterAppServices;
 var
   mReg: TDIReg;
@@ -158,8 +136,6 @@ begin
   fTestEditData := TEditData.Create;
   fTestEditData.Focused := True;
   fTestEditData.Text := 'testovaci edit';
-
-  fPagerData := TPagerData.Create;
 
   //fGUI := TGUI.Create(NewMainForm, NewNamesGrid, NewPager);
   fGUI :=  IDesignComponentApp(DIC.Locate(IDesignComponentApp));
