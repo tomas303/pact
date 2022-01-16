@@ -20,9 +20,10 @@ type
   private
     fMainFormData: TFormData;
     fPagerData: TPagerData;
+    fNamesGridData: TGridData;
   private
     fMainForm: IDesignComponent;
-    fNamesGrid: IDesignComponentGrid;
+    fNamesGrid: IDesignComponent;
     fPager: IDesignComponent;
   protected
     procedure InitValues; override;
@@ -35,9 +36,10 @@ implementation
 
 procedure TGUI.InitValues;
 var
-  mF: IDesignComponentFormFactory;
-  mP: IDesignComponentPagerFactory;
+  mFF: IDesignComponentFormFactory;
+  mPF: IDesignComponentPagerFactory;
   mPage: IDesignComponent;
+  mGF: IDesignComponentGridFactory;
 begin
   inherited InitValues;
   fMainFormData := TFormData.Create;
@@ -45,12 +47,34 @@ begin
   fMainFormData.Top := 0;
   fMainFormData.Width := 800;
   fMainFormData.Height := 400;
-  mF := IDesignComponentFormFactory(Factory.Locate(IDesignComponentFormFactory));
-  fMainForm := mF.New(NewProps.SetObject('Data', fMainFormData));
+  mFF := IDesignComponentFormFactory(Factory.Locate(IDesignComponentFormFactory));
+  fMainForm := mFF.New(NewProps.SetObject('Data', fMainFormData));
+  //
+  fNamesGridData := TGridData.Create(TDummyGridDataProvider.Create);
+  fNamesGridData.RowCount := 10;
+  fNamesGridData.ColCount := 2;
+  fNamesGridData.ReadData;
+  mGF := IDesignComponentGridFactory(Factory.Locate(IDesignComponentGridFactory));
+  fNamesGrid := mGF.New(NewProps
+    .SetObject('Data', fNamesGridData)
+    .SetInt('MMHeight', 1000)
+    .SetInt('MMWidth', 1000)
+    .SetInt(cProps.RowMMHeight, 25)
+    .SetInt(cProps.ColMMWidth, 25)
+    .SetInt(cProps.ColOddColor, clLime)
+    .SetInt(cProps.ColEvenColor, clAqua)
+    .SetInt(cProps.RowOddColor, clRed)
+    .SetInt(cProps.RowEvenColor, clYellow)
+    .SetInt(cProps.Color, clMaroon)
+    .SetInt('LaticeColColor', clRed)
+    .SetInt('LaticeColSize', 10)
+    .SetInt('LaticeRowColor', clGreen)
+    .SetInt('LaticeRowSize', 2)
+  );
   //
   fPagerData := TPagerData.Create;
-  mP := IDesignComponentPagerFactory(Factory.Locate(IDesignComponentPagerFactory));
-  fPager := mP.New(NewProps
+  mPF := IDesignComponentPagerFactory(Factory.Locate(IDesignComponentPagerFactory));
+  fPager := mPF.New(NewProps
     .SetObject('Data', fPagerData)
     .SetInt(cProps.SwitchEdge, cEdge.Right)
     .SetInt(cProps.SwitchSize, 40)
@@ -58,6 +82,7 @@ begin
   mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'red').SetInt(cProps.Color, clRed).SetBool(cProps.Transparent, False)));
   (fPager as INode).AddChild(mPage as INode);
   mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'blue').SetInt(cProps.Color, clblue).SetBool(cProps.Transparent, False)));
+  (mPage as INode).AddChild(fNamesGrid as INode);
   (fPager as INode).AddChild(mPage as INode);
   mPage := IDesignComponentHeader(Factory.Locate(IDesignComponentHeader, '', NewProps.SetStr(cProps.Caption, 'green').SetInt(cProps.Color, clgreen).SetBool(cProps.Transparent, False)));
   (fPager as INode).AddChild(mPage as INode);
@@ -72,10 +97,6 @@ begin
   Result := fMainForm.Compose(AProps, AChildren);
   mPager := fPager.Compose(AProps, nil);
   (Result as INode).AddChild(mPager as INode);
-  //mGrid := fNamesGrid.Compose(AProps, nil);
-  //(Result as INode).AddChild(mGrid as INode);
-  //mPager := fPager.Compose(AProps, nil);
-  //(Result as INode).AddChild(mPager as INode);
 end;
 
 end.

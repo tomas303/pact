@@ -23,14 +23,12 @@ type
     fFluxDispatcher: IFluxDispatcher;
     fRenderer: IRenderer;
   private
-    fNamesGridData: TGridData;
     fTestEditData: TEditData;
     fGUI: IDesignComponentApp;
   private
     function NewProps: IProps;
     function NewAction(AActionID: integer): IFluxAction;
     function NewNotifier(const AActionID: integer): IFluxNotifier;
-    function NewNamesGrid:  IDesignComponentGrid;
     function NewTestEdit:  IDesignComponentEdit;
   protected
     procedure RegisterAppServices; override;
@@ -61,32 +59,6 @@ begin
     .SetInt('ActionID', AActionID)
     .SetIntf('Dispatcher', fFluxDispatcher)
   ));
-end;
-
-function TApp.NewNamesGrid: IDesignComponentGrid;
-begin
-  Result :=
-   IDesignComponentGrid(DIC.Locate(IDesignComponentGrid, '',
-    NewProps
-      .SetObject('Data', fNamesGridData)
-      .SetIntf('EdTextChangedNotifier', NewNotifier(-150))
-      .SetIntf('EdKeyDownNotifier', NewNotifier(-151))
-      .SetInt('MMHeight', 1000)
-      .SetInt('MMWidth', 1000)
-      .SetInt(cProps.RowMMHeight, 25)
-      .SetInt(cProps.ColMMWidth, 25)
-      .SetInt(cProps.ColOddColor, clLime)
-      .SetInt(cProps.ColEvenColor, clAqua)
-      .SetInt(cProps.RowOddColor, clRed)
-      .SetInt(cProps.RowEvenColor, clYellow)
-      .SetInt(cProps.Color, clMaroon)
-      .SetInt('LaticeColColor', clRed)
-      .SetInt('LaticeColSize', 10)
-      .SetInt('LaticeRowColor', clGreen)
-      .SetInt('LaticeRowSize', 2)
-  ));
-  fFluxDispatcher.RegisterFunc(TGridEdTextChangedFunc.Create(-150, fNamesGridData, NewNotifier(-400)));
-  fFluxDispatcher.RegisterFunc(TGridEdKeyDownFunc.Create(-151, fNamesGridData, NewNotifier(-400)));
 end;
 
 function TApp.NewTestEdit: IDesignComponentEdit;
@@ -127,11 +99,6 @@ begin
     NewProps
     .SetIntf('Executor', fExecutor)));
   fRenderer := IRenderer(DIC.Locate(IRenderer));
-
-  fNamesGridData := TGridData.Create(TDummyGridDataProvider.Create);
-  fNamesGridData.RowCount := 10;
-  fNamesGridData.ColCount := 2;
-  fNamesGridData.ReadData;
 
   fTestEditData := TEditData.Create;
   fTestEditData.Focused := True;
