@@ -49,6 +49,8 @@ var
   mBClickFunc: IFluxFunc;
   mEF: IDesignComponentEditFactory;
   mEKeyDownFunc, mEKeyTextChangedFunc: IFluxFunc;
+  mSF: IDesignComponentStripFactory;
+  mStrip: IDesignComponent;
 begin
   inherited InitValues;
   fActionIDSequence := ISequence(Factory.Locate(ISequence, 'ActionID'));
@@ -109,8 +111,16 @@ begin
     .SetInt(cProps.SwitchSize, 40)
   );
   mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps.SetStr(cProps.Caption, 'red').SetInt(cProps.Color, clRed).SetBool(cProps.Transparent, False)));
-  (mPage as INode).AddChild(fHelloButton as INode);
-  (mPage as INode).AddChild(fTestEdit as INode);
+
+  mSF := IDesignComponentStripFactory(Factory.Locate(IDesignComponentStripFactory));
+  mStrip := mSF.New(NewProps
+    .SetInt(cProps.MMWidth, 400)
+    .SetInt(cProps.Place, cPlace.FixMiddle)
+    .SetInt(cProps.Layout, cLayout.Vertical)
+    );
+  (mStrip as INode).AddChild(fHelloButton as INode);
+  (mStrip as INode).AddChild(fTestEdit as INode);
+  (mPage as INode).AddChild(mStrip as INode);
   (fPager as INode).AddChild(mPage as INode);
   //
   mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps.SetStr(cProps.Caption, 'blue').SetInt(cProps.Color, clblue).SetBool(cProps.Transparent, False)));
