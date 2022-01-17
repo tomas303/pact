@@ -30,6 +30,8 @@ type
     fPager: IDesignComponent;
     fHelloButton: IDesignComponent;
     fTestEdit: IDesignComponent;
+    function NewLabEdit(const AEdge: integer; const ACaption: String; AMMWidth, AMMHeight: Integer;
+      AColor: TColor; ACapWidth, ACapHeight: Integer): IDesignComponent;
   protected
     procedure InitValues; override;
     function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
@@ -38,6 +40,25 @@ type
 implementation
 
 { TGUI }
+
+function TGUI.NewLabEdit(const AEdge: integer; const ACaption: String;
+  AMMWidth, AMMHeight: Integer; AColor: TColor; ACapWidth, ACapHeight: Integer): IDesignComponent;
+var
+  mF: IDesignComponentLabelEditFactory;
+  mProps: IProps;
+begin
+  mF := IDesignComponentLabelEditFactory(Factory.Locate(IDesignComponentLabelEditFactory));
+  mProps := NewProps
+    .SetStr(cProps.Caption, ACaption)
+    .SetInt(cProps.CaptionEdge, AEdge)
+    .SetInt(cProps.Color, AColor)
+    .SetBool(cProps.Transparent, False)
+    .SetInt(cProps.MMWidth, AMMWidth)
+    .SetInt(cProps.MMHeight, AMMHeight)
+    .SetInt(cProps.CaptionWidth, ACapWidth)
+    .SetInt(cProps.CaptionHeight, ACapHeight);
+  Result := mF.New(mProps);
+end;
 
 procedure TGUI.InitValues;
 var
@@ -127,7 +148,18 @@ begin
   (mPage as INode).AddChild(fNamesGrid as INode);
   (fPager as INode).AddChild(mPage as INode);
   //
-  mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps.SetStr(cProps.Caption, 'green').SetInt(cProps.Color, clgreen).SetBool(cProps.Transparent, False)));
+  mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps
+    .SetStr(cProps.Caption, 'green')
+    .SetInt(cProps.Color, clgreen)
+    .SetBool(cProps.Transparent, False)
+    .SetInt(cProps.Layout, cLayout.Vertical)
+  ));
+  {
+  (mPage as INode).AddChild( NewLabEdit(cEdge.Right, 'ONE', 0, 30, clYellow, 80, 0) as INode);
+  (mPage as INode).AddChild( NewLabEdit(cEdge.Right, 'TWO', 0, 30, clBlue, 80, 0) as INode);
+  }
+  (mPage as INode).AddChild( NewLabEdit(cEdge.Bottom, 'ONE', 0, 80, clYellow, 0, 30) as INode);
+  (mPage as INode).AddChild( NewLabEdit(cEdge.Bottom, 'TWO', 0, 80, clBlue, 0, 30) as INode);
   (fPager as INode).AddChild(mPage as INode);
 end;
 
