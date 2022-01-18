@@ -22,16 +22,20 @@ type
   private
     fMainFormData: TFormData;
     fPagerData: TPagerData;
-    fNamesGridData: TGridData;
+    fPersonGridData: TGridData;
     fTestEditData: TEditData;
   private
     fMainForm: IDesignComponent;
-    fNamesGrid: IDesignComponent;
+    fPersonGrid: IDesignComponent;
     fPager: IDesignComponent;
     fHelloButton: IDesignComponent;
     fTestEdit: IDesignComponent;
+    fPersonEdit: IDesignComponent;
     function NewLabEdit(const AEdge: integer; const ACaption: String; AMMWidth, AMMHeight: Integer;
       AColor: TColor; ACapWidth, ACapHeight: Integer): IDesignComponent;
+    function NewPersonEdit: IDesignComponent;
+    function NewPersonGrid: IDesignComponent;
+    function NewPerson: IDesignComponent;
   protected
     procedure InitValues; override;
     function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
@@ -49,6 +53,7 @@ var
 begin
   mF := IDesignComponentLabelEditFactory(Factory.Locate(IDesignComponentLabelEditFactory));
   mProps := NewProps
+    .SetBool(cProps.Flat, True)
     .SetStr(cProps.Caption, ACaption)
     .SetInt(cProps.CaptionEdge, AEdge)
     .SetInt(cProps.Color, AColor)
@@ -58,6 +63,58 @@ begin
     .SetInt(cProps.CaptionWidth, ACapWidth)
     .SetInt(cProps.CaptionHeight, ACapHeight);
   Result := mF.New(mProps);
+end;
+
+function TGUI.NewPersonEdit: IDesignComponent;
+var
+  mF: IDesignComponentStripFactory;
+begin
+  mF := IDesignComponentStripFactory(Factory.Locate(IDesignComponentStripFactory));
+  Result := mF.New(NewProps
+    .SetInt(cProps.MMWidth, 200)
+    .SetInt(cProps.Place, cPlace.FixBack)
+    .SetInt(cProps.Layout, cLayout.Vertical)
+    .SetInt(cProps.Border, 11)
+    .SetInt(cProps.BorderColor, clBlack)
+  );
+  (Result as INode).AddChild( NewLabEdit(cEdge.Top, 'Name', 0, 70, clAqua, 0, 30) as INode);
+  (Result as INode).AddChild( NewLabEdit(cEdge.Top, 'Surename', 0, 70, clAqua, 0, 30) as INode);
+end;
+
+function TGUI.NewPersonGrid: IDesignComponent;
+var
+  mF: IDesignComponentGridFactory;
+begin
+  mF := IDesignComponentGridFactory(Factory.Locate(IDesignComponentGridFactory));
+  Result := mF.New(NewProps
+    .SetObject('Data', fPersonGridData)
+    .SetInt('MMHeight', 1000)
+    .SetInt('MMWidth', 1000)
+    .SetInt(cProps.RowMMHeight, 25)
+    .SetInt(cProps.ColMMWidth, 25)
+    .SetInt(cProps.ColOddColor, clLime)
+    .SetInt(cProps.ColEvenColor, clAqua)
+    .SetInt(cProps.RowOddColor, clRed)
+    .SetInt(cProps.RowEvenColor, clYellow)
+    .SetInt(cProps.Color, clMaroon)
+    .SetInt('LaticeColColor', clRed)
+    .SetInt('LaticeColSize', 10)
+    .SetInt('LaticeRowColor', clGreen)
+    .SetInt('LaticeRowSize', 2)
+  );
+end;
+
+function TGUI.NewPerson: IDesignComponent;
+var
+  mF: IDesignComponentStripFactory;
+begin
+  mF := IDesignComponentStripFactory(Factory.Locate(IDesignComponentStripFactory));
+  Result := mF.New(NewProps
+    .SetInt(cProps.Layout, cLayout.Horizontal)
+    .SetInt(cProps.Place, cPlace.Elastic)
+  );
+  (Result as INode).AddChild(fPersonGrid as INode);
+  (Result as INode).AddChild(fPersonEdit as INode);
 end;
 
 procedure TGUI.InitValues;
@@ -76,6 +133,11 @@ begin
   inherited InitValues;
   fActionIDSequence := ISequence(Factory.Locate(ISequence, 'ActionID'));
   //
+  fPersonGridData := TGridData.Create(TDummyGridDataProvider.Create);
+  fPersonGridData.RowCount := 10;
+  fPersonGridData.ColCount := 2;
+  fPersonGridData.ReadData;
+  //
   fMainFormData := TFormData.Create;
   fMainFormData.Left := 0;
   fMainFormData.Top := 0;
@@ -83,6 +145,9 @@ begin
   fMainFormData.Height := 400;
   mFF := IDesignComponentFormFactory(Factory.Locate(IDesignComponentFormFactory));
   fMainForm := mFF.New(NewProps.SetObject('Data', fMainFormData));
+  //
+  fPersonEdit := NewPersonEdit;
+  fPersonGrid := NewPersonGrid;
   //
   mBF := IDesignComponentButtonFactory(Factory.Locate(IDesignComponentButtonFactory));
   mBClickFunc := THelloButtonClickFunc.Create(fActionIDSequence.Next);
@@ -100,28 +165,6 @@ begin
     .SetIntf(cProps.KeyDownFunc, mEKeyDownFunc)
     .SetIntf(cProps.TextChangedFunc, mEKeyTextChangedFunc)
     .SetStr(cProps.Text, 'Test')
-  );
-  //
-  fNamesGridData := TGridData.Create(TDummyGridDataProvider.Create);
-  fNamesGridData.RowCount := 10;
-  fNamesGridData.ColCount := 2;
-  fNamesGridData.ReadData;
-  mGF := IDesignComponentGridFactory(Factory.Locate(IDesignComponentGridFactory));
-  fNamesGrid := mGF.New(NewProps
-    .SetObject('Data', fNamesGridData)
-    .SetInt('MMHeight', 1000)
-    .SetInt('MMWidth', 1000)
-    .SetInt(cProps.RowMMHeight, 25)
-    .SetInt(cProps.ColMMWidth, 25)
-    .SetInt(cProps.ColOddColor, clLime)
-    .SetInt(cProps.ColEvenColor, clAqua)
-    .SetInt(cProps.RowOddColor, clRed)
-    .SetInt(cProps.RowEvenColor, clYellow)
-    .SetInt(cProps.Color, clMaroon)
-    .SetInt('LaticeColColor', clRed)
-    .SetInt('LaticeColSize', 10)
-    .SetInt('LaticeRowColor', clGreen)
-    .SetInt('LaticeRowSize', 2)
   );
   //
   fPagerData := TPagerData.Create;
@@ -145,7 +188,7 @@ begin
   (fPager as INode).AddChild(mPage as INode);
   //
   mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps.SetStr(cProps.Caption, 'blue').SetInt(cProps.Color, clblue).SetBool(cProps.Transparent, False)));
-  (mPage as INode).AddChild(fNamesGrid as INode);
+  (mPage as INode).AddChild(fPersonGrid as INode);
   (fPager as INode).AddChild(mPage as INode);
   //
   mPage := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps
@@ -158,8 +201,11 @@ begin
   (mPage as INode).AddChild( NewLabEdit(cEdge.Right, 'ONE', 0, 30, clYellow, 80, 0) as INode);
   (mPage as INode).AddChild( NewLabEdit(cEdge.Right, 'TWO', 0, 30, clBlue, 80, 0) as INode);
   }
+  {
   (mPage as INode).AddChild( NewLabEdit(cEdge.Bottom, 'ONE', 0, 80, clYellow, 0, 30) as INode);
   (mPage as INode).AddChild( NewLabEdit(cEdge.Bottom, 'TWO', 0, 80, clBlue, 0, 30) as INode);
+  }
+  (mPage as INode).AddChild(NewPerson as INode);
   (fPager as INode).AddChild(mPage as INode);
 end;
 
