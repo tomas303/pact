@@ -70,7 +70,10 @@ begin
     .SetInt(cProps.MMWidth, AMMWidth)
     .SetInt(cProps.MMHeight, AMMHeight)
     .SetInt(cProps.CaptionWidth, ACapWidth)
-    .SetInt(cProps.CaptionHeight, ACapHeight);
+    .SetInt(cProps.CaptionHeight, ACapHeight)
+    .SetInt(cProps.CaptionEditBorder, 1)
+    .SetInt(cProps.CaptionEditBorderColor, clLime)
+    ;
   Result := mF.New(mProps);
 end;
 
@@ -91,8 +94,9 @@ begin
     .SetInt(cProps.MMWidth, 200)
     .SetInt(cProps.Place, cPlace.FixBack)
     .SetInt(cProps.Layout, cLayout.Vertical)
-    .SetInt(cProps.Border, 5)
-    .SetInt(cProps.BorderColor, clBlack)
+    .SetInt(cProps.Color, clBlack)
+    //.SetInt(cProps.Border, 5)
+    //.SetInt(cProps.BorderColor, clBlack)
   );
   (Result as INode).AddChild( NewLabEdit(cEdge.Top, 'Name', 0, 70, clBlack, 0, 30) as INode);
   (Result as INode).AddChild( NewLabEdit(cEdge.Top, 'Surename', 0, 70, clBlack, 0, 30) as INode);
@@ -123,14 +127,12 @@ begin
 end;
 
 function TGUI.NewPerson: IDesignComponent;
-var
-  mF: IDesignComponentStripFactory;
 begin
-  mF := IDesignComponentStripFactory(Factory.Locate(IDesignComponentStripFactory));
-  Result := mF.New(NewProps
-    .SetInt(cProps.Layout, cLayout.Horizontal)
+  Result := IDesignComponentHBox(Factory.Locate(IDesignComponentHBox, '', NewProps
     .SetInt(cProps.Place, cPlace.Elastic)
-  );
+    .SetInt(cProps.Color, clBlack)
+    .SetInt(cProps.BoxLaticeSize, 10)
+  ));
   (Result as INode).AddChild(fPersonGrid as INode);
   (Result as INode).AddChild(fPersonEdit as INode);
 end;
@@ -188,6 +190,7 @@ begin
     .SetBool(cProps.Transparent, False));
   mStrip := mF.New(NewProps
     .SetInt(cProps.MMWidth, 400)
+    .SetInt(cProps.MMHeight, 200)
     .SetInt(cProps.Place, cPlace.FixMiddle)
     .SetInt(cProps.Layout, cLayout.Vertical)
     );
@@ -197,34 +200,34 @@ begin
 end;
 
 function TGUI.NewPageGrid: IDesignComponent;
+var
+  mHBox: IDesignComponent;
 begin
-  Result := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '',
+  Result := IDesignComponentVBox(Factory.Locate(IDesignComponentVBox, '',
     NewProps
     .SetStr(cProps.Caption, 'Grid')
-    .SetInt(cProps.Color, clblue)
+    .SetInt(cProps.Color, clBlack)
     .SetBool(cProps.Transparent, False)
-    .SetInt(cProps.Border, 5)
-    .SetInt(cProps.BorderColor, clBlack)
+    .SetInt(cProps.BoxLaticeSize, 20)
     ));
-  (Result as INode).AddChild(fPersonGrid as INode);
+  mHBox := IDesignComponentHBox(Factory.Locate(IDesignComponentHBox, '',
+    NewProps
+    .SetInt(cProps.Color, clBlack)
+    .SetBool(cProps.Transparent, False)
+    .SetInt(cProps.BoxLaticeSize, 50)
+    ));
+  (mHBox as INode).AddChild(fPersonGrid as INode);
+  (Result as INode).AddChild(mHBox as INode);
 end;
 
 function TGUI.NewPageGridEdit: IDesignComponent;
 begin
-  Result := IDesignComponentStrip(Factory.Locate(IDesignComponentStrip, '', NewProps
+  Result := IDesignComponentVBox(Factory.Locate(IDesignComponentVBox, '', NewProps
     .SetStr(cProps.Caption, 'Grid edit')
-    .SetInt(cProps.Color, clgreen)
+    .SetInt(cProps.Color, clBlack)
     .SetBool(cProps.Transparent, False)
-    .SetInt(cProps.Layout, cLayout.Vertical)
+    .SetInt(cProps.BoxLaticeSize, 10)
   ));
-  {
-  (mPage as INode).AddChild( NewLabEdit(cEdge.Right, 'ONE', 0, 30, clYellow, 80, 0) as INode);
-  (mPage as INode).AddChild( NewLabEdit(cEdge.Right, 'TWO', 0, 30, clBlue, 80, 0) as INode);
-  }
-  {
-  (mPage as INode).AddChild( NewLabEdit(cEdge.Bottom, 'ONE', 0, 80, clYellow, 0, 30) as INode);
-  (mPage as INode).AddChild( NewLabEdit(cEdge.Bottom, 'TWO', 0, 80, clBlue, 0, 30) as INode);
-  }
   (Result as INode).AddChild(NewPerson as INode);
 end;
 
