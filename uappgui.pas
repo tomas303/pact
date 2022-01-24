@@ -182,6 +182,7 @@ function TGUI.NewPageDemo: IDesignComponent;
 var
   mF: IDesignComponentStripFactory;
   mStrip: IDesignComponent;
+  mP: IProps;
 begin
   mF := Factory2.Locate<IDesignComponentStripFactory>;
   Result := mF.New(NewProps
@@ -196,6 +197,12 @@ begin
     );
   (mStrip as INode).AddChild(fHelloButton as INode);
   (mStrip as INode).AddChild(fTestEdit as INode);
+  mP := NewProps.SetInt(cProps.Place, cPlace.FixFront).SetInt(cProps.MMHeight, 120);
+  (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
+  (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
+  (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
+  (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
+  (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
   (Result as INode).AddChild(mStrip as INode);
 end;
 
