@@ -1,16 +1,16 @@
 unit uappgui;
 
-{$mode objfpc}{$H+}
+{$mode delphi}{$H+}
 {$modeswitch typehelpers}
 {$modeswitch multihelpers}
 
 interface
 
 uses
-  uappdata, uappfunc, sysutils,
+  uappdata, uappfunc, sysutils, dialogs,
   rea_udesigncomponent, rea_idesigncomponent, trl_iprops, trl_imetaelement,
   flu_iflux, rea_ibits, rea_ilayout, trl_itree, trl_idifactory, rea_udesigncomponentfunc,
-  rea_udesigncomponentdata, trl_isequence, Graphics;
+  rea_udesigncomponentdata, trl_isequence, Graphics, trl_udifactory;
 
 type
 
@@ -59,7 +59,7 @@ var
   mF: IDesignComponentLabelEditFactory;
   mProps: IProps;
 begin
-  mF := IDesignComponentLabelEditFactory(Factory.Locate(IDesignComponentLabelEditFactory));
+  mF := Factory2.Locate<IDesignComponentLabelEditFactory>;
   mProps := NewProps
     .SetBool(cProps.Flat, True)
     .SetStr(cProps.Caption, ACaption)
@@ -81,7 +81,7 @@ function TGUI.NewMainForm: IDesignComponent;
 var
   mF: IDesignComponentFormFactory;
 begin
-  mF := IDesignComponentFormFactory(Factory.Locate(IDesignComponentFormFactory));
+  mF := Factory2.Locate<IDesignComponentFormFactory>;
   Result := mF.New(NewProps.SetObject('Data', fMainFormData));
 end;
 
@@ -89,7 +89,7 @@ function TGUI.NewPersonEdit: IDesignComponent;
 var
   mF: IDesignComponentStripFactory;
 begin
-  mF := IDesignComponentStripFactory(Factory.Locate(IDesignComponentStripFactory));
+  mF := Factory2.Locate<IDesignComponentStripFactory>;
   Result := mF.New(NewProps
     .SetInt(cProps.MMWidth, 200)
     .SetInt(cProps.Place, cPlace.FixBack)
@@ -106,7 +106,7 @@ function TGUI.NewPersonGrid: IDesignComponent;
 var
   mF: IDesignComponentGridFactory;
 begin
-  mF := IDesignComponentGridFactory(Factory.Locate(IDesignComponentGridFactory));
+  mF := Factory2.Locate<IDesignComponentGridFactory>;
   Result := mF.New(NewProps
     .SetObject('Data', fPersonGridData)
     .SetInt('MMHeight', 1000)
@@ -128,11 +128,11 @@ end;
 
 function TGUI.NewPerson: IDesignComponent;
 begin
-  Result := IDesignComponentHBox(Factory.Locate(IDesignComponentHBox, '', NewProps
+  Result := Factory2.Locate<IDesignComponentHBox>(NewProps
     .SetInt(cProps.Place, cPlace.Elastic)
     .SetInt(cProps.Color, clBlack)
     .SetInt(cProps.BoxLaticeSize, 10)
-  ));
+  );
   (Result as INode).AddChild(fPersonGrid as INode);
   (Result as INode).AddChild(fPersonEdit as INode);
 end;
@@ -142,7 +142,7 @@ var
   mF: IDesignComponentButtonFactory;
   mBClickFunc: IFluxFunc;
 begin
-  mF := IDesignComponentButtonFactory(Factory.Locate(IDesignComponentButtonFactory));
+  mF := Factory2.Locate<IDesignComponentButtonFactory>;
   mBClickFunc := THelloButtonClickFunc.Create(fActionIDSequence.Next);
   Result := mF.New(NewProps
     .SetIntf(cProps.ClickFunc, mBClickFunc)
@@ -155,7 +155,7 @@ var
   mF: IDesignComponentEditFactory;
   mEKeyDownFunc, mEKeyTextChangedFunc: IFluxFunc;
 begin
-  mF := IDesignComponentEditFactory(Factory.Locate(IDesignComponentEditFactory));
+  mF := Factory2.Locate<IDesignComponentEditFactory>;
   mEKeyDownFunc := TTestKeyDownFunc.Create(fActionIDSequence.Next);
   mEKeyTextChangedFunc := TTestTextChangedFunc.Create(fActionIDSequence.Next);
   Result := mF.New(NewProps
@@ -170,7 +170,7 @@ function TGUI.NewPager: IDesignComponent;
 var
   mF: IDesignComponentPagerFactory;
 begin
-  mF := IDesignComponentPagerFactory(Factory.Locate(IDesignComponentPagerFactory));
+  mF := Factory2.Locate<IDesignComponentPagerFactory>;
   Result := mF.New(NewProps
     .SetObject('Data', fPagerData)
     .SetInt(cProps.SwitchEdge, cEdge.Right)
@@ -183,7 +183,7 @@ var
   mF: IDesignComponentStripFactory;
   mStrip: IDesignComponent;
 begin
-  mF := IDesignComponentStripFactory(Factory.Locate(IDesignComponentStripFactory));
+  mF := Factory2.Locate<IDesignComponentStripFactory>;
   Result := mF.New(NewProps
     .SetStr(cProps.Caption, 'Demo')
     .SetInt(cProps.Color, clRed)
@@ -203,31 +203,29 @@ function TGUI.NewPageGrid: IDesignComponent;
 var
   mHBox: IDesignComponent;
 begin
-  Result := IDesignComponentVBox(Factory.Locate(IDesignComponentVBox, '',
-    NewProps
+  Result := Factory2.Locate<IDesignComponentVBox>(NewProps
     .SetStr(cProps.Caption, 'Grid')
     .SetInt(cProps.Color, clBlack)
     .SetBool(cProps.Transparent, False)
     .SetInt(cProps.BoxLaticeSize, 20)
-    ));
-  mHBox := IDesignComponentHBox(Factory.Locate(IDesignComponentHBox, '',
-    NewProps
+    );
+  mHBox := Factory2.Locate<IDesignComponentHBox>(NewProps
     .SetInt(cProps.Color, clBlack)
     .SetBool(cProps.Transparent, False)
     .SetInt(cProps.BoxLaticeSize, 50)
-    ));
+    );
   (mHBox as INode).AddChild(fPersonGrid as INode);
   (Result as INode).AddChild(mHBox as INode);
 end;
 
 function TGUI.NewPageGridEdit: IDesignComponent;
 begin
-  Result := IDesignComponentVBox(Factory.Locate(IDesignComponentVBox, '', NewProps
+  Result := Factory2.Locate<IDesignComponentVBox>(NewProps
     .SetStr(cProps.Caption, 'Grid edit')
     .SetInt(cProps.Color, clBlack)
     .SetBool(cProps.Transparent, False)
     .SetInt(cProps.BoxLaticeSize, 10)
-  ));
+  );
   (Result as INode).AddChild(NewPerson as INode);
 end;
 
@@ -251,7 +249,7 @@ end;
 procedure TGUI.InitValues;
 begin
   inherited InitValues;
-  fActionIDSequence := ISequence(Factory.Locate(ISequence, 'ActionID'));
+  fActionIDSequence := Factory2.Locate<ISequence>('ActionID');
   NewData;
   fMainForm := NewMainForm;
   fPersonEdit := NewPersonEdit;

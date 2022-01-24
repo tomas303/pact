@@ -11,7 +11,7 @@ uses
   trl_ilog, trl_idifactory, trl_iExecutor, trl_dicontainer, trl_ilauncher,
   trl_iprops, trl_imetaelement, rea_irenderer,
   Forms, Graphics, tal_uwinfunc, rea_urenderer, trl_itree, rea_ibits, rea_ilayout,
-  trl_isequence;
+  trl_isequence, trl_udifactory;
 
 type
 
@@ -74,10 +74,9 @@ begin
 end;
 
 procedure TApp.RegisterAppServices;
-var
-  mReg: TDIReg;
 begin
   inherited;
+
   RegApps.RegisterWindowLog;
   RegReact.RegisterCommon;
   RegFlux.RegisterCommon;
