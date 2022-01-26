@@ -197,7 +197,10 @@ begin
     );
   (mStrip as INode).AddChild(fHelloButton as INode);
   (mStrip as INode).AddChild(fTestEdit as INode);
-  mP := NewProps.SetInt(cProps.Place, cPlace.FixFront).SetInt(cProps.MMHeight, 120);
+  mP := NewProps
+  .SetInt(cProps.Place, cPlace.FixFront)
+  .SetInt(cProps.MMHeight, 120)
+  .SetInt(cProps.Color, clMoneyGreen);
   (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
   (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
   (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
