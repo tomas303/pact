@@ -186,9 +186,11 @@ var
 begin
   mF := Factory2.Locate<IDesignComponentStripFactory>;
   Result := mF.New(NewProps
+    .SetInt(cProps.Layout, cLayout.Vertical)
     .SetStr(cProps.Caption, 'Demo')
     .SetInt(cProps.Color, clRed)
     .SetBool(cProps.Transparent, False));
+  {
   mStrip := mF.New(NewProps
     .SetInt(cProps.MMWidth, 400)
     .SetInt(cProps.MMHeight, 200)
@@ -197,6 +199,9 @@ begin
     );
   (mStrip as INode).AddChild(fHelloButton as INode);
   (mStrip as INode).AddChild(fTestEdit as INode);
+  (Result as INode).AddChild(mStrip as INode);
+  }
+
   mP := NewProps
   .SetInt(cProps.Place, cPlace.FixFront)
   .SetInt(cProps.MMHeight, 120)
@@ -206,7 +211,6 @@ begin
   (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
   (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
   (Result as INode).AddChild((Factory2.Locate<IDesignComponentButton>(mP)) as INode);
-  (Result as INode).AddChild(mStrip as INode);
 end;
 
 function TGUI.NewPageGrid: IDesignComponent;
