@@ -47,7 +47,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="5">
       <Unit0>
         <Filename Value="pact.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -57,25 +57,17 @@
         <IsPartOfProject Value="True"/>
       </Unit1>
       <Unit2>
-        <Filename Value="iapp.pas"/>
+        <Filename Value="uappfunc.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="uappfunc.pas"/>
+        <Filename Value="uappdata.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="uappboot.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="uappdata.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit5>
-      <Unit6>
         <Filename Value="uappgui.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit6>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
