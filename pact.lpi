@@ -27,25 +27,22 @@
         <Mode0 Name="default"/>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="6">
+    <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="rdx"/>
+        <PackageName Value="rea"/>
       </Item1>
       <Item2>
-        <PackageName Value="rea"/>
+        <PackageName Value="tal"/>
       </Item2>
       <Item3>
-        <PackageName Value="tal"/>
+        <PackageName Value="tvl"/>
       </Item3>
       <Item4>
-        <PackageName Value="tvl"/>
+        <PackageName Value="trl"/>
       </Item4>
       <Item5>
-        <PackageName Value="trl"/>
-      </Item5>
-      <Item6>
         <PackageName Value="LCL"/>
-      </Item6>
+      </Item5>
     </RequiredPackages>
     <Units Count="5">
       <Unit0>

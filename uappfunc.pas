@@ -5,7 +5,7 @@ unit uappfunc;
 interface
 
 uses
-  rea_udesigncomponentfunc, Dialogs, flu_iflux;
+  rea_udesigncomponentfunc, Dialogs, rea_iflux;
 
 type
 

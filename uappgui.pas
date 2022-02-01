@@ -9,7 +9,7 @@ interface
 uses
   uappdata, uappfunc, sysutils, dialogs,
   rea_udesigncomponent, rea_idesigncomponent, trl_iprops, trl_imetaelement,
-  flu_iflux, rea_ibits, rea_ilayout, trl_itree, trl_idifactory, rea_udesigncomponentfunc,
+  rea_iflux, rea_ibits, rea_ilayout, trl_itree, trl_idifactory, rea_udesigncomponentfunc,
   rea_udesigncomponentdata, trl_isequence, Graphics, trl_udifactory;
 
 type

@@ -26,8 +26,6 @@ begin
   inherited;
   RegApps.RegisterWindowLog;
   RegReact.RegisterCommon;
-  RegFlux.RegisterCommon;
-  RegRedux.RegisterCommon;
   RegApps.RegisterReactLauncher;
   RegRuntime.RegisterSequence('ActionID');
   RegReact.RegisterDesignComponent(TGUI, IDesignComponentApp);
