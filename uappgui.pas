@@ -10,7 +10,7 @@ uses
   uappdata, uappfunc, sysutils, dialogs,
   rea_udesigncomponent, rea_idesigncomponent, trl_iprops, trl_imetaelement,
   rea_iflux, rea_ibits, rea_ilayout, trl_itree, trl_idifactory, rea_udesigncomponentfunc,
-  rea_udesigncomponentdata, trl_isequence, Graphics, trl_udifactory;
+  rea_udesigncomponentdata, trl_isequence, Graphics, trl_udifactory, rea_irenderer;
 
 type
 
@@ -23,8 +23,15 @@ type
     fMainFormData: TFormData;
     fPagerData: TPagerData;
     fPersonGridData: TGridData;
+    fNameData: TEditData;
+    fSureNameData: TEditData;
     fTestEditData: TEditData;
+    fProvider: IGridDataProvider;
+    fMoveNotifier: IFluxNotifier;
+    fRenderNotifier: IFluxNotifier;
     procedure NewData;
+    procedure ConnectData;
+    function NewNotifier(const AActionID: integer): IFluxNotifier;
   private
     fMainForm: IDesignComponent;
     fPersonGrid: IDesignComponent;
@@ -44,6 +51,9 @@ type
     function NewPageDemo: IDesignComponent;
     function NewPageGrid: IDesignComponent;
     function NewPageGridEdit: IDesignComponent;
+    function NewMovePrevButton: IDesignComponent;
+    function NewMoveNextButton: IDesignComponent;
+    function NewLabelEdit(const ACaption: String; AData: TEditData): IDesignComponent;
   protected
     procedure InitValues; override;
     function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
@@ -98,8 +108,10 @@ begin
     //.SetInt(cProps.Border, 5)
     //.SetInt(cProps.BorderColor, clBlack)
   );
-  (Result as INode).AddChild( NewLabEdit(cEdge.Top, 'Name', 0, 70, clBlack, 0, 30) as INode);
-  (Result as INode).AddChild( NewLabEdit(cEdge.Top, 'Surename', 0, 70, clBlack, 0, 30) as INode);
+  //(Result as INode).AddChild( NewLabEdit(cEdge.Top, 'Name', 0, 70, clBlack, 0, 30) as INode);
+  //(Result as INode).AddChild( NewLabEdit(cEdge.Top, 'Surename', 0, 70, clBlack, 0, 30) as INode);
+  (Result as INode).AddChild( NewLabelEdit('Name', fNameData) as INode);
+  (Result as INode).AddChild( NewLabelEdit('Surename', fSureNameData) as INode);
 end;
 
 function TGUI.NewPersonGrid: IDesignComponent;
@@ -123,6 +135,7 @@ begin
     .SetInt('LaticeColSize', 1)
     .SetInt('LaticeRowColor', clLime)
     .SetInt('LaticeRowSize', 1)
+    .SetIntf('DataToGUI', fMoveNotifier)
   );
 end;
 
@@ -230,9 +243,17 @@ begin
     );
   (mHBox as INode).AddChild(fPersonGrid as INode);
   (Result as INode).AddChild(mHBox as INode);
+  mHBox := Factory2.Locate<IDesignComponentHBox>(NewProps
+    .SetInt(cProps.BoxLaticeSize, 10)
+    );
+  (mHBox as INode).AddChild(NewMovePrevButton as INode);
+  (mHBox as INode).AddChild(NewMoveNextButton as INode);
+  (Result as INode).AddChild(mHBox as INode);
 end;
 
 function TGUI.NewPageGridEdit: IDesignComponent;
+var
+  mHBox: IDesignComponent;
 begin
   Result := Factory2.Locate<IDesignComponentVBox>(NewProps
     .SetStr(cProps.Caption, 'Grid edit')
@@ -241,14 +262,63 @@ begin
     .SetInt(cProps.BoxLaticeSize, 10)
   );
   (Result as INode).AddChild(NewPerson as INode);
+
+  mHBox := Factory2.Locate<IDesignComponentHBox>(NewProps
+      .SetInt(cProps.BoxLaticeSize, 10)
+      );
+  (mHBox as INode).AddChild(NewMovePrevButton as INode);
+  (mHBox as INode).AddChild(NewMoveNextButton as INode);
+  (Result as INode).AddChild(mHBox as INode);
+end;
+
+function TGUI.NewMovePrevButton: IDesignComponent;
+var
+  mF: IDesignComponentButtonFactory;
+  mFunc: IFluxFunc;
+begin
+  mF := Factory2.Locate<IDesignComponentButtonFactory>;
+  mFunc := TMovePrevFunc.Create(fActionIDSequence.Next, fProvider);
+  Result := mF.New(NewProps
+    .SetIntf(cProps.ClickFunc, mFunc)
+    .SetStr(cProps.Text, 'Prev')
+  );
+end;
+
+function TGUI.NewMoveNextButton: IDesignComponent;
+var
+  mF: IDesignComponentButtonFactory;
+  mFunc: IFluxFunc;
+begin
+  mF := Factory2.Locate<IDesignComponentButtonFactory>;
+  mFunc := TMoveNextFunc.Create(fActionIDSequence.Next, fProvider);
+  Result := mF.New(NewProps
+    .SetIntf(cProps.ClickFunc, mFunc)
+    .SetStr(cProps.Text, 'Next')
+  );
+end;
+
+function TGUI.NewLabelEdit(const ACaption: String; AData: TEditData): IDesignComponent;
+var
+  mF: IDesignComponentLabelEditFactory;
+  mProps: IProps;
+begin
+  mF := Factory2.Locate<IDesignComponentLabelEditFactory>;
+  mProps := NewProps
+    .SetObject('Data', AData)
+    .SetBool(cProps.Flat, True)
+    .SetInt(cProps.CaptionEditBorder, 1)
+    .SetStr(cProps.Caption, ACaption)
+    .SetInt(cProps.CaptionEdge, cEdge.Top)
+    .SetInt(cProps.CaptionHeight, 30)
+    .SetInt(cProps.MMHeight, 70);
+  Result := mF.New(mProps);
 end;
 
 procedure TGUI.NewData;
 begin
-  fPersonGridData := TGridData.Create(TDummyGridDataProvider.Create);
+  fPersonGridData := TGridData.Create;
   fPersonGridData.RowCount := 10;
   fPersonGridData.ColCount := 2;
-  fPersonGridData.ReadData;
   //
   fMainFormData := TFormData.Create;
   fMainFormData.Left := 0;
@@ -258,13 +328,43 @@ begin
   //
   fTestEditData := TEditData.Create;
   fPagerData := TPagerData.Create;
+  //
+  fNameData := TEditData.Create;
+  fSureNameData := TEditData.Create;
+end;
+
+procedure TGUI.ConnectData;
+var
+  mDispatcher: IFluxDispatcher;
+  mFunc: IFluxFunc;
+begin
+  mDispatcher := Factory2.Locate<IFluxDispatcher>;
+  mFunc := TGridDataToGUIFunc.Create(fMoveNotifier.ActionID, fPersonGridData, fProvider, [0,1]);
+  mDispatcher.RegisterFunc(mFunc);
+  mFunc := TDataToGUIFunc.Create(fMoveNotifier.ActionID, fNameData, fProvider, 0);
+  mDispatcher.RegisterFunc(mFunc);
+  mFunc := TDataToGUIFunc.Create(fMoveNotifier.ActionID, fSureNameData, fProvider, 1);
+  mDispatcher.RegisterFunc(mFunc);
+end;
+
+function TGUI.NewNotifier(const AActionID: integer): IFluxNotifier;
+begin
+  Result := Factory2.Locate<IFluxNotifier>(NewProps.SetInt(cAction.ActionID, AActionID));
 end;
 
 procedure TGUI.InitValues;
 begin
   inherited InitValues;
   fActionIDSequence := Factory2.Locate<ISequence>('ActionID');
+  fMoveNotifier := NewNotifier(fActionIDSequence.Next);
+  fRenderNotifier := NewNotifier(cNotifyRender);
+  fProvider := Factory2.Locate<IGridDataProvider>(NewProps
+    .SetIntf('MoveNotifier', fMoveNotifier)
+    .SetIntf('RenderNotifier', fRenderNotifier)
+    );
   NewData;
+  ConnectData;
+  fMoveNotifier.Notify;
   fMainForm := NewMainForm;
   fPersonEdit := NewPersonEdit;
   fPersonGrid := NewPersonGrid;
