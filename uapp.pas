@@ -10,7 +10,8 @@ uses
   uappdata,
   trl_dicontainer,
   trl_udifactory,
-  rea_idesigncomponent;
+  rea_idesigncomponent,
+  rea_idataconnector;
 
 type
 
@@ -33,7 +34,9 @@ begin
   RegReact.RegisterCommon;
   RegApps.RegisterReactLauncher;
   RegRuntime.RegisterSequence('ActionID');
-  RegReact.RegisterDesignComponent(TGUI, IDesignComponentApp);
+
+  mReg := RegReact.RegisterDesignComponent(TGUI, IDesignComponentApp);
+  mReg.InjectProp('DataConnector', IDataConnector);
 
   mReg := DIC.Add(TDummyGridDataProvider, IGridDataProvider);
   mReg.InjectProp('Factory2', TDIFactory2);

@@ -10,7 +10,8 @@ uses
   uappdata, uappfunc, sysutils, dialogs,
   rea_udesigncomponent, rea_idesigncomponent, trl_iprops, trl_imetaelement,
   rea_iflux, rea_ibits, rea_ilayout, trl_itree, trl_idifactory, rea_udesigncomponentfunc,
-  rea_udesigncomponentdata, trl_isequence, Graphics, trl_udifactory, rea_irenderer;
+  rea_udesigncomponentdata, trl_isequence, Graphics, trl_udifactory, rea_irenderer,
+  rea_idataconnector;
 
 type
 
@@ -57,6 +58,10 @@ type
   protected
     procedure InitValues; override;
     function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
+  protected
+    fDataConnector: IDataConnector;
+  published
+    property DataConnector: IDataConnector read fDataConnector write fDataConnector;
   end;
 
 implementation
@@ -334,17 +339,10 @@ begin
 end;
 
 procedure TGUI.ConnectData;
-var
-  mDispatcher: IFluxDispatcher;
-  mFunc: IFluxFunc;
 begin
-  mDispatcher := Factory2.Locate<IFluxDispatcher>;
-  mFunc := TGridDataToGUIFunc.Create(fMoveNotifier.ActionID, fPersonGridData, fProvider, [0,1]);
-  mDispatcher.RegisterFunc(mFunc);
-  mFunc := TDataToGUIFunc.Create(fMoveNotifier.ActionID, fNameData, fProvider, 0);
-  mDispatcher.RegisterFunc(mFunc);
-  mFunc := TDataToGUIFunc.Create(fMoveNotifier.ActionID, fSureNameData, fProvider, 1);
-  mDispatcher.RegisterFunc(mFunc);
+  DataConnector.Connect(fProvider, fPersonGridData, [0,1]);
+  DataConnector.Connect(fProvider, fNameData, 0);
+  DataConnector.Connect(fProvider, fSureNameData, 1);
 end;
 
 function TGUI.NewNotifier(const AActionID: integer): IFluxNotifier;

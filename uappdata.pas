@@ -55,6 +55,7 @@ type
     property Value[Ind: integer]: string read GetValue write SetValue; default;
     function GetSilent: Boolean;
     procedure SetSilent(AValue: Boolean);
+    function GetMoveActionID: Integer;
     property Silent: Boolean read GetSilent write SetSilent;
   public
     procedure AfterConstruction; override;
@@ -171,6 +172,11 @@ end;
 procedure TDummyGridDataProvider.SetSilent(AValue: Boolean);
 begin
   fSilent := AValue;
+end;
+
+function TDummyGridDataProvider.GetMoveActionID: Integer;
+begin
+  Result := fMoveNotifier.ActionID;
 end;
 
 procedure TDummyGridDataProvider.AfterConstruction;
