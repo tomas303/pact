@@ -19,8 +19,6 @@ type
 
   TGUI = class(TDesignComponent, IDesignComponentApp)
   private
-    fActionIDSequence: ISequence;
-  private
     fMainFormData: TFormData;
     fPagerData: TPagerData;
     fPersonGridData: TGridData;
@@ -60,8 +58,10 @@ type
     function DoCompose(const AProps: IProps; const AChildren: TMetaElementArray): IMetaElement; override;
   protected
     fDataConnector: IDataConnector;
+    fSequence: ISequence;
   published
     property DataConnector: IDataConnector read fDataConnector write fDataConnector;
+    property Sequence: ISequence read fSequence write fSequence;
   end;
 
 implementation
@@ -161,7 +161,7 @@ var
   mBClickFunc: IFluxFunc;
 begin
   mF := Factory2.Locate<IDesignComponentButtonFactory>;
-  mBClickFunc := THelloButtonClickFunc.Create(fActionIDSequence.Next);
+  mBClickFunc := THelloButtonClickFunc.Create(Sequence.Next);
   Result := mF.New(NewProps
     .SetIntf(cProps.ClickFunc, mBClickFunc)
     .SetStr(cProps.Text, 'Hello')
@@ -174,8 +174,8 @@ var
   mEKeyDownFunc, mEKeyTextChangedFunc: IFluxFunc;
 begin
   mF := Factory2.Locate<IDesignComponentEditFactory>;
-  mEKeyDownFunc := TTestKeyDownFunc.Create(fActionIDSequence.Next);
-  mEKeyTextChangedFunc := TTestTextChangedFunc.Create(fActionIDSequence.Next);
+  mEKeyDownFunc := TTestKeyDownFunc.Create(Sequence.Next);
+  mEKeyTextChangedFunc := TTestTextChangedFunc.Create(Sequence.Next);
   Result := mF.New(NewProps
     .SetObject('Data', fTestEditData)
     .SetIntf(cProps.KeyDownFunc, mEKeyDownFunc)
@@ -282,7 +282,7 @@ var
   mFunc: IFluxFunc;
 begin
   mF := Factory2.Locate<IDesignComponentButtonFactory>;
-  mFunc := TMovePrevFunc.Create(fActionIDSequence.Next, fProvider);
+  mFunc := TMovePrevFunc.Create(Sequence.Next, fProvider);
   Result := mF.New(NewProps
     .SetIntf(cProps.ClickFunc, mFunc)
     .SetStr(cProps.Text, 'Prev')
@@ -295,7 +295,7 @@ var
   mFunc: IFluxFunc;
 begin
   mF := Factory2.Locate<IDesignComponentButtonFactory>;
-  mFunc := TMoveNextFunc.Create(fActionIDSequence.Next, fProvider);
+  mFunc := TMoveNextFunc.Create(Sequence.Next, fProvider);
   Result := mF.New(NewProps
     .SetIntf(cProps.ClickFunc, mFunc)
     .SetStr(cProps.Text, 'Next')
@@ -340,6 +340,7 @@ end;
 
 procedure TGUI.ConnectData;
 begin
+  //NewNotifier(Sequence.Next)
   DataConnector.Connect(fProvider, fPersonGridData, [0,1]);
   DataConnector.Connect(fProvider, fNameData, 0);
   DataConnector.Connect(fProvider, fSureNameData, 1);
@@ -353,8 +354,7 @@ end;
 procedure TGUI.InitValues;
 begin
   inherited InitValues;
-  fActionIDSequence := Factory2.Locate<ISequence>('ActionID');
-  fMoveNotifier := NewNotifier(fActionIDSequence.Next);
+  fMoveNotifier := NewNotifier(Sequence.Next);
   fRenderNotifier := NewNotifier(cNotifyRender);
   fProvider := Factory2.Locate<IGridDataProvider>(NewProps
     .SetIntf('MoveNotifier', fMoveNotifier)

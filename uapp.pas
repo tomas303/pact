@@ -11,7 +11,8 @@ uses
   trl_dicontainer,
   trl_udifactory,
   rea_idesigncomponent,
-  rea_idataconnector;
+  rea_idataconnector,
+  trl_isequence;
 
 type
 
@@ -33,10 +34,10 @@ begin
   RegApps.RegisterWindowLog;
   RegReact.RegisterCommon;
   RegApps.RegisterReactLauncher;
-  RegRuntime.RegisterSequence('ActionID');
 
   mReg := RegReact.RegisterDesignComponent(TGUI, IDesignComponentApp);
   mReg.InjectProp('DataConnector', IDataConnector);
+  mReg.InjectProp('Sequence', ISequence);
 
   mReg := DIC.Add(TDummyGridDataProvider, IGridDataProvider);
   mReg.InjectProp('Factory2', TDIFactory2);
